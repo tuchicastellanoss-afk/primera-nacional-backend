@@ -31,33 +31,43 @@ app.get('/tabla', async (req, res) => {
 
     const datos = await respuesta.json();
 
-    // Los datos de ESPN vienen en una estructura anidada. Los "aplanamos"
-    // para que sean fáciles de usar en la página web.
-    const grupo = datos.children?.[0]?.standings?.entries || [];
+    // La Primera Nacional se juega en dos zonas (Zona A y Zona B).
+    // ESPN nos manda cada zona como un "grupo" separado en datos.children,
+    // así que hay que recorrerlos TODOS, no solo el primero.
+    const grupos = datos.children || [];
 
-    const tabla = grupo.map((entrada) => {
-      const stats = {};
-      entrada.stats.forEach((s) => { stats[s.name] = s.value; });
+    const zonas = grupos.map((grupo) => {
+      const entradas = grupo.standings?.entries || [];
+
+      const equipos = entradas.map((entrada) => {
+        const stats = {};
+        entrada.stats.forEach((s) => { stats[s.name] = s.value; });
+
+        return {
+          equipo: entrada.team.displayName,
+          escudo: entrada.team.logos?.[0]?.href || null,
+          pj: stats.gamesPlayed || 0,
+          pg: stats.wins || 0,
+          pe: stats.ties || 0,
+          pp: stats.losses || 0,
+          dg: stats.pointDifferential || 0,
+          pts: stats.points || 0,
+        };
+      });
+
+      // Ordenamos por puntos, de mayor a menor
+      equipos.sort((a, b) => b.pts - a.pts);
 
       return {
-        equipo: entrada.team.displayName,
-        escudo: entrada.team.logos?.[0]?.href || null,
-        pj: stats.gamesPlayed || 0,
-        pg: stats.wins || 0,
-        pe: stats.ties || 0,
-        pp: stats.losses || 0,
-        dg: stats.pointDifferential || 0,
-        pts: stats.points || 0,
+        nombre: grupo.name || grupo.abbreviation || 'Zona',
+        equipos,
       };
     });
-
-    // Ordenamos por puntos, de mayor a menor (por si ESPN no lo manda ordenado)
-    tabla.sort((a, b) => b.pts - a.pts);
 
     res.json({
       actualizado: new Date().toISOString(),
       liga: 'Primera Nacional',
-      tabla,
+      zonas,
     });
   } catch (error) {
     console.error('Error consultando ESPN:', error.message);

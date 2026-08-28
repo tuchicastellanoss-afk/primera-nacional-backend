@@ -1,76 +1,140 @@
 // server.js
-// Servidor simple que expone la tabla de posiciones de Primera Nacional
-// usando los datos públicos que ESPN usa en su propio sitio (sin API key).
+// Servidor que expone la tabla de posiciones de Primera Nacional, con los
+// próximos 5 partidos de cada equipo, usando los datos públicos que ESPN
+// usa en su propio sitio (sin API key).
 //
 // Cómo probarlo en tu compu (si tenés Node.js instalado):
 //   npm install express node-fetch cors
 //   node server.js
 //   Abrí http://localhost:3000/tabla en el navegador
 //
-// Para subirlo gratis a internet, seguí la guía de despliegue en Render
-// que te paso en el chat.
+// Para subirlo gratis a internet, seguí la guía de despliegue en Render.
 
 const express = require('express');
 const fetch = require('node-fetch');
 const cors = require('cors');
 
 const app = express();
-app.use(cors()); // permite que tu página web le pida datos a este servidor
+app.use(cors());
 
 // Código de la Primera Nacional en el sistema de ESPN: arg.2
 const LEAGUE_ID = 'arg.2';
-const ESPN_URL = `https://site.api.espn.com/apis/v2/sports/soccer/${LEAGUE_ID}/standings`;
+const ESPN_STANDINGS_URL = `https://site.api.espn.com/apis/v2/sports/soccer/${LEAGUE_ID}/standings`;
+const ESPN_SCHEDULE_URL = (teamId) =>
+  `https://site.api.espn.com/apis/site/v2/sports/soccer/${LEAGUE_ID}/teams/${teamId}/schedule`;
 
-app.get('/tabla', async (req, res) => {
+// ============================================================
+// CACHE simple en memoria: evita golpear la API de ESPN con
+// decenas de pedidos (uno por equipo) cada vez que alguien entra
+// a la web. Se refresca solo cada 15 minutos.
+// ============================================================
+let cache = { datos: null, timestamp: 0 };
+const CACHE_DURACION_MS = 15 * 60 * 1000; // 15 minutos
+
+async function obtenerProximosPartidos(teamId) {
   try {
-    const respuesta = await fetch(ESPN_URL);
-
-    if (!respuesta.ok) {
-      throw new Error(`ESPN respondió con estado ${respuesta.status}`);
-    }
+    const respuesta = await fetch(ESPN_SCHEDULE_URL(teamId));
+    if (!respuesta.ok) return [];
 
     const datos = await respuesta.json();
+    const eventos = datos.events || [];
+    const ahora = new Date();
 
-    // La Primera Nacional se juega en dos zonas (Zona A y Zona B).
-    // ESPN nos manda cada zona como un "grupo" separado en datos.children,
-    // así que hay que recorrerlos TODOS, no solo el primero.
-    const grupos = datos.children || [];
-
-    const zonas = grupos.map((grupo) => {
-      const entradas = grupo.standings?.entries || [];
-
-      const equipos = entradas.map((entrada) => {
-        const stats = {};
-        entrada.stats.forEach((s) => { stats[s.name] = s.value; });
+    const proximos = eventos
+      .filter((ev) => new Date(ev.date) > ahora)
+      .sort((a, b) => new Date(a.date) - new Date(b.date))
+      .slice(0, 5)
+      .map((ev) => {
+        const competencia = ev.competitions?.[0];
+        const competidores = competencia?.competitors || [];
+        const rival = competidores.find((c) => String(c.team.id) !== String(teamId));
+        const local = competidores.find((c) => c.homeAway === 'home');
+        const esLocal = local && String(local.team.id) === String(teamId);
 
         return {
-          equipo: entrada.team.displayName,
-          escudo: entrada.team.logos?.[0]?.href || null,
-          pj: stats.gamesPlayed || 0,
-          pg: stats.wins || 0,
-          pe: stats.ties || 0,
-          pp: stats.losses || 0,
-          dg: stats.pointDifferential || 0,
-          pts: stats.points || 0,
+          rival: rival?.team?.shortDisplayName || rival?.team?.displayName || '?',
+          escudoRival: rival?.team?.logo || null,
+          fecha: ev.date,
+          local: !!esLocal,
         };
       });
 
-      // Ordenamos por puntos, de mayor a menor
+    return proximos;
+  } catch (error) {
+    console.error(`Error trayendo calendario del equipo ${teamId}:`, error.message);
+    return [];
+  }
+}
+
+async function construirTablaCompleta() {
+  const respuesta = await fetch(ESPN_STANDINGS_URL);
+  if (!respuesta.ok) {
+    throw new Error(`ESPN respondió con estado ${respuesta.status}`);
+  }
+
+  const datos = await respuesta.json();
+  const grupos = datos.children || [];
+
+  const zonas = await Promise.all(
+    grupos.map(async (grupo) => {
+      const entradas = grupo.standings?.entries || [];
+
+      const equipos = await Promise.all(
+        entradas.map(async (entrada) => {
+          const stats = {};
+          entrada.stats.forEach((s) => { stats[s.name] = s.value; });
+
+          const proximos = await obtenerProximosPartidos(entrada.team.id);
+
+          return {
+            equipo: entrada.team.displayName,
+            escudo: entrada.team.logos?.[0]?.href || null,
+            pj: stats.gamesPlayed || 0,
+            pg: stats.wins || 0,
+            pe: stats.ties || 0,
+            pp: stats.losses || 0,
+            dg: stats.pointDifferential || 0,
+            pts: stats.points || 0,
+            proximos,
+          };
+        })
+      );
+
       equipos.sort((a, b) => b.pts - a.pts);
 
       return {
         nombre: grupo.name || grupo.abbreviation || 'Zona',
         equipos,
       };
-    });
+    })
+  );
 
-    res.json({
-      actualizado: new Date().toISOString(),
-      liga: 'Primera Nacional',
-      zonas,
-    });
+  return {
+    actualizado: new Date().toISOString(),
+    liga: 'Primera Nacional',
+    zonas,
+  };
+}
+
+app.get('/tabla', async (req, res) => {
+  try {
+    const ahora = Date.now();
+
+    if (cache.datos && (ahora - cache.timestamp) < CACHE_DURACION_MS) {
+      return res.json(cache.datos);
+    }
+
+    const datosFrescos = await construirTablaCompleta();
+    cache = { datos: datosFrescos, timestamp: ahora };
+
+    res.json(datosFrescos);
   } catch (error) {
     console.error('Error consultando ESPN:', error.message);
+
+    if (cache.datos) {
+      return res.json(cache.datos);
+    }
+
     res.status(500).json({ error: 'No se pudo obtener la tabla en este momento' });
   }
 });

@@ -21,7 +21,7 @@ app.use(cors());
 const LEAGUE_ID = 'arg.2';
 const ESPN_STANDINGS_URL = `https://site.api.espn.com/apis/v2/sports/soccer/${LEAGUE_ID}/standings`;
 const ESPN_SCHEDULE_URL = (teamId) =>
-  `https://site.api.espn.com/apis/site/v2/sports/soccer/${LEAGUE_ID}/teams/${teamId}/schedule`;
+  `https://site.api.espn.com/apis/site/v2/sports/soccer/${LEAGUE_ID}/teams/${teamId}/schedule?fixture=true`;
 
 // ============================================================
 // CACHE simple en memoria: evita golpear la API de ESPN con

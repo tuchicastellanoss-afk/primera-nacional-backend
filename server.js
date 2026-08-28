@@ -53,7 +53,7 @@ async function obtenerProximosPartidos(teamId) {
 
         return {
           rival: rival?.team?.shortDisplayName || rival?.team?.displayName || '?',
-          escudoRival: rival?.team?.logo || null,
+          escudoRival: rival?.team?.logos?.[0]?.href || rival?.team?.logo || null,
           fecha: ev.date,
           local: !!esLocal,
         };

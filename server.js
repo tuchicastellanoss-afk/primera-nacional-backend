@@ -1,7 +1,9 @@
 // server.js
-// Servidor que expone la tabla de posiciones de Primera Nacional y, por
-// separado, los próximos 5 partidos de cada equipo (a demanda, no todos
-// juntos), usando los datos públicos que ESPN usa en su propio sitio.
+// Servidor que expone:
+//  - /tabla: posiciones y puntos, RÁPIDO (una sola consulta a ESPN)
+//  - /proximos-todos: los próximos 5 partidos de TODOS los equipos juntos,
+//    un poco más lento (consulta el calendario de cada uno), pensado para
+//    pedirse aparte y no bloquear la carga inicial de la tabla.
 //
 // Cómo probarlo en tu compu (si tenés Node.js instalado):
 //   npm install express node-fetch cors
@@ -30,17 +32,16 @@ let cacheTabla = { datos: null, timestamp: 0 };
 const CACHE_TABLA_MS = 15 * 60 * 1000; // 15 minutos
 
 // ============================================================
-// CACHE de "próximos partidos" POR EQUIPO. Cada equipo se guarda
-// por separado y solo se pide a ESPN la primera vez que alguien
-// lo consulta (cuando el usuario toca esa fila en la web), no
-// los 36 equipos de una. Así la tabla principal carga rápido.
+// CACHE de "próximos partidos" por equipo. La primera vez que se
+// pide (o cuando venció la hora de cache) se le pregunta a ESPN;
+// las siguientes veces se devuelve lo guardado, al instante.
 // ============================================================
-const cacheProximos = new Map(); // teamId -> { datos, timestamp }
-const CACHE_PROXIMOS_MS = 60 * 60 * 1000; // 1 hora (el calendario cambia poco)
+const cacheProximosPorEquipo = new Map(); // teamId -> { datos, timestamp }
+const CACHE_PROXIMOS_MS = 60 * 60 * 1000; // 1 hora
 
 async function obtenerProximosPartidos(teamId) {
   const ahora = Date.now();
-  const enCache = cacheProximos.get(teamId);
+  const enCache = cacheProximosPorEquipo.get(teamId);
 
   if (enCache && (ahora - enCache.timestamp) < CACHE_PROXIMOS_MS) {
     return enCache.datos;
@@ -73,7 +74,7 @@ async function obtenerProximosPartidos(teamId) {
         };
       });
 
-    cacheProximos.set(teamId, { datos: proximos, timestamp: ahora });
+    cacheProximosPorEquipo.set(teamId, { datos: proximos, timestamp: ahora });
     return proximos;
   } catch (error) {
     console.error(`Error trayendo calendario del equipo ${teamId}:`, error.message);
@@ -125,7 +126,7 @@ async function construirTabla() {
   };
 }
 
-// Tabla de posiciones: rápida, sin calendario, solo una consulta a ESPN
+// Tabla de posiciones: rápida, sin calendario
 app.get('/tabla', async (req, res) => {
   try {
     const ahora = Date.now();
@@ -149,12 +150,29 @@ app.get('/tabla', async (req, res) => {
   }
 });
 
-// Próximos partidos de UN equipo puntual: se pide solo cuando hace falta
-// (cuando el usuario toca esa fila en la web), no de los 36 juntos.
-app.get('/proximos/:teamId', async (req, res) => {
+// Próximos partidos de TODOS los equipos, en un solo pedido. Se llama
+// aparte de /tabla, así no la hace más lenta. La primera vez (o cada
+// hora) tarda un poco más; después es instantáneo por el cache.
+app.get('/proximos-todos', async (req, res) => {
   try {
-    const proximos = await obtenerProximosPartidos(req.params.teamId);
-    res.json({ proximos });
+    if (!cacheTabla.datos) {
+      // si todavía no se armó la tabla, la armamos para tener los IDs
+      cacheTabla = { datos: await construirTabla(), timestamp: Date.now() };
+    }
+
+    const todosLosEquipos = cacheTabla.datos.zonas.flatMap((z) => z.equipos);
+
+    const resultados = await Promise.all(
+      todosLosEquipos.map(async (equipo) => ({
+        id: equipo.id,
+        proximos: await obtenerProximosPartidos(equipo.id),
+      }))
+    );
+
+    const mapa = {};
+    resultados.forEach((r) => { mapa[r.id] = r.proximos; });
+
+    res.json({ proximosPorEquipo: mapa });
   } catch (error) {
     console.error('Error trayendo próximos partidos:', error.message);
     res.status(500).json({ error: 'No se pudieron obtener los próximos partidos' });

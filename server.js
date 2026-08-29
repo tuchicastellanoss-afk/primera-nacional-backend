@@ -1,7 +1,7 @@
 // server.js
-// Servidor que expone la tabla de posiciones de Primera Nacional, con los
-// próximos 5 partidos de cada equipo, usando los datos públicos que ESPN
-// usa en su propio sitio (sin API key).
+// Servidor que expone la tabla de posiciones de Primera Nacional y, por
+// separado, los próximos 5 partidos de cada equipo (a demanda, no todos
+// juntos), usando los datos públicos que ESPN usa en su propio sitio.
 //
 // Cómo probarlo en tu compu (si tenés Node.js instalado):
 //   npm install express node-fetch cors
@@ -24,24 +24,38 @@ const ESPN_SCHEDULE_URL = (teamId) =>
   `https://site.api.espn.com/apis/site/v2/sports/soccer/${LEAGUE_ID}/teams/${teamId}/schedule?fixture=true`;
 
 // ============================================================
-// CACHE simple en memoria: evita golpear la API de ESPN con
-// decenas de pedidos (uno por equipo) cada vez que alguien entra
-// a la web. Se refresca solo cada 15 minutos.
+// CACHE de la tabla de posiciones (rápida: una sola consulta a ESPN)
 // ============================================================
-let cache = { datos: null, timestamp: 0 };
-const CACHE_DURACION_MS = 15 * 60 * 1000; // 15 minutos
+let cacheTabla = { datos: null, timestamp: 0 };
+const CACHE_TABLA_MS = 15 * 60 * 1000; // 15 minutos
+
+// ============================================================
+// CACHE de "próximos partidos" POR EQUIPO. Cada equipo se guarda
+// por separado y solo se pide a ESPN la primera vez que alguien
+// lo consulta (cuando el usuario toca esa fila en la web), no
+// los 36 equipos de una. Así la tabla principal carga rápido.
+// ============================================================
+const cacheProximos = new Map(); // teamId -> { datos, timestamp }
+const CACHE_PROXIMOS_MS = 60 * 60 * 1000; // 1 hora (el calendario cambia poco)
 
 async function obtenerProximosPartidos(teamId) {
+  const ahora = Date.now();
+  const enCache = cacheProximos.get(teamId);
+
+  if (enCache && (ahora - enCache.timestamp) < CACHE_PROXIMOS_MS) {
+    return enCache.datos;
+  }
+
   try {
     const respuesta = await fetch(ESPN_SCHEDULE_URL(teamId));
     if (!respuesta.ok) return [];
 
     const datos = await respuesta.json();
     const eventos = datos.events || [];
-    const ahora = new Date();
+    const ahoraFecha = new Date();
 
     const proximos = eventos
-      .filter((ev) => new Date(ev.date) > ahora)
+      .filter((ev) => new Date(ev.date) > ahoraFecha)
       .sort((a, b) => new Date(a.date) - new Date(b.date))
       .slice(0, 5)
       .map((ev) => {
@@ -53,12 +67,13 @@ async function obtenerProximosPartidos(teamId) {
 
         return {
           rival: rival?.team?.shortDisplayName || rival?.team?.displayName || '?',
-          escudoRival: rival?.team?.logos?.[0]?.href || rival?.team?.logo || null,
+          escudoRival: rival?.team?.logo || rival?.team?.logos?.[0]?.href || null,
           fecha: ev.date,
           local: !!esLocal,
         };
       });
 
+    cacheProximos.set(teamId, { datos: proximos, timestamp: ahora });
     return proximos;
   } catch (error) {
     console.error(`Error trayendo calendario del equipo ${teamId}:`, error.message);
@@ -66,7 +81,7 @@ async function obtenerProximosPartidos(teamId) {
   }
 }
 
-async function construirTablaCompleta() {
+async function construirTabla() {
   const respuesta = await fetch(ESPN_STANDINGS_URL);
   if (!respuesta.ok) {
     throw new Error(`ESPN respondió con estado ${respuesta.status}`);
@@ -75,39 +90,33 @@ async function construirTablaCompleta() {
   const datos = await respuesta.json();
   const grupos = datos.children || [];
 
-  const zonas = await Promise.all(
-    grupos.map(async (grupo) => {
-      const entradas = grupo.standings?.entries || [];
+  const zonas = grupos.map((grupo) => {
+    const entradas = grupo.standings?.entries || [];
 
-      const equipos = await Promise.all(
-        entradas.map(async (entrada) => {
-          const stats = {};
-          entrada.stats.forEach((s) => { stats[s.name] = s.value; });
-
-          const proximos = await obtenerProximosPartidos(entrada.team.id);
-
-          return {
-            equipo: entrada.team.displayName,
-            escudo: entrada.team.logos?.[0]?.href || null,
-            pj: stats.gamesPlayed || 0,
-            pg: stats.wins || 0,
-            pe: stats.ties || 0,
-            pp: stats.losses || 0,
-            dg: stats.pointDifferential || 0,
-            pts: stats.points || 0,
-            proximos,
-          };
-        })
-      );
-
-      equipos.sort((a, b) => b.pts - a.pts);
+    const equipos = entradas.map((entrada) => {
+      const stats = {};
+      entrada.stats.forEach((s) => { stats[s.name] = s.value; });
 
       return {
-        nombre: grupo.name || grupo.abbreviation || 'Zona',
-        equipos,
+        id: entrada.team.id,
+        equipo: entrada.team.displayName,
+        escudo: entrada.team.logos?.[0]?.href || null,
+        pj: stats.gamesPlayed || 0,
+        pg: stats.wins || 0,
+        pe: stats.ties || 0,
+        pp: stats.losses || 0,
+        dg: stats.pointDifferential || 0,
+        pts: stats.points || 0,
       };
-    })
-  );
+    });
+
+    equipos.sort((a, b) => b.pts - a.pts);
+
+    return {
+      nombre: grupo.name || grupo.abbreviation || 'Zona',
+      equipos,
+    };
+  });
 
   return {
     actualizado: new Date().toISOString(),
@@ -116,26 +125,39 @@ async function construirTablaCompleta() {
   };
 }
 
+// Tabla de posiciones: rápida, sin calendario, solo una consulta a ESPN
 app.get('/tabla', async (req, res) => {
   try {
     const ahora = Date.now();
 
-    if (cache.datos && (ahora - cache.timestamp) < CACHE_DURACION_MS) {
-      return res.json(cache.datos);
+    if (cacheTabla.datos && (ahora - cacheTabla.timestamp) < CACHE_TABLA_MS) {
+      return res.json(cacheTabla.datos);
     }
 
-    const datosFrescos = await construirTablaCompleta();
-    cache = { datos: datosFrescos, timestamp: ahora };
+    const datosFrescos = await construirTabla();
+    cacheTabla = { datos: datosFrescos, timestamp: ahora };
 
     res.json(datosFrescos);
   } catch (error) {
     console.error('Error consultando ESPN:', error.message);
 
-    if (cache.datos) {
-      return res.json(cache.datos);
+    if (cacheTabla.datos) {
+      return res.json(cacheTabla.datos);
     }
 
     res.status(500).json({ error: 'No se pudo obtener la tabla en este momento' });
+  }
+});
+
+// Próximos partidos de UN equipo puntual: se pide solo cuando hace falta
+// (cuando el usuario toca esa fila en la web), no de los 36 juntos.
+app.get('/proximos/:teamId', async (req, res) => {
+  try {
+    const proximos = await obtenerProximosPartidos(req.params.teamId);
+    res.json({ proximos });
+  } catch (error) {
+    console.error('Error trayendo próximos partidos:', error.message);
+    res.status(500).json({ error: 'No se pudieron obtener los próximos partidos' });
   }
 });
 

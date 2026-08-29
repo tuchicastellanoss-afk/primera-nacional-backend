@@ -11,12 +11,42 @@
 //
 // Para subirlo gratis a internet, seguí la guía de despliegue en Render.
 
+const path = require('path');
 const express = require('express');
 const fetch = require('node-fetch');
 const cors = require('cors');
 
 const app = express();
 app.use(cors());
+
+// ============================================================
+// ESCUDOS PROPIOS (override)
+// ------------------------------------------------------------
+// ESPN a veces tiene cargado un escudo incorrecto o desactualizado
+// para algún equipo. Acá podés forzar el escudo correcto: se sirve
+// directamente desde este mismo servidor (carpeta /public/escudos)
+// en vez de usar el link que manda ESPN.
+//
+// Para agregar más equipos: copiá el PNG a public/escudos/ y sumá
+// una línea nueva con un fragmento (en minúsculas) del nombre del
+// equipo tal como lo devuelve ESPN.
+// ============================================================
+app.use('/escudos', express.static(path.join(__dirname, 'public', 'escudos')));
+
+const URL_BASE_PROPIA = process.env.URL_BASE_PROPIA || 'https://prrimeranacionalok.onrender.com';
+
+const ESCUDOS_OVERRIDE = [
+  { contiene: 'central norte', archivo: 'central-norte.png' },
+];
+
+function aplicarOverrideEscudo(nombreEquipo, escudoOriginal) {
+  const nombreNormalizado = (nombreEquipo || '').toLowerCase();
+  const override = ESCUDOS_OVERRIDE.find((o) => nombreNormalizado.includes(o.contiene));
+  if (override) {
+    return `${URL_BASE_PROPIA}/escudos/${override.archivo}`;
+  }
+  return escudoOriginal;
+}
 
 // Código de la Primera Nacional en el sistema de ESPN: arg.2
 const LEAGUE_ID = 'arg.2';
@@ -65,9 +95,12 @@ async function obtenerProximosPartidos(teamId) {
         const local = competidores.find((c) => c.homeAway === 'home');
         const esLocal = local && String(local.team.id) === String(teamId);
 
+        const nombreRival = rival?.team?.shortDisplayName || rival?.team?.displayName || '?';
+        const escudoRivalOriginal = rival?.team?.logo || rival?.team?.logos?.[0]?.href || null;
+
         return {
-          rival: rival?.team?.shortDisplayName || rival?.team?.displayName || '?',
-          escudoRival: rival?.team?.logo || rival?.team?.logos?.[0]?.href || null,
+          rival: nombreRival,
+          escudoRival: aplicarOverrideEscudo(nombreRival, escudoRivalOriginal),
           fecha: ev.date,
           local: !!esLocal,
         };
@@ -101,10 +134,13 @@ async function construirTablaCompleta() {
 
           const proximos = await obtenerProximosPartidos(entrada.team.id);
 
+          const nombreEquipo = entrada.team.displayName;
+          const escudoOriginal = entrada.team.logos?.[0]?.href || null;
+
           return {
             id: entrada.team.id,
-            equipo: entrada.team.displayName,
-            escudo: entrada.team.logos?.[0]?.href || null,
+            equipo: nombreEquipo,
+            escudo: aplicarOverrideEscudo(nombreEquipo, escudoOriginal),
             pj: stats.gamesPlayed || 0,
             pg: stats.wins || 0,
             pe: stats.ties || 0,

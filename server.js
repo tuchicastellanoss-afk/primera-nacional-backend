@@ -31,9 +31,19 @@ app.use(cors());
 // una línea nueva con un fragmento (en minúsculas) del nombre del
 // equipo tal como lo devuelve ESPN.
 // ============================================================
+// Se deja disponible por si hace falta para pruebas locales, pero el link
+// que se manda al frontend NO apunta acá (ver URL_BASE_ESCUDOS más abajo):
+// Render "duerme" el servicio gratuito, y si el navegador pide una imagen
+// justo cuando está dormido, esa imagen puntual tarda 30-50 segundos en
+// aparecer mientras las demás (que vienen del CDN de ESPN) cargan al toque.
 app.use('/escudos', express.static(path.join(__dirname, 'public', 'escudos')));
 
-const URL_BASE_PROPIA = process.env.URL_BASE_PROPIA || 'https://prrimeranacionalok.onrender.com';
+// Dominio donde están alojadas las imágenes de escudos corregidos.
+// Usá tu dominio de Vercel (CDN rápido, sin cold-start) subiendo el archivo
+// a /escudos/central-norte.png en la raíz de ese proyecto.
+// Se puede pisar sin tocar código: en Render → tu servicio → Environment →
+// agregá la variable URL_BASE_ESCUDOS con tu dominio real si difiere del de abajo.
+const URL_BASE_ESCUDOS = process.env.URL_BASE_ESCUDOS || 'https://primeranacionalok.vercel.app';
 
 const ESCUDOS_OVERRIDE = [
   { contiene: 'central norte', archivo: 'central-norte.png' },
@@ -43,7 +53,7 @@ function aplicarOverrideEscudo(nombreEquipo, escudoOriginal) {
   const nombreNormalizado = (nombreEquipo || '').toLowerCase();
   const override = ESCUDOS_OVERRIDE.find((o) => nombreNormalizado.includes(o.contiene));
   if (override) {
-    return `${URL_BASE_PROPIA}/escudos/${override.archivo}`;
+    return `${URL_BASE_ESCUDOS}/escudos/${override.archivo}`;
   }
   return escudoOriginal;
 }

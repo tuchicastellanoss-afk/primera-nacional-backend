@@ -122,7 +122,7 @@ a{color:var(--accent)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 10/11 · 19:58</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 10/11 · 20:20</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -247,7 +247,8 @@ const TEMPLATES = {
   red_fin:{label:'Reducido: Final',main:null,fields:[]},
   red_all:{label:'Reducido: cuadro',main:null,fields:[]},
   resumen:{label:'Resumen de la fecha',main:null,fields:[]},
-  equipos:{label:'Equipos 2027',main:null,fields:[]}
+  equipos:{label:'Equipos 2027',main:null,fields:[]},
+  arbitros:{label:'Árbitros',main:null,fields:[]}
 };
 const REAL_P1=[['Ferro','Gimnasia y Tiro'],['Atlanta','Estudiantes de Buenos Aires'],['Deportivo Morón','Colegiales'],['Temperley','Ciudad de Bolívar'],['Deportivo Madryn','Deportivo Maipú'],['Gimnasia de Jujuy','Almirante Brown'],['Colón','Midland']];
 const P1_WHEN=[['Dom 15/11','20:00'],['Sáb 14/11','15:00'],['Dom 15/11','15:00'],['Sáb 14/11','16:00'],['Sáb 14/11','19:00'],['Sáb 14/11','20:00'],['Sáb 14/11','18:00']];
@@ -898,6 +899,91 @@ function drawResumen(c,W,H,F){
     hitBox(`rs-${ix}-hs`,'Goles local',W/2-cw/2,ry,cw/2,ch,false); hitBox(`rs-${ix}-as`,'Goles visitante',W/2,ry,cw/2,ch,false);
   });
 }
+const AR_DEF=`Atlanta - Estudiantes
+Árbitro: Maximiliano Macheroni
+Asistente 1: Iván Núñez
+Asistente 2: Damián Espinoza
+Cuarto árbitro: Ramiro Maglio
+
+Temperley - Ciudad de Bolívar
+Árbitro: Pablo Giménez
+Asistente 1: Ramón Ortiz
+Asistente 2: Gonzalo Roldán
+Cuarto árbitro: Mariano Negrete
+
+Colón - F.C. Midland
+Árbitro: Juan Pablo Loustau
+Asistente 1: Iván Aliende
+Asistente 2: Juan Ricciardi
+Cuarto árbitro: Julián Beligoy
+
+Deportivo Madryn - Deportivo Maipú
+Árbitro: Bryan Ferreyra
+Asistente 1: Matías Bianchi
+Asistente 2: Joaquín Badano
+Cuarto árbitro: Juan Nebbietti
+
+Gimnasia y Esgrima (J) - Almirante Brown
+Árbitro: Yamil Possi
+Asistente 1: Maximiliano Castelli
+Asistente 2: Federico Pomi
+Cuarto árbitro: Silcan Jerez Maximiliano
+
+Deportivo Morón - Colegiales
+Árbitro: Juan Cruz Robledo
+Asistente 1: Adrián Delbarba
+Asistente 2: Uriel García Leri
+Cuarto árbitro: Julián Jerez
+
+Ferro Carril Oeste - Gimnasia y Tiro
+Árbitro: Maximiliano Manduca
+Asistente 1: Diego Martín
+Asistente 2: Federico Cano
+Cuarto árbitro: Lautaro Castagnola`;
+function parseArb(txt){
+  const out=[]; let cur=null;
+  String(txt||'').split(/\r?\n/).map(l=>l.trim()).forEach(l=>{
+    if(!l){ cur=null; return; }
+    const rm=l.match(/^([^:]{2,24}):\s*(.+)$/);
+    if(rm&&cur){ const lab=norm(rm[1]); const key=/cuarto/.test(lab)?3:/asistente?\s*1|asist.*1/.test(lab)||/^asistente?1$/.test(lab)?1:/asistente?\s*2|asist.*2/.test(lab)||/^asistente?2$/.test(lab)?2:/arbitro/.test(lab)?0:-1; if(key>=0){ cur.r[key]=rm[2].trim(); return; } }
+    const hm=l.match(/^(.+?)\s+(?:-|–|—|vs\.?)\s+(.+)$/i);
+    if(hm&&!rm){ cur={a:hm[1].trim(),b:hm[2].trim(),r:['','','','']}; out.push(cur); }
+  });
+  return out;
+}
+function arCrest(name){
+  let im=findCrest(name); if(im) return im;
+  const full=[...REAL_P1.flat(),...(S.red.p1||[]).flatMap(m=>[m.a,m.b])].filter(Boolean);
+  for(const f of full){ if(f!==name&&relName(name,f)){ const i2=findCrest(f); if(i2) return i2; } }
+  return null;
+}
+function drawArbitros(c,W,H,F){
+  const R=S.red, y=redHeader(c,W,F,'arTitle','arSub','f-arTitle','f-arSub'), bottom=H-F.bottom+10, avail=bottom-y;
+  const list=parseArb(R.arTxt==null?AR_DEF:R.arTxt);
+  if(!list.length){ if(!S.exporting){c.textAlign='center';c.fillStyle='rgba(255,255,255,.5)';c.font=`600 38px ${FN}`;c.fillText('PEGÁ EL TEXTO EN EL PANEL',W/2,y+120);} return; }
+  const n=list.length, rh=Math.min(200,avail/n), gp=Math.min(8,rh*.07), ch=rh-gp, nmS=(S.sz.arNames||100)/100, rS=(S.sz.arRoles||100)/100;
+  hitBox('','Partidos',40,y,W-80,avail,false,{ctrls:[{label:'Tamaño de los equipos',o:S.sz,k:'arNames',min:50,max:200,step:5,unit:'%',def:100},{label:'Tamaño de los árbitros',o:S.sz,k:'arRoles',min:50,max:200,step:5,unit:'%',def:100}]});
+  const LAB=['ÁRBITRO','ASISTENTE 1','ASISTENTE 2','CUARTO ÁRBITRO'];
+  list.forEach((m,i)=>{
+    const ry=y+i*rh, th=ch*.42, cs=Math.min(th*.92,70);
+    c.fillStyle='rgba(0,0,0,.42)'; rr(c,40,ry,W-80,ch,12); c.fill();
+    const tm=ry+th/2+2;
+    [[m.a,1],[m.b,2]].forEach(([name,sd])=>{
+      const left=sd===1, cx0=left?54:W-54-cs, img=arCrest(name); if(img) drawBox(c,img,cx0,tm-cs/2,cs,cs);
+      const tx=left?cx0+cs+12:cx0-12, maxW=(left?W/2-30:W/2-30)-cs-24, start=Math.min(th*.62,40)*nmS;
+      const q0=String(name||'').trim(), ft=fit(c,(resolve(q0).best?shortNm(q0):q0).toUpperCase()||' ',FD,700,maxW,1,start,start*.45);
+      c.textAlign=left?'left':'right'; c.fillStyle='#fff'; c.font=`700 ${ft.size}px ${FD}`; c.fillText(ft.lines[0]||'',tx,tm+ft.size*.33);
+    });
+    c.textAlign='center'; c.fillStyle='rgba(226,226,226,.8)'; c.font=`italic 700 ${Math.min(th*.5,30)}px ${FN}`; c.fillText('VS',W/2,tm+th*.16);
+    c.fillStyle='rgba(255,255,255,.18)'; c.fillRect(54,ry+th+2,W-108,2);
+    const rs=Math.min((ch-th)/2*.5,25)*rS, colW=(W-108)/2-8, ys=[ry+th+(ch-th)*.33,ry+th+(ch-th)*.78];
+    const pos=[[0,54,ys[0]],[3,54+(W-108)/2+8,ys[0]],[1,54,ys[1]],[2,54+(W-108)/2+8,ys[1]]];
+    pos.forEach(([ri,x0,yy])=>{
+      const v=m.r[ri]||'—'; c.textAlign='left'; c.font=`600 ${rs*.72}px ${FD}`; const lw=c.measureText(LAB[ri]+'  ').width; c.fillStyle='rgba(226,226,226,.62)'; c.fillText(LAB[ri],x0,yy);
+      const ft=fit(c,v.toUpperCase(),FD,700,colW-lw,1,rs,rs*.55); c.fillStyle='#fff'; c.font=`700 ${ft.size}px ${FD}`; c.fillText(ft.lines[0]||'',x0+lw,yy);
+    });
+  });
+}
 const stdb={db:null,
   open(){return new Promise(res=>{try{const r=indexedDB.open('taller-estado',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>{stdb.db=r.result;res(true)};r.onerror=()=>res(false)}catch(e){res(false)}})},
   get(key){return new Promise(res=>{if(!stdb.db)return res(null);try{const q=stdb.db.transaction('kv').objectStore('kv').get(key||'estado');q.onsuccess=()=>res(q.result||null);q.onerror=()=>res(null)}catch(e){res(null)}})},
@@ -1113,8 +1199,8 @@ function draw(){
   if(S.tpl==='partido'&&!S.exporting) saveCard();
   if(!S.exporting){ queueSave(); histQueue(); }
   drawPhoto(c,W,H,tint);
-  if(S.tpl==='partido') drawDark(c,W,H,S.ly.ov/100); else {drawOverlay(c,W,H,tint,S.tpl==='tabla'||isRed(S.tpl)||S.tpl==='resumen'||S.tpl==='equipos'); if(S.format!=='portada') drawHeader(c,W,F.top,currentAccount());}
-  ({noticia:drawNoticia,resultado:drawResultado,consigna:drawConsigna,vs:drawVs,tabla:drawTabla,partido:drawPartido,reducido:drawReducido,red_qf:drawReducido,red_sf:drawReducido,red_fin:drawReducido,red_all:drawReducido,resumen:drawResumen,equipos:drawEquipos})[S.tpl](c,W,H,F);
+  if(S.tpl==='partido') drawDark(c,W,H,S.ly.ov/100); else {drawOverlay(c,W,H,tint,S.tpl==='tabla'||isRed(S.tpl)||S.tpl==='resumen'||S.tpl==='equipos'||S.tpl==='arbitros'); if(S.format!=='portada') drawHeader(c,W,F.top,currentAccount());}
+  ({noticia:drawNoticia,resultado:drawResultado,consigna:drawConsigna,vs:drawVs,tabla:drawTabla,partido:drawPartido,reducido:drawReducido,red_qf:drawReducido,red_sf:drawReducido,red_fin:drawReducido,red_all:drawReducido,resumen:drawResumen,equipos:drawEquipos,arbitros:drawArbitros})[S.tpl](c,W,H,F);
   drawTexts(c,W,H);
   if(!S.exporting&&S.guide){c.save();c.strokeStyle='#ff2fd0';c.lineWidth=3;c.setLineDash([16,10]);
     if(S.guide.x){c.beginPath();c.moveTo(W/2,0);c.lineTo(W/2,H);c.stroke()} if(S.guide.y){c.beginPath();c.moveTo(0,H/2);c.lineTo(W,H/2);c.stroke()} c.restore();}
@@ -1129,7 +1215,7 @@ function buildAccounts(){
     box.appendChild(b)});
 }
 /* ---- celular: menú de diseños + botón volver ---- */
-const MOBI={noticia:['📰','Titular + escudo'],consigna:['❓','Pregunta A o B'],vs:['⚔️','Dos equipos'],partido:['⚽','Resultados del día'],tabla:['📊','Tabla de posiciones'],reducido:['🏆','Todas las instancias'],resumen:['📋','Resumen de la fecha'],equipos:['🧩','Equipos 2027']};
+const MOBI={noticia:['📰','Titular + escudo'],consigna:['❓','Pregunta A o B'],vs:['⚔️','Dos equipos'],partido:['⚽','Resultados del día'],tabla:['📊','Tabla de posiciones'],reducido:['🏆','Todas las instancias'],resumen:['📋','Resumen de la fecha'],equipos:['🧩','Equipos 2027'],arbitros:['🟨','Árbitros']};
 const isMob=()=>matchMedia('(max-width:860px)').matches;
 function mobMenu(show){ const m=document.getElementById('menuM'); if(!m) return; m.hidden=!show; document.body.style.overflow=show?'hidden':''; if(show){ mobBuild(); m.scrollTop=0; } }
 function mobBuild(){
@@ -1286,6 +1372,18 @@ function buildResumenUI(box){
   const p=document.createElement('p'); p.className='hint'; p.textContent='Acá editás los nombres, los goles y los escudos directamente. Tocá un nombre o un marcador en la vista previa para modificarlo. Si cambiás el nombre de un club ("Estudiantes de Buenos Aires" → "Estudiantes"), el escudo se mantiene.'; w.appendChild(p);
   box.appendChild(w);
 }
+function buildArbitrosUI(box){
+  const R=S.red, w=document.createElement('div'); w.style.cssText='display:flex;flex-direction:column;gap:12px';
+  if(R.arTitle==null) R.arTitle='ÁRBITROS'; if(R.arSub==null) R.arSub='Reducido · Primera instancia';
+  [['f-arTitle','Título','arTitle'],['f-arSub','Subtítulo','arSub']].forEach(([id,l,k])=>{const lab=document.createElement('label'); lab.textContent=l; const e=document.createElement('input'); e.type='text'; e.id=id; e.value=R[k]||''; e.autocomplete='off'; e.addEventListener('input',()=>{R[k]=e.value;render()}); lab.appendChild(e); w.appendChild(lab);});
+  ctl(w,'Tamaño de los textos de arriba',S.sz,'rTitle',{min:30,max:200,step:5,unit:'%',def:100});
+  const lab=document.createElement('label'); lab.textContent='Pegá acá el texto de la terna'; const ta=document.createElement('textarea'); ta.id='ar-txt'; ta.style.minHeight='320px'; ta.spellcheck=false; ta.value=R.arTxt==null?AR_DEF:R.arTxt;
+  const cnt=document.createElement('div'); cnt.className='hint'; cnt.setAttribute('role','status');
+  const upd=()=>{const n=parseArb(ta.value).length; cnt.textContent=n?`Detecté ${n} partido${n>1?'s':''}.`:'No detecté partidos. Cada partido arranca con "Local - Visitante" y sigue con las líneas "Árbitro: …", "Asistente 1: …", "Asistente 2: …", "Cuarto árbitro: …".'};
+  ta.addEventListener('input',()=>{R.arTxt=ta.value; upd(); render()}); lab.appendChild(ta); w.append(lab,cnt); upd();
+  const p=document.createElement('p'); p.className='hint'; p.textContent='Separá cada partido con una línea en blanco. Los escudos se ponen solos según el nombre del club. Podés achicar o agrandar los equipos y los árbitros tocando la tarjeta en la vista previa.'; w.appendChild(p);
+  box.appendChild(w);
+}
 function buildReducidoUI(box){
   const R=S.red, w=document.createElement('div'); w.style.cssText='display:flex;flex-direction:column;gap:12px'; box.appendChild(w);
   const MODES=[['p1','Primera instancia'],['qf','Cuartos'],['sf','Semifinales'],['fin','Final'],['all','Cuadro completo']], NAMES={f1:'Final por el primer ascenso',p1:'Primera instancia',qf:'Cuartos de final',sf:'Semifinales',fin:'Final'};
@@ -1376,6 +1474,7 @@ function buildFields0(){
   if(isRed(S.tpl)){ if(S.tpl!=='reducido') S.red.mode=PHMAP[S.tpl]; else if(!['p1','qf','sf','fin','all'].includes(S.red.mode)) S.red.mode='p1'; buildReducidoUI(box); return; }
   if(S.tpl==='resumen'){ buildResumenUI(box); return; }
   if(S.tpl==='equipos'){ buildEquiposUI(box); return; }
+  if(S.tpl==='arbitros'){ buildArbitrosUI(box); return; }
   TEMPLATES[S.tpl].fields.forEach(d=>{
     const lab=document.createElement('label'); lab.textContent=d.l;
     let el;

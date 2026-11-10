@@ -737,7 +737,7 @@ function drawReducido(c,W,H,F){
 const ABBR=[[/^estudiantes de r[ií]o cuarto$/i,'Estudiantes RC'],[/^racing de c[oó]rdoba$/i,'Racing Cba'],[/^gimnasia( y esgrima)? de mendoza$/i,'Gimnasia Mza'],[/^almirante brown$/i,'Alte. Brown'],[/^deportivo maip[uú]$/i,'Maipú'],[/^defensa y justicia$/i,'Defensa'],[/^nueva chicago$/i,'N. Chicago'],[/^chaco for ever$/i,'Chaco FE'],[/^deportivo madryn$/i,'Madryn'],[/^deportivo riestra$/i,'Riestra'],[/^club comunicaciones$/i,'Comunicaciones'],[/^brown de adrogu[eé]$/i,'Brown Adrogué'],[/^atl[eé]tico rafaela$/i,'Rafaela'],[/^san mart[ií]n de (tucum[aá]n)$/i,'San Martín (T)'],[/^san mart[ií]n de san juan$/i,'San Martín (SJ)'],[/^gimnasia de jujuy$/i,'Gimnasia Jujuy'],[/^central norte$/i,'Central Norte']];
 function shortNm(n){const f=nm(n); for(const [r,v] of ABBR) if(r.test(f)) return v; return f;}
 function drawBracket(c,W,y,bottom){
-  const R=S.red, cols=[['p1','PRIMERA INSTANCIA'],['qf','CUARTOS'],['sf','SEMIFINAL'],['fin','FINAL']], cw=244, gp=20, x0=(W-(cols.length*cw+(cols.length-1)*gp))/2, nmS=(S.sz.rnames||100)/100, note=String(R.note==null?RED_NOTE:R.note).trim(), nfs=24; let nl=[]; if(note){c.font=`600 ${nfs}px ${FN}`; nl=wrapTxt(c,note,W-200).slice(0,3);} const noteH=nl.length?nl.length*nfs*1.25+30:0, a2=bottom-y-44-noteH;
+  const R=S.red, cols=[['p1','PRIMERA INSTANCIA'],['qf','CUARTOS'],['sf','SEMIFINAL'],['fin','FINAL']], cw=244, gp=20, x0=(W-(cols.length*cw+(cols.length-1)*gp))/2, nmS=(S.sz.rnames||100)/100, note=String(R.note==null?RED_NOTE:R.note).trim(), nfs=Math.round(24*(S.sz.rnote||100)/100); let nl=[]; if(note){c.font=`600 ${nfs}px ${FN}`; nl=wrapTxt(c,note,W-200).slice(0,3);} const noteH=nl.length?nl.length*nfs*1.25+30:0, a2=bottom-y-44-noteH;
   cols.forEach(([ph,title],ci)=>{
     const x=x0+ci*(cw+gp), list=R[ph], n=list.length, slot=a2/n, bh=Math.min(slot-12,132);
     c.textAlign='center'; c.textBaseline='alphabetic'; c.font=`700 26px ${FN}`; c.fillStyle='rgba(226,226,226,.9)'; c.fillText(title,x+cw/2,y+8);
@@ -761,7 +761,7 @@ function drawBracket(c,W,y,bottom){
       });
     });
   });
-  if(nl.length){ const ny=bottom-noteH+8; c.fillStyle='rgba(0,0,0,.45)'; rr(c,60,ny,W-120,noteH-6,12); c.fill(); c.textAlign='center'; c.textBaseline='alphabetic'; c.fillStyle='rgba(240,240,240,.95)'; c.font=`600 ${nfs}px ${FN}`; nl.forEach((l,k)=>c.fillText(l,W/2,ny+26+nfs*.7+k*nfs*1.25)); }
+  if(nl.length){ const ny=bottom-noteH+8; c.fillStyle='rgba(0,0,0,.45)'; rr(c,60,ny,W-120,noteH-6,12); c.fill(); c.textAlign='center'; c.textBaseline='alphabetic'; c.fillStyle='rgba(240,240,240,.95)'; c.font=`600 ${nfs}px ${FN}`; nl.forEach((l,k)=>c.fillText(l,W/2,ny+26+nfs*.7+k*nfs*1.25)); hitBox('f-rNote','Aclaración',60,ny,W-120,noteH-6,true,{ctrls:[SZ('rnote')]}); }
 }
 const ABBR2=[[/^san mart[ií]n de tucum[aá]n$/i,'San Martín (T)'],[/^san mart[ií]n de san juan$/i,'San Martín (SJ)'],[/^san mart[ií]n de formosa$/i,'S. Martín (F)'],[/^defensores de belgrano$/i,'Def. de Belgrano'],[/^estudiantes de r[ií]o cuarto$/i,'Estudiantes RC']];
 function eqName(n){const f=nm(n); for(const [r,v] of ABBR2) if(r.test(f)) return v; return shortNm(n);}
@@ -832,20 +832,22 @@ function drawEquipos(c,W,H,F){
 var y0b=0;
 function drawResumen(c,W,H,F){
   const R=S.red, y=redHeader(c,W,F,'rsTitle','rsSub','f-rsTitle','f-rsSub'), bottom=H-F.bottom+10, avail=bottom-y;
-  const list=S.cards.filter(k=>(k.home||k.away)&&(!R.rsOnly||String(k.hs??'').trim()!==''||String(k.as??'').trim()!==''));
-  if(!list.length){ if(!S.exporting){c.textAlign='center';c.fillStyle='rgba(255,255,255,.5)';c.font=`600 38px ${FN}`;c.fillText('CARGÁ LOS PARTIDOS EN “RESULTADOS”',W/2,y+120);} return; }
+  const list=(R.rs||[]).map((k,ix)=>({k,ix})).filter(({k})=>(k.home||k.away)&&(!R.rsOnly||String(k.hs??'').trim()!==''||String(k.as??'').trim()!==''));
+  if(!list.length){ if(!S.exporting){c.textAlign='center';c.fillStyle='rgba(255,255,255,.5)';c.font=`600 38px ${FN}`;c.fillText('AGREGÁ LOS PARTIDOS EN EL PANEL',W/2,y+120);} return; }
   const n=list.length, rh=Math.min(112,avail/n), gp=Math.min(8,rh*.1), ch=rh-gp, cw=Math.min(190,(W-80)*.2), nmS=(S.sz.rsNames||100)/100;
   hitBox('','Filas',40,y,W-80,avail,false,{ctrls:[{label:'Tamaño de los nombres',o:S.sz,k:'rsNames',min:50,max:200,step:5,unit:'%',def:100}]});
-  list.forEach((k,i)=>{
+  list.forEach(({k,ix},i)=>{
     const ry=y+i*rh, mid=ry+ch/2, cs=Math.min(ch*.78,86);
     c.fillStyle='rgba(0,0,0,.42)'; rr(c,40,ry,W-80,ch,12); c.fill();
     [[k.home,1],[k.away,2]].forEach(([name,sd])=>{
-      const left=sd===1, cx0=left?54:W-54-cs, img=findCrest(name); if(img) drawBox(c,img,cx0,mid-cs/2,cs,cs);
+      const left=sd===1, cx0=left?54:W-54-cs, img=slotCrest(k,sd===1?'home':'away',sd===1?'hc':'ac'); if(img) drawBox(c,img,cx0,mid-cs/2,cs,cs);
       const tx=left?cx0+cs+14:cx0-14, maxW=(left?(W/2-cw/2-8):(W-40-(W/2+cw/2+8)))-cs-34, start=Math.min(ch*.46,42)*nmS;
-      const ft=fit(c,nm(name).toUpperCase()||' ',FD,700,maxW,1,start,start*.5), al=left?'left':'right'; c.textAlign=al; c.fillStyle='#fff'; c.font=`700 ${ft.size}px ${FD}`; c.fillText(ft.lines[0]||'',tx,mid+ft.size*.3);
+      const q0=String(name||'').trim(), ft=fit(c,(resolve(q0).best?shortNm(q0):q0).toUpperCase()||' ',FD,700,maxW,1,start,start*.5), al=left?'left':'right'; c.textAlign=al; c.fillStyle='#fff'; c.font=`700 ${ft.size}px ${FD}`; c.fillText(ft.lines[0]||'',tx,mid+ft.size*.3);
+      hitBox(`rs-${ix}-${left?'h':'a'}`,'Equipo',left?tx:tx-maxW,ry,maxW,ch,false);
     });
     const hs=String(k.hs??'').trim(), as=String(k.as??'').trim(); c.textAlign='center'; c.fillStyle='#fff';
     if(hs!==''||as!==''){const fs=Math.min(ch*.66,70); c.font=`700 ${fs}px ${FN}`; c.fillText(`${hs||'0'} - ${as||'0'}`,W/2,mid+fs*.34);} else {const fs=Math.min(ch*.4,40); c.font=`italic 700 ${fs}px ${FN}`; c.fillStyle='rgba(226,226,226,.7)'; c.fillText('VS',W/2,mid+fs*.34);}
+    hitBox(`rs-${ix}-hs`,'Goles local',W/2-cw/2,ry,cw/2,ch,false); hitBox(`rs-${ix}-as`,'Goles visitante',W/2,ry,cw/2,ch,false);
   });
 }
 const stdb={db:null,
@@ -1184,8 +1186,36 @@ function buildResumenUI(box){
   [['f-rsTitle','Título','rsTitle'],['f-rsSub','Subtítulo','rsSub']].forEach(([id,l,k])=>{const lab=document.createElement('label'); lab.textContent=l; const e=document.createElement('input'); e.type='text'; e.id=id; e.value=R[k]||''; e.autocomplete='off'; e.addEventListener('input',()=>{R[k]=e.value;render()}); lab.appendChild(e); w.appendChild(lab);});
   ctl(w,'Tamaño de los textos de arriba',S.sz,'rTitle',{min:30,max:200,step:5,unit:'%',def:100});
   chk(w,'Mostrar solo los partidos que ya tienen resultado',R,'rsOnly');
-  const p=document.createElement('p'); p.className='hint'; p.textContent='Este posteo junta todos los partidos de la tanda de "Resultados" (los de ESPN y los que agregues). Para cambiar un marcador o un club, hacelo en "Resultados". La foto de fondo es la que tengas elegida arriba.'; w.appendChild(p);
-  const cnt=document.createElement('div'); cnt.className='hint'; cnt.textContent=`Partidos en la tanda: ${S.cards.filter(k=>k.home||k.away).length}`; w.appendChild(cnt);
+  if(!R.rs) R.rs=S.cards.filter(k=>k.home||k.away).map(k=>({home:k.home,away:k.away,hs:k.hs||'',as:k.as||''}));
+  const msg=document.createElement('div'); msg.className='hint'; msg.setAttribute('role','status');
+  const wb=document.createElement('div'); wb.className='webbox'; const wh=document.createElement('h2'); wh.textContent='Traer partidos'; wb.appendChild(wh);
+  const two=document.createElement('div'); two.className='two'; const dl=document.createElement('label'); dl.textContent='Día'; const di=document.createElement('input'); di.type='date'; di.id='rsDate'; di.value=new Date().toLocaleDateString('en-CA'); dl.appendChild(di);
+  const bw=document.createElement('div'); bw.style.cssText='display:flex;align-items:flex-end'; const bE=document.createElement('button'); bE.type='button'; bE.className='ghost'; bE.style.width='100%'; bE.textContent='Traer de ESPN'; bw.appendChild(bE); two.append(dl,bw); wb.appendChild(two);
+  const key2=k=>norm(k.home)+'|'+norm(k.away);
+  bE.onclick=async()=>{ bE.disabled=true; msg.textContent='Buscando partidos…';
+    try{ const ymd=(di.value||new Date().toLocaleDateString('en-CA')).replace(/-/g,''); const r=await fetch(`${ESPN}?dates=${ymd}&limit=300`); if(!r.ok) throw new Error('http'); const evs=(await r.json()).events||[];
+      if(!evs.length){msg.textContent='ESPN no tiene partidos de la Primera Nacional ese día.'; bE.disabled=false; return}
+      let nu=0, ac=0; evs.forEach(e=>{ const c=e.competitions[0], H=c.competitors.find(t=>t.homeAway==='home'), A=c.competitors.find(t=>t.homeAway==='away'); if(!H||!A) return; const pre=e.status.type.state==='pre';
+        const d={home:nm(H.team.displayName),away:nm(A.team.displayName),hs:pre?'':String(H.score??''),as:pre?'':String(A.score??'')}; const ex=R.rs.find(k=>key2(k)===key2(d)); if(ex){ex.hs=d.hs; ex.as=d.as; ac++} else {R.rs.push(d); nu++} });
+      msg.textContent=`Listo: ${nu} partidos nuevos${ac?` y ${ac} actualizados`:''}.`; buildFields(); render();
+    }catch(err){msg.textContent='No pude traer los partidos. Probá de nuevo o cargalos a mano.'} bE.disabled=false; };
+  const bC=document.createElement('button'); bC.type='button'; bC.className='ghost'; bC.textContent='Traer de la tanda de “Resultados”';
+  bC.onclick=()=>{ let nu=0; S.cards.filter(k=>k.home||k.away).forEach(k=>{ const d={home:k.home,away:k.away,hs:k.hs||'',as:k.as||''}; const ex=R.rs.find(x=>key2(x)===key2(d)); if(ex){ex.hs=d.hs; ex.as=d.as} else {R.rs.push(d); nu++} }); msg.textContent=`Listo: ${nu} partidos nuevos desde Resultados.`; buildFields(); render(); };
+  wb.append(bC,msg); w.appendChild(wb);
+  const lb=document.createElement('div'); lb.className='webbox'; const lh=document.createElement('h2'); lh.textContent=`Partidos (${R.rs.length})`; lb.appendChild(lh);
+  R.rs.forEach((m,i)=>{
+    const card=document.createElement('div'); card.style.cssText='display:flex;flex-direction:column;gap:6px;padding:8px 0;border-top:1px solid var(--line)';
+    const row=document.createElement('div'); row.style.cssText='display:grid;grid-template-columns:1fr 64px;gap:6px;align-items:center';
+    const mk=(key,plc,id,extra)=>{const e=document.createElement('input'); e.type='text'; e.value=m[key]??''; e.placeholder=plc; e.setAttribute('aria-label',plc); e.id=id; e.autocomplete='off'; if(extra) extra(e); e.addEventListener('input',()=>{m[key]=e.value; render()}); return e};
+    const nameX=fn=>e=>{ e.setAttribute('list','crestNames'); const keep=()=>{const k=findKey(m[fn]); if(k){m['_k'+fn]=k; m['_n'+fn]=m[fn]}}; e.addEventListener('focus',keep); e.addEventListener('input',()=>setTimeout(keep,0)); };
+    row.append(mk('home','Local',`rs-${i}-h`,nameX('home')),mk('hs','Goles',`rs-${i}-hs`,e=>e.inputMode='numeric'),mk('away','Visitante',`rs-${i}-a`,nameX('away')),mk('as','Goles',`rs-${i}-as`,e=>e.inputMode='numeric'));
+    const det=document.createElement('details'); const sm=document.createElement('summary'); sm.textContent='Escudos (si querés elegirlos a mano)'; det.appendChild(sm);
+    const g2=document.createElement('div'); g2.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:6px'; [['hc','Escudo del local'],['ac','Escudo del visitante']].forEach(([k,pl])=>{const e=document.createElement('input'); e.type='text'; e.setAttribute('list','crestNames'); e.autocomplete='off'; e.placeholder=pl; e.setAttribute('aria-label',pl); e.value=m[k]||''; e.addEventListener('input',()=>{m[k]=e.value; render()}); g2.appendChild(e)}); det.appendChild(g2);
+    const del=document.createElement('button'); del.type='button'; del.className='ghost'; del.textContent='Quitar este partido'; del.onclick=()=>{R.rs.splice(i,1); buildFields(); render()};
+    card.append(row,det,del); lb.appendChild(card);
+  });
+  const add=document.createElement('button'); add.type='button'; add.className='ghost'; add.textContent='+ Agregar partido'; add.onclick=()=>{R.rs.push({home:'',away:'',hs:'',as:''}); buildFields(); render(); const e=document.getElementById(`rs-${R.rs.length-1}-h`); if(e) e.focus()}; lb.appendChild(add); w.appendChild(lb);
+  const p=document.createElement('p'); p.className='hint'; p.textContent='Acá editás los nombres, los goles y los escudos directamente. Tocá un nombre o un marcador en la vista previa para modificarlo. Si cambiás el nombre de un club ("Estudiantes de Buenos Aires" → "Estudiantes"), el escudo se mantiene.'; w.appendChild(p);
   box.appendChild(w);
 }
 function buildReducidoUI(box){
@@ -1193,7 +1223,7 @@ function buildReducidoUI(box){
   const MODES=[['p1','Primera instancia'],['qf','Cuartos'],['sf','Semifinales'],['fin','Final'],['all','Cuadro completo']], NAMES={p1:'Primera instancia',qf:'Cuartos de final',sf:'Semifinales',fin:'Final'};
   const ttl=document.createElement('div'); ttl.className='chips'; ttl.setAttribute('role','group'); ttl.setAttribute('aria-label','Instancia del Reducido');
   MODES.forEach(([k,lb])=>{const b=document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=lb; b.setAttribute('aria-pressed',k===R.mode); b.onclick=()=>{R.mode=k; buildFields(); render()}; ttl.appendChild(b)}); w.appendChild(ttl);
-  if(R.mode==='all'){ const nl=document.createElement('label'); nl.textContent='Aclaración debajo del cuadro'; const na=document.createElement('textarea'); na.style.minHeight='70px'; na.value=R.note==null?RED_NOTE:R.note; na.addEventListener('input',()=>{R.note=na.value; render()}); nl.appendChild(na); w.appendChild(nl); }
+  if(R.mode==='all'){ const nl=document.createElement('label'); nl.textContent='Aclaración debajo del cuadro'; const na=document.createElement('textarea'); na.id='f-rNote'; na.style.minHeight='70px'; na.value=R.note==null?RED_NOTE:R.note; na.addEventListener('input',()=>{R.note=na.value; render()}); nl.appendChild(na); w.appendChild(nl); }
   [['f-rTitle','Título','title'],['f-rSub','Subtítulo','sub']].forEach(([id,l,k])=>{const lab=document.createElement('label'); lab.textContent=l; const e=document.createElement('input'); e.type='text'; e.id=id; e.value=(k==='sub'&&R.subs&&R.subs[R.mode]!=null)?R.subs[R.mode]:(R[k]||''); e.autocomplete='off'; e.addEventListener('input',()=>{R[k]=e.value; if(k==='sub'&&R.subs) R.subs[R.mode]=e.value; render()}); lab.appendChild(e); w.appendChild(lab);});
   const det=document.createElement('details'); const sm=document.createElement('summary'); sm.textContent='Cómo funciona el Reducido (reglamento)'; det.appendChild(sm);
   const dd=document.createElement('div'); dd.className='hint'; dd.innerHTML='<b>Participan 15 equipos:</b> del 2.º al 8.º de cada zona (14) y el perdedor de la final por el primer ascenso.<br><b>Primera instancia:</b> un solo partido, en cancha del mejor ubicado: 2ºA-8ºB, 2ºB-8ºA, 3ºA-7ºB, 3ºB-7ºA, 4ºA-6ºB, 4ºB-6ºA y 5ºA-5ºB. Si hay empate, avanza el mejor ubicado de su zona.<br><b>Cuartos:</b> los 7 ganadores + el perdedor de la final (entra como 1.º) se ordenan en una tabla general. Cruces: 1º-8º, 2º-7º, 3º-6º, 4º-5º, ida y vuelta, con ventaja deportiva.<br><b>Semifinales:</b> otra tabla con los 4 ganadores: 1º-4º y 2º-3º, ida y vuelta.<br><b>Final:</b> ida y vuelta; si siguen igualados en puntos y diferencia de gol, definen por penales. El ganador asciende.<br>Las posiciones de cada tabla las definís vos: cargá los equipos y mové los cruces como corresponda.'; det.appendChild(dd); w.appendChild(det);

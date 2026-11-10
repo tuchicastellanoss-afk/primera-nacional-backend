@@ -1,0 +1,3 @@
+Subir estas carpetas/archivos al repo existente (primera-nacional-backend):
+public/, netlify/, netlify.toml
+No toca server.js ni package.json.

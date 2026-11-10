@@ -360,7 +360,10 @@ function nm(name){const r=resolve(name);return r.best&&!r.alias?r.best.label:Str
   document.addEventListener('focusin',e=>{const el=e.target; if(!isNm(el)) return; el._pk=findKey(el.value); el._pv=el.value;},true);
   document.addEventListener('input',e=>{const el=e.target; if(!isNm(el)) return; setTimeout(()=>{
     const v=String(el.value||'').trim(), k=findKey(v);
-    if(k){ if(!(S.ly.alias&&S.ly.alias[norm(v)])){ el._pk=k; el._pv=v; } return; }
+    if(k){ const cand=candidates().find(c=>c.slug===k), nv=norm(v), al=S.ly.alias=S.ly.alias||{};
+      if(cand&&nv===norm(cand.label)){ if(al[nv]){ delete al[nv]; resCache.clear(); persist(); render(); } }
+      else if(nv&&!al[nv]){ al[nv]=k; resCache.clear(); persist(); render(); }
+      el._pk=k; el._pv=v; return; }
     if(el._pk&&v.length>2&&rel(v,el._pv)){ S.ly.alias=S.ly.alias||{}; S.ly.alias[norm(v)]=el._pk; resCache.clear(); persist(); render(); }
   },0);},true);
 })();
@@ -746,7 +749,7 @@ function drawReducido(c,W,H,F){
     else {const fs=Math.min(ch*.4,big?110:48); c.font=`italic 700 ${fs}px ${FN}`; c.fillStyle='rgba(226,226,226,.7)'; c.fillText('VS',W/2,mid-off+fs*.34); hitBox(`r-${ph}-${i}-as`,'Goles del primero',W/2-fs,mid-fs*.7,fs,fs*1.2,false); hitBox(`r-${ph}-${i}-bs`,'Goles del segundo',W/2,mid-fs*.7,fs,fs*1.2,false);}
   });
 }
-const ABBR=[[/^estudiantes de r[ií]o cuarto$/i,'Estudiantes RC'],[/^racing de c[oó]rdoba$/i,'Racing Cba'],[/^gimnasia( y esgrima)? de mendoza$/i,'Gimnasia Mza'],[/^almirante brown$/i,'Alte. Brown'],[/^deportivo maip[uú]$/i,'Maipú'],[/^defensa y justicia$/i,'Defensa'],[/^nueva chicago$/i,'N. Chicago'],[/^chaco for ever$/i,'Chaco FE'],[/^deportivo madryn$/i,'Madryn'],[/^deportivo riestra$/i,'Riestra'],[/^club comunicaciones$/i,'Comunicaciones'],[/^brown de adrogu[eé]$/i,'Brown Adrogué'],[/^atl[eé]tico rafaela$/i,'Rafaela'],[/^san mart[ií]n de (tucum[aá]n)$/i,'San Martín (T)'],[/^san mart[ií]n de san juan$/i,'San Martín (SJ)'],[/^gimnasia de jujuy$/i,'Gimnasia Jujuy'],[/^central norte$/i,'Central Norte']];
+const ABBR=[[/^estudiantes de r[ií]o cuarto$/i,'Estudiantes RC'],[/^estudiantes de buenos aires$/i,'Estudiantes BA'],[/^racing de c[oó]rdoba$/i,'Racing Cba'],[/^gimnasia( y esgrima)? de mendoza$/i,'Gimnasia Mza'],[/^almirante brown$/i,'Alte. Brown'],[/^deportivo maip[uú]$/i,'Maipú'],[/^defensa y justicia$/i,'Defensa'],[/^nueva chicago$/i,'N. Chicago'],[/^chaco for ever$/i,'Chaco FE'],[/^deportivo madryn$/i,'Madryn'],[/^deportivo riestra$/i,'Riestra'],[/^club comunicaciones$/i,'Comunicaciones'],[/^brown de adrogu[eé]$/i,'Brown Adrogué'],[/^atl[eé]tico rafaela$/i,'Rafaela'],[/^san mart[ií]n de (tucum[aá]n)$/i,'San Martín (T)'],[/^san mart[ií]n de san juan$/i,'San Martín (SJ)'],[/^gimnasia de jujuy$/i,'Gimnasia Jujuy'],[/^central norte$/i,'Central Norte']];
 function shortNm(n){const f=nm(n); for(const [r,v] of ABBR) if(r.test(f)) return v; return f;}
 function drawBracket(c,W,y,bottom){
   const R=S.red, cols=[['p1','PRIMERA INSTANCIA'],['qf','CUARTOS'],['sf','SEMIFINAL'],['fin','FINAL']], cw=244, gp=20, x0=(W-(cols.length*cw+(cols.length-1)*gp))/2, nmS=(S.sz.rnames||100)/100, note=String(R.note==null?RED_NOTE:R.note).trim(), nfs=Math.round(24*(S.sz.rnote||100)/100); let nl=[]; if(note){c.font=`600 ${nfs}px ${FN}`; nl=wrapTxt(c,note,W-200).slice(0,3);} const noteH=nl.length?nl.length*nfs*1.25+30:0, a2=bottom-y-44-noteH;

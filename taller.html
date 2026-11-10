@@ -340,6 +340,7 @@ let resV=0; const resCache=new Map();
 function resolve(name){
   const q=norm(name); if(!q) return {best:null,top:[]};
   if(/escalada|unidos/.test(q)) return {best:null,top:[]};
+  const al=S.ly&&S.ly.alias&&S.ly.alias[q]; if(al){ const cc=candidates().find(c=>c.slug===al); if(cc) return {best:cc,top:[cc],alias:true}; }
   const ck=resV+':'+q; if(resCache.has(ck)) return resCache.get(ck);
   const sc=candidates().map(c=>({c,s:Math.max(...c.names.map(n=>sim(q,n)))})).sort((a,b)=>b.s-a.s);
   const a=sc[0], b=sc[1];
@@ -351,7 +352,18 @@ function findCrest(name){const r=resolve(name);return r.best&&r.best.has?crestIm
 function relName(a,b){const t=x=>String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().split(/[^a-z0-9]+/).filter(w=>w&&w!=='de'&&w!=='del'&&w!=='la'),A=t(a),B=t(b); if(!A.length||!B.length) return false; return A.every(w=>B.includes(w))||B.every(w=>A.includes(w))}
 function slotCrest(m,fn,crk){ const cr=String(m[crk]||'').trim(); if(cr) return findCrest(cr); const k=findKey(m[fn]); if(k) return crestImg.get(k)||null; const mk=m['_k'+fn]; if(mk&&String(m[fn]||'').trim()&&relName(m[fn],m['_n'+fn])) return crestImg.get(mk)||null; return null }
 function findKey(name){const r=resolve(name);return r.best&&r.best.has?r.best.slug:null}
-function nm(name){const r=resolve(name);return r.best?r.best.label:String(name||'')}
+function nm(name){const r=resolve(name);return r.best&&!r.alias?r.best.label:String(name||'')}
+/* Alias aprendidos: si editás el nombre de un club ya reconocido ("Estudiantes de Buenos Aires" → "Estudiantes"), el escudo se mantiene en todos los diseños */
+(function(){
+  const isNm=el=>el&&(el.tagName==='INPUT'||el.tagName==='TEXTAREA')&&(el.getAttribute('list')==='crestNames'||(el.closest&&el.closest('#qe')));
+  const rel=(a,b)=>{const t=x=>String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().split(/[^a-z0-9]+/).filter(w=>w&&w!=='de'&&w!=='del'&&w!=='la'),A=t(a),B=t(b); return A.length&&B.length&&(A.every(w=>B.includes(w))||B.every(w=>A.includes(w)))};
+  document.addEventListener('focusin',e=>{const el=e.target; if(!isNm(el)) return; el._pk=findKey(el.value); el._pv=el.value;},true);
+  document.addEventListener('input',e=>{const el=e.target; if(!isNm(el)) return; setTimeout(()=>{
+    const v=String(el.value||'').trim(), k=findKey(v);
+    if(k){ if(!(S.ly.alias&&S.ly.alias[norm(v)])){ el._pk=k; el._pv=v; } return; }
+    if(el._pk&&v.length>2&&rel(v,el._pv)){ S.ly.alias=S.ly.alias||{}; S.ly.alias[norm(v)]=el._pk; resCache.clear(); persist(); render(); }
+  },0);},true);
+})();
 function dominant2(key){
   if(tintCache.has(key)) return tintCache.get(key);
   const img = crestImg.get(key); let out={dark:null,bright:null};

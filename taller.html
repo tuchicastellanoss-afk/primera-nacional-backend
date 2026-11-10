@@ -122,7 +122,7 @@ a{color:var(--accent)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 10/11 · 19:40</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 10/11 · 19:58</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -393,17 +393,21 @@ function nm(name){const r=resolve(name);return r.best&&!r.alias?r.best.label:Str
 function dominant2(key){
   if(tintCache.has(key)) return tintCache.get(key);
   const img = crestImg.get(key); let out={dark:null,bright:null};
-  if(img){
+  if(!img) return out; /* escudo todavía no cargó: no guardar el resultado vacío */
+  {
     const c=document.createElement('canvas'); c.width=c.height=48;
     const x=c.getContext('2d',{willReadFrequently:true}); x.drawImage(img,0,0,48,48);
-    const d=x.getImageData(0,0,48,48).data; let r=0,g=0,b=0,w=0;
-    for(let i=0;i<d.length;i+=4){
-      const a=d[i+3]; if(a<200) continue;
-      const mx=Math.max(d[i],d[i+1],d[i+2]), mn=Math.min(d[i],d[i+1],d[i+2]);
-      if(mx<50) continue; const sat=(mx-mn)/mx; if(sat<.35) continue;
-      const wt=sat*sat; r+=d[i]*wt; g+=d[i+1]*wt; b+=d[i+2]*wt; w+=wt;
+    const d=x.getImageData(0,0,48,48).data;
+    for(const minSat of [.35,.18,.08]){
+      let r=0,g=0,b=0,w=0;
+      for(let i=0;i<d.length;i+=4){
+        const a=d[i+3]; if(a<200) continue;
+        const mx=Math.max(d[i],d[i+1],d[i+2]), mn=Math.min(d[i],d[i+1],d[i+2]);
+        if(mx<50) continue; const sat=(mx-mn)/mx; if(sat<minSat) continue;
+        const wt=sat*sat; r+=d[i]*wt; g+=d[i+1]*wt; b+=d[i+2]*wt; w+=wt;
+      }
+      if(w>0){r/=w;g/=w;b/=w; const mx=Math.max(r,g,b), k=Math.min(1,150/mx), kb=255/mx; out={dark:rgbHex(r*k,g*k,b*k),bright:rgbHex(r*kb,g*kb,b*kb)}; break;}
     }
-    if(w>0){r/=w;g/=w;b/=w; const mx=Math.max(r,g,b), k=Math.min(1,150/mx), kb=255/mx; out={dark:rgbHex(r*k,g*k,b*k),bright:rgbHex(r*kb,g*kb,b*kb)};}
   }
   tintCache.set(key,out); return out;
 }

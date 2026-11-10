@@ -240,7 +240,7 @@ function defEq(){return {
   slots:[{l:'Ascenso B Metro (reducido)',c:''},{l:'Ascenso Federal A (reválida)',c:''},{l:'Reducido PN: quedan 14 de estos 16',c:'Godoy Cruz, Tristán Suárez, Ferro, Gimnasia y Tiro, Atlanta, Estudiantes, Morón, Colegiales, Temperley, Ciudad de Bolívar, Madryn, Maipú, Gimnasia de Jujuy, Almirante Brown, Colón, Midland'}],
   lg:true};}
 function defRed(){return {v:2,eqTitle:'PRIMERA NACIONAL',eqSub:'Así viene la temporada 2027',eq:defEq(),mode:'p1',title:'REDUCIDO',sub:'Primera instancia',f1loser:'',rsTitle:'RESULTADOS',rsSub:'Fecha 28 · Primera Nacional',rsOnly:false,
-  f1show:true, f1:[{ra:'',rb:'',a:'Godoy Cruz',b:'Tristán Suárez',as:'',bs:'',pa:'',pb:'',d:'Dom 15/11',h:'17:00'}],
+  f1show:true, f1title:'FINAL POR EL PRIMER ASCENSO', f1:[{ra:'',rb:'',a:'Godoy Cruz',b:'Tristán Suárez',as:'',bs:'',pa:'',pb:'',d:'Dom 15/11',h:'17:00'}],
   p1:REAL_P1.map(([a,b],ix)=>({...mkM('','','p1'),a,b,d:P1_WHEN[ix][0],h:P1_WHEN[ix][1]})), qf:[[1,8],[2,7],[3,6],[4,5]].map(([a,b])=>mkM(a+'º',b+'º','qf')), sf:[[1,4],[2,3]].map(([a,b])=>mkM(a+'º',b+'º','sf')), fin:[mkM('1º','2º','fin')],
   subs:{p1:'Primera instancia',qf:'Segunda instancia · Cuartos de final',sf:'Tercera instancia · Semifinales',fin:'Final',all:'Cuadro completo'}};}
 
@@ -711,30 +711,35 @@ function drawTabla(c,W,H,F){
 }
 const isNum=v=>String(v??'').trim()!==''&&!isNaN(+v);
 function winSide(m){ if(!isNum(m.as)||!isNum(m.bs)) return 0; return +m.as>+m.bs?1:(+m.bs>+m.as?2:0); }
-function redHeader(c,W,F,tk,sk,idT,idS){
-  const R=S.red; let y=F.top+58*2+84; c.textAlign='center'; c.textBaseline='alphabetic';
+function redHeader(c,W,F,tk,sk,idT,idS,y0,k){
+  k=k||1; const R=S.red; let y=y0!=null?y0:F.top+58*2+84; c.textAlign='center'; c.textBaseline='alphabetic';
   const t=(R[tk]||'').toUpperCase();
-  if(t){const ft=fit(c,t,FD,700,W-120,2,92,48,'rTitle'); ft.lines.forEach((l,i)=>glowText(c,l,W/2,y+i*ft.size*1.02,'#fff',22)); hitLines(c,idT,'Título',ft.lines,W/2,y,ft.size,ft.size*1.02,'center',false,{ctrls:[SZ('rTitle')]}); y+=(ft.lines.length-1)*ft.size*1.02;}
-  if((R[sk]||'').trim()){y+=62; const ts=fit(c,R[sk].toUpperCase(),FD,600,W-140,1,48,22,'rSub'); c.fillStyle='rgba(226,226,226,.94)'; c.fillText(ts.lines[0]||'',W/2,y); hitLines(c,idS,'Subtítulo',ts.lines,W/2,y,ts.size,ts.size,'center',false,{ctrls:[SZ('rSub')]});}
-  return y+54;
+  if(t){const ft=fit(c,t,FD,700,W-120,2,92*k,48*k,'rTitle'); ft.lines.forEach((l,i)=>glowText(c,l,W/2,y+i*ft.size*1.02,'#fff',22)); hitLines(c,idT,'Título',ft.lines,W/2,y,ft.size,ft.size*1.02,'center',false,{ctrls:[SZ('rTitle')]}); y+=(ft.lines.length-1)*ft.size*1.02;}
+  if((R[sk]||'').trim()){y+=62*k; const ts=fit(c,R[sk].toUpperCase(),FD,600,W-140,1,48*k,22,'rSub'); c.fillStyle='rgba(226,226,226,.94)'; c.fillText(ts.lines[0]||'',W/2,y); hitLines(c,idS,'Subtítulo',ts.lines,W/2,y,ts.size,ts.size,'center',false,{ctrls:[SZ('rSub')]});}
+  return y+54*k;
 }
 function drawReducido(c,W,H,F){
   const R=S.red; if(R.subs&&R.subs[R.mode]!=null) R.sub=R.subs[R.mode];
-  const y=redHeader(c,W,F,'title','sub','f-rTitle','f-rSub'), bottom=H-F.bottom+10, avail=bottom-y;
+  const bottom=H-F.bottom+10, ph0=R.mode, hasF=ph0==='p1'&&R.f1show!==false&&(R.f1||[]).length>0; let y, yF=0, chF=0, rhF=0;
+  if(hasF){
+    const yt=F.top+58*2+84; c.textAlign='center'; c.textBaseline='alphabetic'; const ft0=fit(c,String(R.f1title||'FINAL POR EL PRIMER ASCENSO').toUpperCase(),FD,700,W-100,1,84,40,'f1T');
+    glowText(c,ft0.lines[0]||'',W/2,yt,'#fff',22); hitLines(c,'f-f1Title','Título de la final',ft0.lines,W/2,yt,ft0.size,ft0.size,'center',false,{ctrls:[SZ('f1T')]});
+    yF=yt+34; rhF=Math.min(124,(bottom-yt)*.1); chF=rhF-10; y=redHeader(c,W,F,'title','sub','f-rTitle','f-rSub',yF+rhF+50,.6);
+  } else y=redHeader(c,W,F,'title','sub','f-rTitle','f-rSub');
+  const avail=bottom-y;
   if(R.mode==='all') return drawBracket(c,W,y,bottom);
-  const ph=R.mode, hasF=ph==='p1'&&R.f1show!==false&&(R.f1||[]).length>0, capH=hasF?44:0, srt=R[ph].map((m,ix)=>{const dm=String(m.d||'').match(/(\d{1,2})\/(\d{1,2})/), tm=String(m.h||'').match(/(\d{1,2})[:.hH](\d{2})?/); return {m,ix,k:(dm?(+dm[2])*10000+(+dm[1])*100:99999999)+(tm?(+tm[1])+(+(tm[2]||0))/100:99)}}).sort((a,b)=>a.k-b.k||a.ix-b.ix), list=hasF?[{m:R.f1[0],ix:-1},...srt]:srt, n=list.length, big=ph==='fin', rh=Math.min(big?440:150,(avail-capH-(hasF?16:0))/n), gp=Math.min(12,rh*.08), ch=rh-gp;
-  if(hasF){ c.textAlign='center'; c.textBaseline='alphabetic'; c.fillStyle='rgba(226,226,226,.92)'; c.font=`700 26px ${FN}`; c.fillText('FINAL POR EL PRIMER ASCENSO',W/2,y+28); }
+  const ph=R.mode, srt=R[ph].map((m,ix)=>{const dm=String(m.d||'').match(/(\d{1,2})\/(\d{1,2})/), tm=String(m.h||'').match(/(\d{1,2})[:.hH](\d{2})?/); return {m,ix,k:(dm?(+dm[2])*10000+(+dm[1])*100:99999999)+(tm?(+tm[1])+(+(tm[2]||0))/100:99)}}).sort((a,b)=>a.k-b.k||a.ix-b.ix), list=hasF?[{m:R.f1[0],ix:-1},...srt]:srt, n=srt.length, big=ph==='fin', rh=Math.min(big?440:150,avail/n), gp=Math.min(12,rh*.08), ch=rh-gp;
   const nameKey='rnames', nmS=(S.sz[nameKey]||100)/100;
   list.forEach(({m,ix},i)=>{
-    const pid=ix<0?'r-f1-0':`r-${ph}-${ix}`, ry=y+capH+(hasF&&i>0?16:0)+(big?(avail-rh)/2:i*rh), mid=ry+ch/2, cs=Math.min(ch*.72,big?230:110), cw=Math.min(big?260:200,(W-80)*.22), ws=winSide(m);
-    c.fillStyle='rgba(0,0,0,.42)'; rr(c,40,ry,W-80,ch,14); c.fill();
+    const isF=ix<0, ch0=isF?chF:ch, pid=isF?'r-f1-0':`r-${ph}-${ix}`, ry=isF?yF:y+(big?(avail-rh)/2:(i-(hasF?1:0))*rh), mid=ry+ch0/2, cs=Math.min(ch0*.72,big?230:110), cw=Math.min(big?260:200,(W-80)*.22), ws=winSide(m);
+    c.fillStyle='rgba(0,0,0,.42)'; rr(c,40,ry,W-80,ch0,14); c.fill();
     [[m.a,m.ra,m.pa,1,m.ca],[m.b,m.rb,m.pb,2,m.cb]].forEach(([name,rank,pts,sd,cr])=>{
       const left=sd===1, cx0=left?56:W-56-cs, img=slotCrest(m,sd===1?'a':'b',sd===1?'ca':'cb'); if(img) drawBox(c,img,cx0,mid-cs/2,cs,cs);
       else {c.strokeStyle='rgba(255,255,255,.18)'; c.lineWidth=3; c.setLineDash([8,8]); c.beginPath(); c.arc(cx0+cs/2,mid,cs*.38,0,7); c.stroke(); c.setLineDash([]);}
       const tx=left?cx0+cs+18:cx0-18, maxW=(left?(W/2-cw/2-10):(W-40-(W/2+cw/2+10)))-cs-40, al=left?'left':'right';
       const dim=ws&&ws!==sd, label=[rank,(pts?pts+' PTS':'')].filter(Boolean).join(' · ');
       const txt=String(name||'').trim()?(String(cr||'').trim()?String(name).trim():nm(name)).toUpperCase():(rank?String(rank).toUpperCase()+(ph==='p1'?' DE LA ZONA':''):'');
-      const start=Math.min(ch*.3,big?64:40);
+      const start=Math.min(ch0*.3,big?64:40);
       const ft=fit(c,txt||' ',FD,700,maxW,big?2:2,start*nmS,start*.5,nameKey), nf=ft.size, lh=nf*1.04, ls=Math.max(14,nf*.52);
       const bl=ft.lines.length*lh+(label&&String(name||'').trim()?ls*1.5:0), first=mid-bl/2+nf*.85;
       c.globalAlpha=dim?.5:1; c.textAlign=al; c.textBaseline='alphabetic'; c.fillStyle=String(name||'').trim()?'#fff':'rgba(226,226,226,.55)';
@@ -743,12 +748,12 @@ function drawReducido(c,W,H,F){
       if(label&&String(name||'').trim()){c.font=`600 ${ls}px ${FN}`; c.fillStyle='rgba(226,226,226,.8)'; c.fillText(label,tx,first+(ft.lines.length-1)*lh+ls*1.35);}
       c.globalAlpha=1;
     });
-    const sa=String(m.as??'').trim(), sb=String(m.bs??'').trim(), dt=[m.d,m.h].map(x=>String(x||'').trim()).filter(Boolean).join(' · '), off=dt?ch*.1:0;
-    if(dt){const dfs=Math.min(ch*.17,big?40:22), dmax=cw+40; let fz=dfs; c.font=`600 ${fz}px ${FN}`; const lines=wrapTxt(c,dt,dmax); c.textAlign='center'; c.fillStyle='rgba(235,235,235,.9)'; lines.slice(0,2).forEach((l,k)=>c.fillText(l,W/2,mid+ch*.3+k*fz*1.15)); hitBox(`${pid}-d`,'Fecha y hora',W/2-dmax/2,mid+ch*.3-fz,dmax,fz*2.4,false);}
+    const sa=String(m.as??'').trim(), sb=String(m.bs??'').trim(), dt=[m.d,m.h].map(x=>String(x||'').trim()).filter(Boolean).join(' · '), off=dt?ch0*.1:0;
+    if(dt){const dfs=Math.min(ch0*.17,big?40:22), dmax=cw+40; let fz=dfs; c.font=`600 ${fz}px ${FN}`; const lines=wrapTxt(c,dt,dmax); c.textAlign='center'; c.fillStyle='rgba(235,235,235,.9)'; lines.slice(0,2).forEach((l,k)=>c.fillText(l,W/2,mid+ch0*.3+k*fz*1.15)); hitBox(`${pid}-d`,'Fecha y hora',W/2-dmax/2,mid+ch0*.3-fz,dmax,fz*2.4,false);}
     c.textAlign='center'; c.fillStyle='#fff';
-    if(sa!==''||sb!==''){const fs=Math.min(ch*.6,big?150:72); c.font=`700 ${fs}px ${FN}`; const tx=`${sa||'0'} - ${sb||'0'}`; c.fillText(tx,W/2,mid-off+fs*.34); const w=c.measureText(tx).width;
+    if(sa!==''||sb!==''){const fs=Math.min(ch0*.6,big?150:72); c.font=`700 ${fs}px ${FN}`; const tx=`${sa||'0'} - ${sb||'0'}`; c.fillText(tx,W/2,mid-off+fs*.34); const w=c.measureText(tx).width;
       hitBox(`${pid}-as`,'Goles del primero',W/2-w/2,mid-off-fs*.6,w/2,fs,false); hitBox(`${pid}-bs`,'Goles del segundo',W/2,mid-fs*.6,w/2,fs,false);}
-    else {const fs=Math.min(ch*.4,big?110:48); c.font=`italic 700 ${fs}px ${FN}`; c.fillStyle='rgba(226,226,226,.7)'; c.fillText('VS',W/2,mid-off+fs*.34); hitBox(`${pid}-as`,'Goles del primero',W/2-fs,mid-fs*.7,fs,fs*1.2,false); hitBox(`${pid}-bs`,'Goles del segundo',W/2,mid-fs*.7,fs,fs*1.2,false);}
+    else {const fs=Math.min(ch0*.4,big?110:48); c.font=`italic 700 ${fs}px ${FN}`; c.fillStyle='rgba(226,226,226,.7)'; c.fillText('VS',W/2,mid-off+fs*.34); hitBox(`${pid}-as`,'Goles del primero',W/2-fs,mid-fs*.7,fs,fs*1.2,false); hitBox(`${pid}-bs`,'Goles del segundo',W/2,mid-fs*.7,fs,fs*1.2,false);}
   });
 }
 const ABBR=[[/^estudiantes de r[ií]o cuarto$/i,'Estudiantes RC'],[/^estudiantes de buenos aires$/i,'Estudiantes BA'],[/^racing de c[oó]rdoba$/i,'Racing Cba'],[/^gimnasia( y esgrima)? de mendoza$/i,'Gimnasia Mza'],[/^almirante brown$/i,'Alte. Brown'],[/^deportivo maip[uú]$/i,'Maipú'],[/^defensa y justicia$/i,'Defensa'],[/^nueva chicago$/i,'N. Chicago'],[/^chaco for ever$/i,'Chaco FE'],[/^deportivo madryn$/i,'Madryn'],[/^deportivo riestra$/i,'Riestra'],[/^club comunicaciones$/i,'Comunicaciones'],[/^brown de adrogu[eé]$/i,'Brown Adrogué'],[/^atl[eé]tico rafaela$/i,'Rafaela'],[/^san mart[ií]n de (tucum[aá]n)$/i,'San Martín (T)'],[/^san mart[ií]n de san juan$/i,'San Martín (SJ)'],[/^gimnasia de jujuy$/i,'Gimnasia Jujuy'],[/^central norte$/i,'Central Norte']];
@@ -1240,7 +1245,7 @@ function buildReducidoUI(box){
   const MODES=[['p1','Primera instancia'],['qf','Cuartos'],['sf','Semifinales'],['fin','Final'],['all','Cuadro completo']], NAMES={f1:'Final por el primer ascenso',p1:'Primera instancia',qf:'Cuartos de final',sf:'Semifinales',fin:'Final'};
   const ttl=document.createElement('div'); ttl.className='chips'; ttl.setAttribute('role','group'); ttl.setAttribute('aria-label','Instancia del Reducido');
   MODES.forEach(([k,lb])=>{const b=document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=lb; b.setAttribute('aria-pressed',k===R.mode); b.onclick=()=>{R.mode=k; buildFields(); render()}; ttl.appendChild(b)}); w.appendChild(ttl);
-  if(R.mode==='p1') chk(w,'Mostrar arriba la final por el primer ascenso',R,'f1show').querySelector('input').addEventListener('change',()=>{buildFields()});
+  if(R.mode==='p1'){ chk(w,'Mostrar arriba la final por el primer ascenso',R,'f1show').querySelector('input').addEventListener('change',()=>{buildFields()}); if(R.f1show!==false){ const tl=document.createElement('label'); tl.textContent='Título de la final'; const ti=document.createElement('input'); ti.type='text'; ti.id='f-f1Title'; ti.autocomplete='off'; ti.value=R.f1title==null?'FINAL POR EL PRIMER ASCENSO':R.f1title; ti.addEventListener('input',()=>{R.f1title=ti.value; render()}); tl.appendChild(ti); w.appendChild(tl);} }
   if(R.mode==='all'){ const nl=document.createElement('label'); nl.textContent='Aclaración debajo del cuadro'; const na=document.createElement('textarea'); na.id='f-rNote'; na.style.minHeight='70px'; na.value=R.note==null?RED_NOTE:R.note; na.addEventListener('input',()=>{R.note=na.value; render()}); nl.appendChild(na); w.appendChild(nl); }
   [['f-rTitle','Título','title'],['f-rSub','Subtítulo','sub']].forEach(([id,l,k])=>{const lab=document.createElement('label'); lab.textContent=l; const e=document.createElement('input'); e.type='text'; e.id=id; e.value=(k==='sub'&&R.subs&&R.subs[R.mode]!=null)?R.subs[R.mode]:(R[k]||''); e.autocomplete='off'; e.addEventListener('input',()=>{R[k]=e.value; if(k==='sub'&&R.subs) R.subs[R.mode]=e.value; render()}); lab.appendChild(e); w.appendChild(lab);});
   const det=document.createElement('details'); const sm=document.createElement('summary'); sm.textContent='Cómo funciona el Reducido (reglamento)'; det.appendChild(sm);

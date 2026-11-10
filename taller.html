@@ -83,8 +83,13 @@ a{color:var(--accent)}
 @media (max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}.stage{position:static;max-height:none;overflow:visible}
   h1{font-size:22px}.top{margin-bottom:8px}.wrap{padding-block:0 28px}
   canvas{max-height:58vh;min-height:0}.canvasWrap{padding:8px}
-  #tplH,#tpls{display:none}
-  body #mbar{display:flex}}
+  .grid{display:flex;flex-direction:column;gap:12px}
+  .panel{display:contents}
+  .panel>.sec{order:3;background:var(--panel);border:1px solid var(--line)!important;border-radius:10px}
+  .panel>.sec:first-child{order:1}
+  .stage{order:2}
+  body #toTop{display:flex}}
+#toTop{display:none;position:fixed;right:max(14px,env(safe-area-inset-right,0px));bottom:max(14px,env(safe-area-inset-bottom,0px));z-index:40;min-height:48px;padding:0 16px;border-radius:999px;border:0;background:var(--accent);color:var(--accent-fg);font-weight:700;align-items:center;box-shadow:0 4px 16px rgba(0,0,0,.35);cursor:pointer}
 #mbar{display:none;position:sticky;top:0;z-index:30;background:var(--bg);border-bottom:1px solid var(--line);margin:0 calc(-1*max(16px,env(safe-area-inset-left,0px)));padding:8px max(16px,env(safe-area-inset-left,0px));gap:8px;align-items:center}
 #mbar .t{flex:1;min-width:0;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #mbar button{min-height:44px}
@@ -114,13 +119,14 @@ a{color:var(--accent)}
 </div>
 
 <div id="menuM" hidden role="dialog" aria-label="Elegí un diseño"></div>
+<button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 10/11 · 19:30</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 10/11 · 19:40</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
-  <div id="mbar"><button class="ghost" id="mBack" type="button" aria-label="Volver al menú de diseños">← Diseños</button><span class="t" id="mTitle"></span><button class="primary" id="mDl" type="button" style="padding:8px 16px">Descargar</button></div>
+  <div id="mbar" hidden><button class="ghost" id="mBack" type="button" aria-label="Volver al menú de diseños">← Diseños</button><span class="t" id="mTitle"></span><button class="primary" id="mDl" type="button" style="padding:8px 16px">Descargar</button></div>
   <div class="grid">
     <section class="stage" aria-label="Vista previa">
       <div class="canvasWrap"><canvas id="cv" width="1080" height="1350" aria-label="Vista previa del posteo"></canvas></div>
@@ -1136,12 +1142,7 @@ function mobBuild(){
 function mobEnter(){ mobMenu(false); try{ history.pushState({d:1},''); }catch(e){} window.scrollTo(0,0); mobTitle(); }
 function mobTitle(){ const t=document.getElementById('mTitle'); if(t) t.textContent=((TEMPLATES[S.tpl]||{}).label||''); }
 function mobInit(){
-  const back=document.getElementById('mBack'), dl=document.getElementById('mDl'); if(!back) return;
-  back.onclick=()=>{ if(history.state&&history.state.d) history.back(); else mobMenu(true); };
-  dl.onclick=()=>document.getElementById('dl').click();
-  window.addEventListener('popstate',e=>{ if(!isMob()) return; if(e.state&&e.state.d){ mobMenu(false); } else mobMenu(true); });
-  try{ history.replaceState({m:1},''); }catch(e){}
-  if(isMob()) mobMenu(true); mobTitle();
+  const tt=document.getElementById('toTop'); if(tt) tt.onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
 }
 function buildFormats(){
   const box=$('#formats'); box.innerHTML='';

@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 11/11 · 13:52</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 11/11 · 14:05</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -537,6 +537,7 @@ function mainTint(){
   return S.tint;
 }
 function drawCover(c,img,bx,by,bw,bh,z,ox,oy){
+  c.imageSmoothingEnabled=true; c.imageSmoothingQuality='high';
   const k=Math.max(bw/img.width,bh/img.height)*z, dw=img.width*k, dh=img.height*k, mx=Math.max(0,(dw-bw)/2), my=Math.max(0,(dh-bh)/2);
   ox=Math.max(-mx,Math.min(mx,ox)); oy=Math.max(-my,Math.min(my,oy)); c.drawImage(img,bx+(bw-dw)/2+ox,by+(bh-dh)/2+oy,dw,dh); return [ox,oy];
 }
@@ -643,7 +644,7 @@ function drawPhoto0(c,W,H,tint){
     const p=S.photo, k=Math.max(W/p.width,H/p.height)*S.zoom, dw=p.width*k, dh=p.height*k;
     const mx=Math.max(0,(dw-W)/2), my=Math.max(0,(dh-H)/2);
     S.ox=Math.max(-mx,Math.min(mx,S.ox)); S.oy=Math.max(-my,Math.min(my,S.oy));
-    if(CUR_FX.op<100) bg(); c.save(); if(CUR_FX.op<100) c.globalAlpha=CUR_FX.op/100; { const ff=fxFilter(CUR_FX); if(ff!=='none') c.filter=ff; } c.drawImage(p,(W-dw)/2+S.ox,(H-dh)/2+S.oy,dw,dh); c.restore();
+    if(CUR_FX.op<100) bg(); c.save(); if(CUR_FX.op<100) c.globalAlpha=CUR_FX.op/100; { const ff=fxFilter(CUR_FX); if(ff!=='none') c.filter=ff; } c.imageSmoothingEnabled=true; c.imageSmoothingQuality='high'; c.drawImage(p,(W-dw)/2+S.ox,(H-dh)/2+S.oy,dw,dh); c.restore();
   } else {
     bg();
     if(!S.exporting&&S.account!=='pn'){c.fillStyle='rgba(255,255,255,.35)';c.font=`600 40px ${FN}`;c.textAlign='center';
@@ -1562,10 +1563,10 @@ const hexOf=b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).joi
 const hashStr=async t=>hexOf(await crypto.subtle.digest('SHA-1',new TextEncoder().encode(t)));
 async function pidOf(blob){ if(SYNC.pids.has(blob)) return SYNC.pids.get(blob); const id=hexOf(await crypto.subtle.digest('SHA-1',await blob.arrayBuffer())); SYNC.pids.set(blob,id); SYNC.blobs.set(id,blob); return id; }
 async function shrinkPhoto(blob){
-  try{ const bmp=await createImageBitmap(blob,{imageOrientation:'from-image'}), m=Math.max(bmp.width,bmp.height), k=m>1800?1800/m:1;
-    if(k===1&&blob.size<1200000&&/jpeg/.test(blob.type)) return blob;
-    const c2=document.createElement('canvas'); c2.width=Math.round(bmp.width*k); c2.height=Math.round(bmp.height*k); const g=c2.getContext('2d'); g.fillStyle='#000'; g.fillRect(0,0,c2.width,c2.height); g.drawImage(bmp,0,0,c2.width,c2.height);
-    return await new Promise(r=>c2.toBlob(r,'image/jpeg',.88)); }catch(e){ return blob; }
+  try{ const bmp=await createImageBitmap(blob,{imageOrientation:'from-image'}), m=Math.max(bmp.width,bmp.height), k=m>4096?4096/m:1;
+    if(k===1&&blob.size<6000000&&/jpeg/.test(blob.type)) return blob;
+    const c2=document.createElement('canvas'); c2.width=Math.round(bmp.width*k); c2.height=Math.round(bmp.height*k); const g=c2.getContext('2d'); g.fillStyle='#000'; g.imageSmoothingQuality='high'; g.fillRect(0,0,c2.width,c2.height); g.drawImage(bmp,0,0,c2.width,c2.height);
+    return await new Promise(r=>c2.toBlob(r,'image/jpeg',.94)); }catch(e){ return blob; }
 }
 async function serSync(v){
   if(v instanceof Blob) return {__pid:await pidOf(v)};

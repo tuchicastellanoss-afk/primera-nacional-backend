@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 11/11 · 14:05</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 11/11 · 14:50</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -175,6 +175,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
       <div class="row" id="undoRow" style="justify-content:flex-start"><button class="ghost" id="undoBtn" type="button" disabled>↶ Deshacer</button><button class="ghost" id="redoBtn" type="button" disabled>↷ Rehacer</button><span class="hint">También Ctrl+Z / Ctrl+Y</span></div>
       <div class="row">
         <button class="primary" id="dl" type="button">Descargar PNG</button>
+        <button class="primary" id="dlVid" type="button" hidden>Descargar video</button>
         <button class="ghost" id="dlAll" type="button" hidden>Descargar toda la tanda</button>
         <label class="qual">Calidad <select id="qual"></select></label>
         <span class="hint" id="dlmsg" role="status"></span><span class="hint" id="autosave" role="status"></span><span class="hint" id="syncmsg" role="status"></span>
@@ -201,6 +202,13 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
         <label class="file"><input id="photoIn" type="file" accept="image/*" multiple><span>Agregar foto (podés elegir varias)</span></label>
         <label>Zoom de la foto 1 <input id="zoom" type="range" min="100" max="400" value="100"></label>
         <div class="row" style="justify-content:flex-start"><button class="ghost" id="resetPhoto" type="button">Centrar foto</button><button class="ghost" id="clearPhoto" type="button">Quitar foto</button></div>
+        <label class="file"><input id="vidIn" type="file" accept="video/*"><span>Agregar video de fondo (para stories)</span></label>
+        <div id="vidBox" hidden>
+          <div class="row" style="justify-content:flex-start"><button class="ghost" id="vidPlay" type="button">⏸ Pausar</button><button class="ghost" id="vidDel" type="button">Quitar video</button></div>
+          <label class="chk"><input type="checkbox" id="vidSnd" checked> Conservar el sonido original al descargar</label>
+          <p class="hint" id="vidInfo"></p>
+          <p class="hint">El video se graba en tiempo real: al descargar, dejá esta pestaña abierta y a la vista hasta que termine. Con el video elegido, la foto de fondo se reemplaza.</p>
+        </div>
         <p class="hint">Arrastrá la foto para moverla. Con dos dedos (pellizco) hacés zoom; en la compu, Ctrl + rueda.</p>
         <div id="fxBox"></div>
         <details id="colBox" open><summary id="colSum">Fotos y collage</summary><div class="grp" id="colBody"></div></details>
@@ -1716,7 +1724,7 @@ function phSync(){ const key=S.account+'|'+S.tpl; if(S.phKey===null){S.phKey=key
   if(S.tpl==='partido'){ loadCard(S.cur); delete S.phs[key]; }
   else { const e=S.phs[key]||{}; delete S.phs[key]; S.photo=e.photo||null;S.photoBlob=e.photoBlob||null;S.ox=e.ox||0;S.oy=e.oy||0;S.zoom=e.zoom||1;S.photo2=e.photo2||null;S.photoBlob2=e.photoBlob2||null;S.ox2=e.ox2||0;S.oy2=e.oy2||0;S.zoom2=e.zoom2||1;S.xph=(e.xph||[]).map(p=>({...p})); const z=$('#zoom'); if(z) z.value=Math.round(S.zoom*100); try{buildCollageUI()}catch(_){} } }
 let _fxSig='';
-function render(){ phSync(); { const sg=(S.phKey||'')+'|'+(S.photo?1:0)+PS.n(); if(sg!==_fxSig){ _fxSig=sg; try{buildFx()}catch(e){} } } cancelAnimationFrame(raf); raf=requestAnimationFrame(draw); }
+function render(){ try{vidUI()}catch(_){} phSync(); { const sg=(S.phKey||'')+'|'+(S.photo?1:0)+PS.n(); if(sg!==_fxSig){ _fxSig=sg; try{buildFx()}catch(e){} } } cancelAnimationFrame(raf); raf=requestAnimationFrame(draw); }
 function draw(){
   const F=FORMATS[S.format], W=F.w, H=F.h;
   const Q=S.exporting?S.q:1; S.qNow=Q;
@@ -1728,7 +1736,7 @@ function draw(){
   let tint=mainTint(); if(S.account==='pn'&&!S.photo&&PS.n()<2) tint='#3b5260';
   if(S.autoTint){const ti=$('#tint'); if(ti.value!==tint) ti.value=tint;}
   if(S.tpl==='partido'&&!S.exporting) saveCard();
-  if(!S.exporting){ queueSave(); histQueue(); }
+  if(!S.exporting&&!(window.VID&&VID.playing)){ queueSave(); histQueue(); }
   S.logoBot=0; S.bzFlat=(typeof bzFlatOn==='function')?bzFlatOn():null;
   drawPhoto(c,W,H,tint);
   if(S.bzFlat){ c.fillStyle=S.bzFlat.bg; c.fillRect(0,0,W,H); S.bzFlat.deco(c,W,H,S.bzFlat); drawHeader(c,W,F.top,currentAccount()); } else
@@ -2299,7 +2307,57 @@ $('#photoIn').addEventListener('change',async e=>{const fs=[...e.target.files]; 
 })();
 $('#zoom').addEventListener('input',e=>{S.zoom=e.target.value/100;render()});
 $('#resetPhoto').onclick=()=>{PS.load(PS.list().map(p=>({...p,ox:0,oy:0,zoom:1}))); $('#zoom').value=100; buildCollageUI(); render()};
-$('#clearPhoto').onclick=()=>{PS.load([]); buildCollageUI(); render()};
+$('#clearPhoto').onclick=()=>{vidClear(); PS.load([]); buildCollageUI(); render()};
+/* ---------- video de fondo ---------- */
+const VID={el:null,cv:null,url:null,playing:false,busy:false,ac:null,dest:null,src:null,name:''};
+function vidUI(){ const on=!!(VID.el&&S.photo===VID.cv); $('#vidBox').hidden=!on; $('#dlVid').hidden=!on; if(on){ $('#vidPlay').textContent=VID.playing?'⏸ Pausar':'▶ Reproducir'; $('#vidInfo').textContent=`${VID.name} · ${VID.el.videoWidth}×${VID.el.videoHeight} px · ${Math.round(VID.el.duration||0)} s`; } }
+function vidFrame(){ if(!VID.el||S.photo!==VID.cv) return; VID.cv.getContext('2d').drawImage(VID.el,0,0,VID.cv.width,VID.cv.height); draw(); }
+function vidLoop(){ if(!VID.playing) return; if(S.photo!==VID.cv){ VID.playing=false; VID.el.pause(); vidUI(); return; } vidFrame(); if(VID.el.requestVideoFrameCallback) VID.el.requestVideoFrameCallback(vidLoop); else requestAnimationFrame(vidLoop); }
+function vidPlay(){ if(!VID.el) return; VID.el.muted=true; VID.el.play().then(()=>{ VID.playing=true; vidUI(); vidLoop(); }).catch(()=>{ VID.playing=false; vidUI(); vidFrame(); }); }
+function vidPause(){ if(!VID.el) return; VID.playing=false; VID.el.pause(); vidUI(); render(); }
+function vidClear(){ if(!VID.el) return; VID.playing=false; try{VID.el.pause()}catch(_){} if(VID.url) URL.revokeObjectURL(VID.url); const was=S.photo===VID.cv; VID.el=null; VID.cv=null; VID.url=null; VID.ac=null; VID.dest=null; VID.src=null; if(was){ PS.load([]); } vidUI(); try{buildCollageUI()}catch(_){} }
+$('#vidIn').addEventListener('change',async e=>{
+  const f=e.target.files[0]; e.target.value=''; if(!f) return; const msg=$('#dlmsg'); msg.textContent='Cargando video…';
+  vidClear();
+  const el=document.createElement('video'); el.muted=true; el.loop=true; el.playsInline=true; el.setAttribute('playsinline',''); el.preload='auto'; const url=URL.createObjectURL(f); el.src=url;
+  try{ await new Promise((ok,no)=>{ el.onloadeddata=ok; el.onerror=()=>no(new Error('x')); setTimeout(()=>no(new Error('t')),20000); }); }
+  catch(err){ URL.revokeObjectURL(url); msg.textContent='No pude leer ese video. Probá con un MP4 o MOV.'; return; }
+  const vw=el.videoWidth, vh=el.videoHeight, k=Math.min(1,2560/Math.max(vw,vh)), cvs=document.createElement('canvas'); cvs.width=Math.round(vw*k); cvs.height=Math.round(vh*k);
+  Object.assign(VID,{el,cv:cvs,url,name:f.name.length>26?f.name.slice(0,23)+'…':f.name});
+  cvs.getContext('2d').drawImage(el,0,0,cvs.width,cvs.height);
+  PS.load([{img:cvs,blob:null,ox:0,oy:0,zoom:1}]); $('#zoom').value=100; try{buildCollageUI()}catch(_){}
+  msg.textContent=''; if(S.format==='retrato'){ S.format='story'; try{buildFormats();buildQual()}catch(_){} }
+  render(); vidPlay(); vidUI();
+});
+$('#vidPlay').onclick=()=>{ VID.playing?vidPause():vidPlay(); };
+$('#vidDel').onclick=()=>{ vidClear(); render(); };
+async function exportVideo(){
+  const msg=$('#dlmsg'); if(!VID.el||S.photo!==VID.cv||VID.busy) return;
+  if(!window.MediaRecorder||!cv.captureStream){ msg.textContent='Este navegador no puede grabar video. Probá con Chrome o Safari actualizado.'; return; }
+  const types=['video/mp4;codecs=avc1.640028','video/mp4;codecs=avc1','video/mp4','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'], mime=types.find(t=>MediaRecorder.isTypeSupported(t))||'';
+  const el=VID.el; VID.busy=true; VID.playing=false; el.pause(); const F=FORMATS[S.format];
+  const cover=Math.max(F.w/el.videoWidth,F.h/el.videoHeight)*(S.zoom||1), nat=1/Math.max(cover,.01);
+  S.q=(S.quality==='1'||nat<1.4)?1:Math.min(2,nat); S.exporting=true;
+  $('#dlVid').disabled=true; $('#dl').disabled=true;
+  try{
+    el.loop=false; el.muted=false; el.currentTime=0; await new Promise(r=>{ const h=()=>{el.removeEventListener('seeked',h);r()}; el.addEventListener('seeked',h); setTimeout(r,1500); });
+    vidFrame(); const stream=cv.captureStream(30);
+    if($('#vidSnd').checked){ try{ if(!VID.ac){ VID.ac=new (window.AudioContext||window.webkitAudioContext)(); VID.src=VID.ac.createMediaElementSource(el); VID.dest=VID.ac.createMediaStreamDestination(); VID.src.connect(VID.dest); } if(VID.ac.state==='suspended') await VID.ac.resume(); VID.dest.stream.getAudioTracks().forEach(t=>stream.addTrack(t)); }catch(err){ msg.textContent='No pude tomar el sonido; se baja sin audio.'; } }
+    const bps=Math.round(25e6*S.q*S.q), rec=new MediaRecorder(stream,Object.assign({videoBitsPerSecond:bps},mime?{mimeType:mime}:{})), chunks=[]; rec.ondataavailable=ev=>{ if(ev.data&&ev.data.size) chunks.push(ev.data); };
+    const done=new Promise(r=>{ rec.onstop=r; }); rec.start(500);
+    await el.play(); const dur=el.duration||1;
+    await new Promise(res=>{ const step=()=>{ if(el.ended||el.currentTime>=dur-.04){ res(); return; } vidFrame(); msg.textContent=`Grabando video… ${Math.min(99,Math.round(el.currentTime/dur*100))} % (no cambies de pestaña)`; if(el.requestVideoFrameCallback) el.requestVideoFrameCallback(step); else requestAnimationFrame(step); }; step(); el.onended=()=>res(); });
+    vidFrame(); await new Promise(r=>setTimeout(r,250)); rec.stop(); await done; stream.getTracks().forEach(t=>t.stop());
+    const ext=/mp4/.test(rec.mimeType||mime)?'mp4':'webm', blob=new Blob(chunks,{type:(rec.mimeType||mime||'video/webm').split(';')[0]});
+    const d=new Date(), ymd=`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`, handle=(currentAccount().handle||currentAccount().name||'video').replace(/[^\w-]+/g,''), fname=`${handle}-${S.tpl}-${S.format}-${ymd}.${ext}`, file=new File([blob],fname,{type:blob.type});
+    const touch=window.matchMedia&&matchMedia('(pointer:coarse)').matches;
+    if(touch&&navigator.canShare&&navigator.canShare({files:[file]})){ try{ await navigator.share({files:[file]}); msg.textContent='Listo. Elegí "Guardar video" para que quede en la galería.'; } catch(err){ msg.textContent=(err&&err.name==='AbortError')?'Cancelaste.':'No se pudo compartir.'; } }
+    else { const u=URL.createObjectURL(blob), a=document.createElement('a'); a.href=u; a.download=fname; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),60000); msg.textContent=`Video descargado (${ext.toUpperCase()}, ${Math.round(blob.size/1e6*10)/10} MB).`+(ext==='webm'?' Este navegador lo guarda en WebM; para Instagram conviene bajarlo desde el iPhone o Chrome reciente (MP4).':''); }
+  }catch(err){ msg.textContent='No se pudo grabar el video: '+(err&&err.message||'error'); }
+  S.exporting=false; el.onended=null; el.loop=true; el.muted=true; el.currentTime=0; VID.busy=false; $('#dlVid').disabled=false; $('#dl').disabled=false; vidFrame(); vidPlay();
+}
+$('#dlVid').onclick=exportVideo;
+
 $('#tint').addEventListener('input',e=>{S.tint=e.target.value;S.autoTint=false;$('#autoTint').checked=false;render()});
 $('#autoTint').addEventListener('change',e=>{S.autoTint=e.target.checked;render()});
 

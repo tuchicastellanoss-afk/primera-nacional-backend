@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 11/11 · 15:20</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 11/11 · 17:05</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -276,6 +276,7 @@ const BUILTIN = {id:'pn',name:'Primera Nacional',handle:'@primeranacionalok',log
 const TEMPLATES = {
   noticia:{label:'Noticia',main:'crest',fields:[
     {k:'crest',l:'Escudo del club',t:'crest'},
+    {k:'crest2',l:'Segundo escudo (opcional, queda al lado y del mismo tamaño)',t:'crest'},
     {k:'headline',l:'Titular',t:'area'},
     {k:'sub',l:'Bajada',t:'area'}]},
   consigna:{label:'Consigna',main:'a',fields:[
@@ -706,8 +707,10 @@ function drawNoticia(c,W,H,F){
   c.font=`700 ${hFit.size}px ${FD}`;
   hFit.lines.forEach((l,i)=>glowText(c,l,W/2,firstHead+i*hLH,'#fff',22));
   hitLines(c,'f-headline','Titular',hFit.lines,W/2,firstHead,hFit.size,hLH,'center',true,{ctrls:[SZ('headline')]});
-  const img=findCrest(f.crest);
-  if(img){const q=(S.cs.crest||100)/100, bottom=firstHead-hFit.size*.68-26; drawBox(c,img,W/2-130*q,bottom-190*q,260*q,190*q,'b');}
+  const img=findCrest(f.crest), img2=(f.crest2||'').trim()?findCrest(f.crest2):null;
+  if(img||img2){const q=(S.cs.crest||100)/100, bottom=firstHead-hFit.size*.68-26, bw=260*q, bh=190*q;
+    if(img&&img2){ const gap=50*q, x0=W/2-bw-gap/2; drawBox(c,img,x0,bottom-bh,bw,bh,'b'); drawBox(c,img2,x0+bw+gap,bottom-bh,bw,bh,'b'); }
+    else drawBox(c,img||img2,W/2-bw/2,bottom-bh,bw,bh,'b'); }
 }
 function drawResultado(c,W,H,F){
   const f=S.f; c.textAlign='center'; c.textBaseline='alphabetic';

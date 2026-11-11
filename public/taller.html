@@ -135,6 +135,7 @@ input[type=range]{height:16px}
 .canvasWrap{background:transparent;border:0;padding:20px 20px 8px}
 canvas{box-shadow:0 0 0 1px rgba(255,255,255,.08),0 12px 40px rgba(0,0,0,.6)}
 #qe{border-radius:8px;background:var(--panel)}
+@media (max-width:860px){ body{padding-top:env(safe-area-inset-top,0px)} .top{padding-top:10px} }
 @media (min-width:861px){
   html,body{height:100%;overflow:hidden}
   body{padding:0}
@@ -163,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(255,255,255,.08),0 12px 40px rgba(0,0,0,.6)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 12/11 · 02:30</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 12/11 · 13:50</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -604,7 +605,7 @@ function drawPhoto0(c,W,H,tint){
     R.polys.forEach((poly,i)=>{
       const p=PS.get(i), [bx,by,bw,bh]=polyBox(poly);
       c.save(); c.beginPath(); poly.forEach((q,j)=>j?c.lineTo(q[0],q[1]):c.moveTo(q[0],q[1])); c.closePath(); c.clip();
-      c.globalAlpha=CUR_FX.op/100; c.filter=fxFilter(CUR_FX);
+      if(CUR_FX.op<100) c.globalAlpha=CUR_FX.op/100; { const ff=fxFilter(CUR_FX); if(ff!=='none') c.filter=ff; }
       if(p.img){ const [ox,oy]=drawCover(c,p.img,bx,by,bw,bh,p.zoom,p.ox,p.oy); if(ox!==p.ox||oy!==p.oy) PS.set(i,{...p,ox,oy}); }
       c.restore();
     });
@@ -616,7 +617,7 @@ function drawPhoto0(c,W,H,tint){
     const p=S.photo, k=Math.max(W/p.width,H/p.height)*S.zoom, dw=p.width*k, dh=p.height*k;
     const mx=Math.max(0,(dw-W)/2), my=Math.max(0,(dh-H)/2);
     S.ox=Math.max(-mx,Math.min(mx,S.ox)); S.oy=Math.max(-my,Math.min(my,S.oy));
-    if(CUR_FX.op<100) bg(); c.save(); c.globalAlpha=CUR_FX.op/100; c.filter=fxFilter(CUR_FX); c.drawImage(p,(W-dw)/2+S.ox,(H-dh)/2+S.oy,dw,dh); c.restore();
+    if(CUR_FX.op<100) bg(); c.save(); if(CUR_FX.op<100) c.globalAlpha=CUR_FX.op/100; { const ff=fxFilter(CUR_FX); if(ff!=='none') c.filter=ff; } c.drawImage(p,(W-dw)/2+S.ox,(H-dh)/2+S.oy,dw,dh); c.restore();
   } else {
     bg();
     if(!S.exporting&&S.account!=='pn'){c.fillStyle='rgba(255,255,255,.35)';c.font=`600 40px ${FN}`;c.textAlign='center';

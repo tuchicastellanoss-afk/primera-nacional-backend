@@ -122,7 +122,7 @@ a{color:var(--accent)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 11/11 · 19:45</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 11/11 · 21:00</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -521,8 +521,34 @@ const PS={
 const polyBox=p=>{const xs=p.map(q=>q[0]),ys=p.map(q=>q[1]); return [Math.min(...xs),Math.min(...ys),Math.max(...xs)-Math.min(...xs),Math.max(...ys)-Math.min(...ys)]};
 function inPoly(p,x,y){let ins=false;for(let i=0,j=p.length-1;i<p.length;j=i++){if(((p[i][1]>y)!==(p[j][1]>y))&&(x<(p[j][0]-p[i][0])*(y-p[i][1])/(p[j][1]-p[i][1])+p[i][0])) ins=!ins} return ins}
 function photoAt(W,H,x,y){ const n=PS.n(); if(n<2) return 1; const R=regionsN(W,H,n); const i=R.polys.findIndex(p=>inPoly(p,x,y)); return i<0?1:i+1; }
+function pnBg(c,W,H,tint){
+  const SL='#566c78', DK='#1b2a33', CR='#f8f0cc';
+  let gr=c.createLinearGradient(0,0,W,H); gr.addColorStop(0,'#0e171c'); gr.addColorStop(.6,'#22343e'); gr.addColorStop(1,'#162229'); c.fillStyle=gr; c.fillRect(0,0,W,H);
+  /* bandas diagonales deportivas */
+  c.save(); c.translate(W/2,H/2); c.rotate(-0.52);
+  const L=Math.max(W,H)*2, u=W/10;
+  c.fillStyle='rgba(86,108,120,.55)'; c.fillRect(-L,H*.20,L*2,u*2.6);
+  c.fillStyle='rgba(86,108,120,.28)'; c.fillRect(-L,H*.20+u*3.2,L*2,u*1.1);
+  c.fillStyle='rgba(248,240,204,.92)'; c.fillRect(-L,H*.20-u*.55,L*2,u*.22);
+  c.fillStyle='rgba(248,240,204,.5)'; c.fillRect(-L,H*.20-u*1.0,L*2,u*.1);
+  c.fillStyle='rgba(86,108,120,.30)'; c.fillRect(-L,-H*.52,L*2,u*1.5);
+  c.fillStyle='rgba(248,240,204,.16)'; c.fillRect(-L,-H*.52+u*1.8,L*2,u*.12);
+  c.restore();
+  /* trama de puntos (halftone) en la esquina */
+  c.save(); c.fillStyle='rgba(248,240,204,.10)'; const st=W*.034;
+  for(let y=0,r=0;y<H*.5;y+=st,r++) for(let x=(r%2?st/2:0);x<W;x+=st){ const k=Math.max(0,1-(Math.hypot(x-W,y)/(W*1.05))); if(k<=.05) continue; c.beginPath(); c.arc(x,y,st*.34*k,0,7); c.fill(); }
+  c.restore();
+  /* pelota gigante recortada, de fondo */
+  c.save(); c.globalAlpha=.07; c.translate(W*.02,H*.9); c.fillStyle=CR; c.beginPath(); c.arc(0,0,W*.62,0,7); c.fill(); c.fillStyle='#0e171c';
+  for(let a=0;a<5;a++){ const an=a*Math.PI*2/5-Math.PI/2, rr=W*.32, x=Math.cos(an)*rr, y=Math.sin(an)*rr; c.beginPath(); for(let k=0;k<5;k++){ const t=k*Math.PI*2/5+an; const px=x+Math.cos(t)*W*.1, py=y+Math.sin(t)*W*.1; k?c.lineTo(px,py):c.moveTo(px,py);} c.closePath(); c.fill(); }
+  c.beginPath(); for(let k=0;k<5;k++){ const t=k*Math.PI*2/5-Math.PI/2; const px=Math.cos(t)*W*.12, py=Math.sin(t)*W*.12; k?c.lineTo(px,py):c.moveTo(px,py);} c.closePath(); c.fill();
+  c.restore();
+  /* línea de acento y viñeta */
+  c.fillStyle='rgba(248,240,204,.9)'; c.fillRect(0,0,W,Math.max(8,H*.006));
+  const vg=c.createRadialGradient(W/2,H*.5,W*.3,W/2,H*.5,Math.max(W,H)*.8); vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(0,0,0,.5)'); c.fillStyle=vg; c.fillRect(0,0,W,H);
+}
 function drawPhoto(c,W,H,tint){
-  const bg=()=>{const [r,g,b]=hexRgb(tint), gr=c.createLinearGradient(0,0,0,H); gr.addColorStop(0,'#0c110e'); gr.addColorStop(1,`rgb(${r*.5|0},${g*.5|0},${b*.5|0})`); c.fillStyle=gr; c.fillRect(0,0,W,H);};
+  const bg=()=>{ if(S.account==='pn'){ pnBg(c,W,H,tint); return; } const [r,g,b]=hexRgb(tint), gr=c.createLinearGradient(0,0,0,H); gr.addColorStop(0,'#0c110e'); gr.addColorStop(1,`rgb(${r*.5|0},${g*.5|0},${b*.5|0})`); c.fillStyle=gr; c.fillRect(0,0,W,H);};
   const C=S.ly.col; PS.compact(); const n=PS.n();
   if(n>=2){
     bg(); const R=regionsN(W,H,n);
@@ -543,7 +569,7 @@ function drawPhoto(c,W,H,tint){
     c.drawImage(p,(W-dw)/2+S.ox,(H-dh)/2+S.oy,dw,dh);
   } else {
     bg();
-    if(!S.exporting){c.fillStyle='rgba(255,255,255,.35)';c.font=`600 40px ${FN}`;c.textAlign='center';
+    if(!S.exporting&&S.account!=='pn'){c.fillStyle='rgba(255,255,255,.35)';c.font=`600 40px ${FN}`;c.textAlign='center';
       c.fillText('SUBÍ UNA FOTO DE FONDO',W/2,H*.38);}
   }
 }
@@ -1346,7 +1372,8 @@ let saveT=0;
 function queueSave(){ if(!S.restored) return; clearTimeout(saveT); saveT=setTimeout(doSave,600); }
 function buildSnap(){
   const k=S.cards[S.cur]; if(S.tpl==='partido'&&k){k.photoBlob=S.photoBlob||null;k.photoBlob2=S.photoBlob2||null;k.xph=S.xph.map(p=>({...p}))}
-  const snap={v:1,xph:S.xph.map(p=>({blob:p.blob,ox:p.ox,oy:p.oy,zoom:p.zoom})),tx:S.tx,mo:S.mo,account:S.account,format:S.format,tpl:S.tpl,tint:S.tint,autoTint:S.autoTint,f:S.f,tags:S.tags,cur:S.cur,ox:S.ox,oy:S.oy,zoom:S.zoom,photoBlob:S.photoBlob||null,red:S.red,photoBlob2:S.photoBlob2||null,ox2:S.ox2,oy2:S.oy2,zoom2:S.zoom2,
+  const phs={}; for(const [k,e] of Object.entries(S.phs||{})){ phs[k]={photoBlob:e.photoBlob||null,ox:e.ox,oy:e.oy,zoom:e.zoom,photoBlob2:e.photoBlob2||null,ox2:e.ox2,oy2:e.oy2,zoom2:e.zoom2,xph:(e.xph||[]).map(p=>({blob:p.blob,ox:p.ox,oy:p.oy,zoom:p.zoom}))}; }
+  const snap={v:1,phs,phKey:S.phKey,xph:S.xph.map(p=>({blob:p.blob,ox:p.ox,oy:p.oy,zoom:p.zoom})),tx:S.tx,mo:S.mo,account:S.account,format:S.format,tpl:S.tpl,tint:S.tint,autoTint:S.autoTint,f:S.f,tags:S.tags,cur:S.cur,ox:S.ox,oy:S.oy,zoom:S.zoom,photoBlob:S.photoBlob||null,red:S.red,photoBlob2:S.photoBlob2||null,ox2:S.ox2,oy2:S.oy2,zoom2:S.zoom2,
     cards:S.cards.map(c=>{const o={...c};delete o.photo;delete o.photo2;o.xph=(c.xph||[]).map(p=>({blob:p.blob,ox:p.ox,oy:p.oy,zoom:p.zoom}));return o})};
   return snap;
 }
@@ -1371,7 +1398,8 @@ async function stApply(st){
   S.xph=[]; for(const p of (st.xph||[])){ const im=await toBitmap(p.blob); if(im) S.xph.push({img:im,blob:p.blob,ox:p.ox||0,oy:p.oy||0,zoom:p.zoom||1}); } if(st.tx) S.tx=st.tx; S.mo=st.mo||{};
   if(st.cards&&st.cards.length){for(const k of st.cards){k.photo=await toBitmap(k.photoBlob); k.photo2=await toBitmap(k.photoBlob2); k.xph=await Promise.all((k.xph||[]).map(async p=>({...p,img:await toBitmap(p.blob)}))); } S.cards=st.cards; S.cur=Math.min(st.cur||0,S.cards.length-1)}
   if(S.cards.length<=1&&(!S.cards[0]||S.cards[0].example||(S.cards[0].home==='Acassuso'&&S.cards[0].away==='All Boys'))){ S.cards=defCards(); S.cur=0; if(S.tags.l==='Fecha 28'&&S.tags.r==='Zona A'){S.tags.l='Reducido';S.tags.r="Primera instancia"} }
-  fixTpl(); $('#autoTint').checked=S.autoTint; $('#tint').value=S.tint; $('#zoom').value=Math.round(S.zoom*100);
+  S.phs={}; for(const [k,e] of Object.entries(st.phs||{})){ const o={...e}; o.photo=await toBitmap(e.photoBlob); o.photo2=await toBitmap(e.photoBlob2); o.xph=[]; for(const p of (e.xph||[])){ const im=await toBitmap(p.blob); if(im) o.xph.push({img:im,blob:p.blob,ox:p.ox||0,oy:p.oy||0,zoom:p.zoom||1}); } S.phs[k]=o; }
+  fixTpl(); S.phKey=S.account+'|'+S.tpl; $('#autoTint').checked=S.autoTint; $('#tint').value=S.tint; $('#zoom').value=Math.round(S.zoom*100);
   buildAccounts();buildFormats();buildQual();buildTpls();buildFields();buildCollageUI();render();
 }
 const hist={st:[],i:-1,sig:'',t:0,busy:false};
@@ -1539,7 +1567,14 @@ function navUpdate(){
   document.getElementById('cnPrev').disabled=S.cur<=0; document.getElementById('cnNext').disabled=S.cur>=S.cards.length-1;
 }
 let raf=0;
-function render(){ cancelAnimationFrame(raf); raf=requestAnimationFrame(draw); }
+S.phs={}; S.phKey=null;
+function phCur(){ return {photo:S.photo,photoBlob:S.photoBlob,ox:S.ox,oy:S.oy,zoom:S.zoom,photo2:S.photo2,photoBlob2:S.photoBlob2,ox2:S.ox2,oy2:S.oy2,zoom2:S.zoom2,xph:S.xph.map(p=>({...p}))}; }
+function phSync(){ const key=S.account+'|'+S.tpl; if(S.phKey===null){S.phKey=key; return;} if(S.phKey===key) return;
+  const old=S.phKey; if(/\|partido$/.test(old)) saveCard(); else S.phs[old]=phCur();
+  S.phKey=key;
+  if(S.tpl==='partido'){ loadCard(S.cur); delete S.phs[key]; }
+  else { const e=S.phs[key]||{}; delete S.phs[key]; S.photo=e.photo||null;S.photoBlob=e.photoBlob||null;S.ox=e.ox||0;S.oy=e.oy||0;S.zoom=e.zoom||1;S.photo2=e.photo2||null;S.photoBlob2=e.photoBlob2||null;S.ox2=e.ox2||0;S.oy2=e.oy2||0;S.zoom2=e.zoom2||1;S.xph=(e.xph||[]).map(p=>({...p})); const z=$('#zoom'); if(z) z.value=Math.round(S.zoom*100); try{buildCollageUI()}catch(_){} } }
+function render(){ phSync(); cancelAnimationFrame(raf); raf=requestAnimationFrame(draw); }
 function draw(){
   const F=FORMATS[S.format], W=F.w, H=F.h;
   const Q=S.exporting?S.q:1; S.qNow=Q;
@@ -1548,7 +1583,7 @@ function draw(){
   if(!S.exporting) S.hits=[]; S.hitsAll=[]; _hcnt={};
   navUpdate();
   if(S.tpl==='reducido'){ if(!['p1','qf','sf','fin','all'].includes(S.red.mode)) S.red.mode='p1'; } else if(isRed(S.tpl)) S.red.mode=PHMAP[S.tpl];
-  const tint=mainTint();
+  let tint=mainTint(); if(S.account==='pn'&&!S.photo&&PS.n()<2) tint='#3b5260';
   if(S.autoTint){const ti=$('#tint'); if(ti.value!==tint) ti.value=tint;}
   if(S.tpl==='partido'&&!S.exporting) saveCard();
   if(!S.exporting){ queueSave(); histQueue(); }

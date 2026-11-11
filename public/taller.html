@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 12/11 · 14:25</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 11/11 · 13:52</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -548,9 +548,32 @@ function colRegions(W,H){
   return {A,B,line};
 }
 const rect=(x,y,w,h)=>[[x,y],[x+w,y],[x+w,y+h],[x,y+h]];
+const COLLAYS={
+  3:[['l1','Grande izq.'],['r1','Grande der.'],['t1','Grande arriba'],['b1','Grande abajo'],['c3','3 columnas'],['r3','3 filas']],
+  4:[['g','Cuadrícula 2×2'],['l1','Grande izq.'],['t1','Grande arriba'],['c4','4 columnas'],['r4','4 filas']]
+};
+function colLay(n){ const L=COLLAYS[n]; if(!L) return null; const C=S.ly.col; return L.some(x=>x[0]===C.lay)?C.lay:L[0][0]; }
+function layGen(n,k,W,H,s){
+  const P=[],Ln=[]; const V=(x,y0,y1)=>Ln.push([[x,y0],[x,y1]]), Hh=(y,x0,x1)=>Ln.push([[x0,y],[x1,y]]);
+  const cols=m=>{for(let i=0;i<m;i++){P.push(rect(W*i/m,0,W/m,H)); if(i) V(W*i/m,0,H);}}, rows=m=>{for(let i=0;i<m;i++){P.push(rect(0,H*i/m,W,H/m)); if(i) Hh(H*i/m,0,W);}};
+  const X=W*s, Y=H*s;
+  if(n===3){
+    if(k==='l1'){P.push(rect(0,0,X,H),rect(X,0,W-X,H/2),rect(X,H/2,W-X,H/2)); V(X,0,H); Hh(H/2,X,W);}
+    else if(k==='r1'){P.push(rect(W-X,0,X,H),rect(0,0,W-X,H/2),rect(0,H/2,W-X,H/2)); V(W-X,0,H); Hh(H/2,0,W-X);}
+    else if(k==='t1'){P.push(rect(0,0,W,Y),rect(0,Y,W/2,H-Y),rect(W/2,Y,W/2,H-Y)); Hh(Y,0,W); V(W/2,Y,H);}
+    else if(k==='b1'){P.push(rect(0,H-Y,W,Y),rect(0,0,W/2,H-Y),rect(W/2,0,W/2,H-Y)); Hh(H-Y,0,W); V(W/2,0,H-Y);}
+    else if(k==='c3') cols(3); else rows(3);
+  } else {
+    if(k==='g'){P.push(rect(0,0,W/2,H/2),rect(W/2,0,W/2,H/2),rect(0,H/2,W/2,H/2),rect(W/2,H/2,W/2,H/2)); V(W/2,0,H); Hh(H/2,0,W);}
+    else if(k==='l1'){const h=H/3; P.push(rect(0,0,X,H),rect(X,0,W-X,h),rect(X,h,W-X,h),rect(X,2*h,W-X,h)); V(X,0,H); Hh(h,X,W); Hh(2*h,X,W);}
+    else if(k==='t1'){const w=W/3; P.push(rect(0,0,W,Y),rect(0,Y,w,H-Y),rect(w,Y,w,H-Y),rect(2*w,Y,w,H-Y)); Hh(Y,0,W); V(w,Y,H); V(2*w,Y,H);}
+    else if(k==='c4') cols(4); else rows(4);
+  }
+  return {polys:P,lines:Ln};
+}
 function regionsN(W,H,n){
   if(n<=2){const R=colRegions(W,H); return {polys:[R.A,R.B],lines:[R.line]};}
-  if(n===3) return {polys:[rect(0,0,W/2,H),rect(W/2,0,W/2,H/2),rect(W/2,H/2,W/2,H/2)],lines:[[[W/2,0],[W/2,H]],[[W/2,H/2],[W,H/2]]]};
+  if(n<=4){ const C=S.ly.col, s=Math.max(.15,Math.min(.85,C.split/100)); return layGen(n,colLay(n),W,H,s); }
   const r=n<=6?2:3, base=Math.floor(n/r), extra=n%r, polys=[], lines=[]; let k=0;
   for(let i=0;i<r;i++){const cnt=base+(i>=r-extra?1:0), y=H*i/r, h=H/r; if(i>0) lines.push([[0,y],[W,y]]); for(let j=0;j<cnt;j++){const x=W*j/cnt; polys.push(rect(x,y,W/cnt,h)); if(j>0) lines.push([[x,y],[x,y+h]]);} }
   return {polys,lines};
@@ -591,7 +614,6 @@ function pnBg(c,W,H,tint){
   c.beginPath(); for(let k=0;k<5;k++){ const t=k*Math.PI*2/5-Math.PI/2; const px=Math.cos(t)*W*.12, py=Math.sin(t)*W*.12; k?c.lineTo(px,py):c.moveTo(px,py);} c.closePath(); c.fill();
   c.restore();
   /* línea de acento y viñeta */
-  c.fillStyle='rgba(248,240,204,.9)'; c.fillRect(0,0,W,Math.max(8,H*.006));
   const vg=c.createRadialGradient(W/2,H*.5,W*.3,W/2,H*.5,Math.max(W,H)*.8); vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(0,0,0,.5)'); c.fillStyle=vg; c.fillRect(0,0,W,H);
 }
 const FXDEF={op:100,blur:0,bri:100,con:100,sat:100,gray:0,vig:0,ca:0,col:'#000000'};
@@ -1656,7 +1678,16 @@ function buildCollageUI(){
       [['h','Izquierda | Derecha'],['v','Arriba / Abajo'],['d1','Diagonal ╲'],['d2','Diagonal ╱']].forEach(([v,nn])=>{const o=document.createElement('option');o.value=v;o.textContent=nn;se.appendChild(o)});
       se.value=C.mode; se.onchange=()=>{C.mode=se.value;persist();render()}; lw.appendChild(se); body.appendChild(lw);
       ctl(body,'Dónde se corta',C,'split',{min:15,max:85,unit:' %',def:50});
-    } else { const h=document.createElement('p'); h.className='hint'; h.textContent='Con 3 o más fotos el diseño se acomoda solo en cuadros.'; body.appendChild(h); }
+    } else if(COLLAYS[n]){
+      const lw=document.createElement('div'); lw.style.cssText='display:flex;flex-direction:column;gap:6px'; const lt=document.createElement('span'); lt.textContent='Diseño del collage'; lt.style.cssText='font-size:13px;font-weight:600'; lw.appendChild(lt);
+      const grid=document.createElement('div'); grid.style.cssText='display:grid;grid-template-columns:repeat(3,1fr);gap:8px'; const cur=colLay(n);
+      COLLAYS[n].forEach(([k,nn])=>{ const b=document.createElement('button'); b.type='button'; b.className='ghost'; b.setAttribute('aria-pressed',k===cur); b.title=nn; b.style.cssText='display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 4px;min-height:0;font-size:11px;line-height:1.1;'+(k===cur?'outline:2px solid var(--accent)':'');
+        const mc=document.createElement('canvas'); mc.width=60; mc.height=76; mc.style.cssText='width:30px;height:38px;border-radius:3px;box-shadow:none;min-height:0;max-height:none'; const x=mc.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,60,76); const R=layGen(n,k,60,76,.5); const cs=['#3b82f6','#10b981','#f59e0b','#ef4444'];
+        R.polys.forEach((q,i)=>{x.fillStyle=cs[i%4]; x.fillRect(q[0][0],q[0][1],q[2][0]-q[0][0],q[2][1]-q[0][1]);}); x.strokeStyle='#fff'; x.lineWidth=2; R.lines.forEach(l=>{x.beginPath();x.moveTo(l[0][0],l[0][1]);x.lineTo(l[1][0],l[1][1]);x.stroke()});
+        const t=document.createElement('span'); t.textContent=nn; b.append(mc,t); b.onclick=()=>{C.lay=k; persist(); buildCollageUI(); render()}; grid.appendChild(b); });
+      lw.appendChild(grid); body.appendChild(lw);
+      if(!['c3','r3','g','c4','r4'].includes(cur)) ctl(body,'Tamaño de la foto grande',C,'split',{min:25,max:75,unit:' %',def:50});
+    } else { const h=document.createElement('p'); h.className='hint'; h.textContent='Con 5 o más fotos el diseño se acomoda solo en cuadros.'; body.appendChild(h); }
     ctl(body,'Grosor de la línea que las separa',C,'gap',{min:0,max:40,unit:' px',def:8}); colorCtl(body,'Color de la línea',C,'gc');
   }
   const f2=document.getElementById('photoIn2'); if(f2) f2.addEventListener('change',async e=>{const fs=[...e.target.files]; e.target.value=''; if(fs.length) await addPhotos(fs)});
@@ -1745,7 +1776,7 @@ function buildFormats(){
 function buildTpls(){
   const box=$('#tpls'); box.innerHTML=''; if(typeof mobTitle==='function') mobTitle();
   fixTpl(); tplKeys().map(k=>[k,TEMPLATES[k]]).forEach(([k,v])=>{const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=v.label;
-    b.setAttribute('aria-pressed',k===S.tpl);b.onclick=()=>{S.tpl=k;if(k!=='equipos'&&S.format==='portada'){S.format='retrato';S.ox=S.oy=0} buildTpls();buildFormats();buildQual();buildFields();render()};box.appendChild(b)});
+    b.setAttribute('aria-pressed',k===S.tpl);b.onclick=()=>{S.tpl=k;if(k==='noticia'){S.autoTint=true;const ai=$('#autoTint'); if(ai) ai.checked=true;} if(k!=='equipos'&&S.format==='portada'){S.format='retrato';S.ox=S.oy=0} buildTpls();buildFormats();buildQual();buildFields();render()};box.appendChild(b)});
 }
 function ctl(parent,label,obj,key,o){
   const w=document.createElement('label'); w.className='ctl'; const t=document.createElement('span'); t.textContent=label;

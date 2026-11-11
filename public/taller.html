@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 11/11 · 14:50</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 11/11 · 15:05</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -2315,13 +2315,20 @@ function vidFrame(){ if(!VID.el||S.photo!==VID.cv) return; VID.cv.getContext('2d
 function vidLoop(){ if(!VID.playing) return; if(S.photo!==VID.cv){ VID.playing=false; VID.el.pause(); vidUI(); return; } vidFrame(); if(VID.el.requestVideoFrameCallback) VID.el.requestVideoFrameCallback(vidLoop); else requestAnimationFrame(vidLoop); }
 function vidPlay(){ if(!VID.el) return; VID.el.muted=true; VID.el.play().then(()=>{ VID.playing=true; vidUI(); vidLoop(); }).catch(()=>{ VID.playing=false; vidUI(); vidFrame(); }); }
 function vidPause(){ if(!VID.el) return; VID.playing=false; VID.el.pause(); vidUI(); render(); }
-function vidClear(){ if(!VID.el) return; VID.playing=false; try{VID.el.pause()}catch(_){} if(VID.url) URL.revokeObjectURL(VID.url); const was=S.photo===VID.cv; VID.el=null; VID.cv=null; VID.url=null; VID.ac=null; VID.dest=null; VID.src=null; if(was){ PS.load([]); } vidUI(); try{buildCollageUI()}catch(_){} }
+function vidClear(){ if(!VID.el) return; try{VID.el.remove()}catch(_){} VID.playing=false; try{VID.el.pause()}catch(_){} if(VID.url) URL.revokeObjectURL(VID.url); const was=S.photo===VID.cv; VID.el=null; VID.cv=null; VID.url=null; VID.ac=null; VID.dest=null; VID.src=null; if(was){ PS.load([]); } vidUI(); try{buildCollageUI()}catch(_){} }
 $('#vidIn').addEventListener('change',async e=>{
   const f=e.target.files[0]; e.target.value=''; if(!f) return; const msg=$('#dlmsg'); msg.textContent='Cargando video…';
   vidClear();
   const el=document.createElement('video'); el.muted=true; el.loop=true; el.playsInline=true; el.setAttribute('playsinline',''); el.preload='auto'; const url=URL.createObjectURL(f); el.src=url;
-  try{ await new Promise((ok,no)=>{ el.onloadeddata=ok; el.onerror=()=>no(new Error('x')); setTimeout(()=>no(new Error('t')),20000); }); }
-  catch(err){ URL.revokeObjectURL(url); msg.textContent='No pude leer ese video. Probá con un MP4 o MOV.'; return; }
+  el.style.cssText='position:fixed;left:-9999px;top:0;width:2px;height:2px;opacity:0;pointer-events:none'; document.body.appendChild(el);
+  try{
+    await new Promise((ok,no)=>{ const done=()=>ok(); ['loadedmetadata','loadeddata','canplay'].forEach(ev=>el.addEventListener(ev,done,{once:true})); el.onerror=()=>no(new Error('x')); setTimeout(()=>no(new Error('t')),25000); try{el.load()}catch(_){} });
+    /* iPhone no decodifica hasta que se reproduce: lo arrancamos mudo y esperamos al primer cuadro */
+    try{ await el.play(); }catch(_){}
+    for(let i=0;i<60&&(el.readyState<2||!el.videoWidth);i++) await new Promise(r=>setTimeout(r,100));
+    if(!el.videoWidth) throw new Error('nodim');
+    el.pause(); try{ el.currentTime=0 }catch(_){} await new Promise(r=>setTimeout(r,150));
+  }catch(err){ el.remove(); URL.revokeObjectURL(url); const code=el.error&&el.error.code; msg.textContent='No pude abrir ese video'+(code?` (error ${code})`:'')+'. Si es un video HDR o HEVC de iPhone, probá grabarlo en "Más compatible" (Ajustes > Cámara > Formatos).'; return; }
   const vw=el.videoWidth, vh=el.videoHeight, k=Math.min(1,2560/Math.max(vw,vh)), cvs=document.createElement('canvas'); cvs.width=Math.round(vw*k); cvs.height=Math.round(vh*k);
   Object.assign(VID,{el,cv:cvs,url,name:f.name.length>26?f.name.slice(0,23)+'…':f.name});
   cvs.getContext('2d').drawImage(el,0,0,cvs.width,cvs.height);

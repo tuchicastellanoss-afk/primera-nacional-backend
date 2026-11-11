@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 12/11 · 14:05</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 12/11 · 14:25</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -496,6 +496,7 @@ S.mo={}; S.hitsAll=[]; let _hcnt={};
 function moObj(key){ return { get dx(){return (S.mo[key]||{}).dx||0}, set dx(v){ (S.mo[key]=S.mo[key]||{}).dx=v; }, get dy(){return (S.mo[key]||{}).dy||0}, set dy(v){ (S.mo[key]=S.mo[key]||{}).dy=v; }, get lk_dx(){return (S.mo[key]||{}).lk}, set lk_dx(v){ (S.mo[key]=S.mo[key]||{}).lk=v; } }; }
 function moAny(){ const pre=txKey()+'|'; return Object.keys(S.mo).some(k=>k.startsWith(pre)&&((S.mo[k].dx||0)||(S.mo[k].dy||0))); }
 function hitBox(id,label,x,y,w,h,multi,mv){
+  if(_mp) return;
   let m=mv;
   if(!(mv&&mv.x)){ const base=txKey()+'|'+(id||label); _hcnt[base]=(_hcnt[base]||0)+1; const key=base+'#'+_hcnt[base], o=moObj(key), dx=o.dx, dy=o.dy;
     m=Object.assign({},mv||{},{o,x:'dx',y:'dy',tb:S.tpl!=='partido',rng:1200,gen:true,key,ctr:{x:x+w/2+dx,y:y+h/2+dy}});
@@ -504,13 +505,16 @@ function hitBox(id,label,x,y,w,h,multi,mv){
 }
 let _bd=null;
 function moSnapshot(){ if(!_bd){ _bd=document.createElement('canvas'); } if(_bd.width!==cv.width||_bd.height!==cv.height){ _bd.width=cv.width; _bd.height=cv.height; } const x=_bd.getContext('2d'); x.setTransform(1,0,0,1,0,0); x.clearRect(0,0,_bd.width,_bd.height); x.drawImage(cv,0,0); }
-/* mueve los píxeles de cada elemento: restaura el fondo donde estaba y lo pega en el lugar nuevo */
-function moApply(c){
+/* mueve los elementos: se dibuja la escena sobre negro y sobre blanco para sacar cada elemento con su transparencia exacta (sin bordes duros), se restaura el fondo y se pega en el lugar nuevo */
+let _mp=false;
+function moApply(c,tfn,W,H,F){
   if(!_bd) return; const Q=S.qNow||1, bx=_bd.getContext('2d');
-  for(const hh of S.hitsAll){ const dx=hh.o.dx||0, dy=hh.o.dy||0; if(!dx&&!dy) continue; const pad=6;
+  const mk=col=>{ const o=document.createElement('canvas'); o.width=cv.width; o.height=cv.height; const x=o.getContext('2d'); x.setTransform(1,0,0,1,0,0); x.fillStyle=col; x.fillRect(0,0,o.width,o.height); x.setTransform(Q,0,0,Q,0,0); return x; };
+  const xb=mk('#000'), xw=mk('#fff'); _mp=true; try{ _hcnt={}; tfn(xb,W,H,F); _hcnt={}; tfn(xw,W,H,F); }catch(e){ _mp=false; return; } _mp=false;
+  for(const hh of S.hitsAll){ const dx=hh.o.dx||0, dy=hh.o.dy||0; if(!dx&&!dy) continue; const pad=24;
     const x0=Math.max(0,Math.floor((hh.x-pad)*Q)), y0=Math.max(0,Math.floor((hh.y-pad)*Q)), x1=Math.min(cv.width,Math.ceil((hh.x+hh.w+pad)*Q)), y1=Math.min(cv.height,Math.ceil((hh.y+hh.h+pad)*Q)), w=x1-x0, h=y1-y0; if(w<=0||h<=0) continue;
-    try{ const cur=c.getImageData(x0,y0,w,h), back=bx.getImageData(x0,y0,w,h), out=new ImageData(w,h), a=cur.data, b=back.data, o=out.data;
-      for(let i=0;i<a.length;i+=4){ const d=Math.max(Math.abs(a[i]-b[i]),Math.abs(a[i+1]-b[i+1]),Math.abs(a[i+2]-b[i+2]),Math.abs(a[i+3]-b[i+3])); if(d>10){ o[i]=a[i]; o[i+1]=a[i+1]; o[i+2]=a[i+2]; o[i+3]=255; } }
+    try{ const back=bx.getImageData(x0,y0,w,h), B=xb.getImageData(x0,y0,w,h).data, Wd=xw.getImageData(x0,y0,w,h).data, out=new ImageData(w,h), o=out.data;
+      for(let i=0;i<B.length;i+=4){ let al=1-((Wd[i]-B[i])+(Wd[i+1]-B[i+1])+(Wd[i+2]-B[i+2]))/765; if(al<.004) continue; if(al>1) al=1; o[i]=Math.min(255,B[i]/al); o[i+1]=Math.min(255,B[i+1]/al); o[i+2]=Math.min(255,B[i+2]/al); o[i+3]=Math.round(al*255); }
       c.putImageData(back,x0,y0); const t=document.createElement('canvas'); t.width=w; t.height=h; t.getContext('2d').putImageData(out,0,0);
       c.save(); c.setTransform(1,0,0,1,0,0); c.drawImage(t,x0+Math.round(dx*Q),y0+Math.round(dy*Q)); c.restore(); }catch(e){} }
 }
@@ -1698,8 +1702,8 @@ function draw(){
   if(S.bzFlat){ c.fillStyle=S.bzFlat.bg; c.fillRect(0,0,W,H); S.bzFlat.deco(c,W,H,S.bzFlat); drawHeader(c,W,F.top,currentAccount()); } else
   if(S.tpl==='partido') drawDark(c,W,H,S.ly.ov/100); else {drawOverlay(c,W,H,tint,S.tpl==='tabla'||isRed(S.tpl)||S.tpl==='resumen'||S.tpl==='equipos'||S.tpl==='arbitros'||S.tpl==='precios'||S.tpl==='agenda'); if(S.format!=='portada') drawHeader(c,W,F.top,currentAccount());}
   const _mo=moAny(); if(_mo) moSnapshot();
-  ({noticia:drawNoticia,resultado:drawResultado,consigna:drawConsigna,vs:drawVs,tabla:drawTabla,partido:drawPartido,reducido:drawReducido,red_qf:drawReducido,red_sf:drawReducido,red_fin:drawReducido,red_all:drawReducido,resumen:drawResumen,equipos:drawEquipos,arbitros:drawArbitros,precios:drawLista,agenda:drawLista,aviso:drawAviso,evento:drawEvento})[S.tpl](c,W,H,F);
-  if(_mo) moApply(c);
+  const _tfn=({noticia:drawNoticia,resultado:drawResultado,consigna:drawConsigna,vs:drawVs,tabla:drawTabla,partido:drawPartido,reducido:drawReducido,red_qf:drawReducido,red_sf:drawReducido,red_fin:drawReducido,red_all:drawReducido,resumen:drawResumen,equipos:drawEquipos,arbitros:drawArbitros,precios:drawLista,agenda:drawLista,aviso:drawAviso,evento:drawEvento})[S.tpl]; _tfn(c,W,H,F);
+  if(_mo) moApply(c,_tfn,W,H,F);
   drawTexts(c,W,H);
   if(!S.exporting&&S.guide){c.save();c.strokeStyle='#ff2fd0';c.lineWidth=3;c.setLineDash([16,10]);
     if(S.guide.x){c.beginPath();c.moveTo(W/2,0);c.lineTo(W/2,H);c.stroke()} if(S.guide.y){c.beginPath();c.moveTo(0,H/2);c.lineTo(W,H/2);c.stroke()} c.restore();}

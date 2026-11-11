@@ -122,7 +122,7 @@ a{color:var(--accent)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 11/11 · 23:15</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 11/11 · 23:30</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -1442,6 +1442,7 @@ async function stApply(st){
   if(st.cards&&st.cards.length){for(const k of st.cards){k.photo=await toBitmap(k.photoBlob); k.photo2=await toBitmap(k.photoBlob2); k.xph=await Promise.all((k.xph||[]).map(async p=>({...p,img:await toBitmap(p.blob)}))); } S.cards=st.cards; S.cur=Math.min(st.cur||0,S.cards.length-1)}
   if(S.cards.length<=1&&(!S.cards[0]||S.cards[0].example||(S.cards[0].home==='Acassuso'&&S.cards[0].away==='All Boys'))){ S.cards=defCards(); S.cur=0; if(S.tags.l==='Fecha 28'&&S.tags.r==='Zona A'){S.tags.l='Reducido';S.tags.r="Primera instancia"} }
   S.phs={}; for(const [k,e] of Object.entries(st.phs||{})){ const o={...e}; o.photo=await toBitmap(e.photoBlob); o.photo2=await toBitmap(e.photoBlob2); o.xph=[]; for(const p of (e.xph||[])){ const im=await toBitmap(p.blob); if(im) o.xph.push({img:im,blob:p.blob,ox:p.ox||0,oy:p.oy||0,zoom:p.zoom||1}); } S.phs[k]=o; }
+  if(!S.red.flatV2){ S.red.bizFlat={}; S.red.flatV2=1; }
   fixTpl(); S.phKey=S.account+'|'+S.tpl; $('#autoTint').checked=S.autoTint; $('#tint').value=S.tint; $('#zoom').value=Math.round(S.zoom*100);
   buildAccounts();buildFormats();buildQual();buildTpls();buildFields();buildCollageUI();render();
 }

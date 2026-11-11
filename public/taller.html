@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 11/11 · 15:05</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 11/11 · 15:20</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -178,6 +178,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
         <button class="primary" id="dlVid" type="button" hidden>Descargar video</button>
         <button class="ghost" id="dlAll" type="button" hidden>Descargar toda la tanda</button>
         <label class="qual">Calidad <select id="qual"></select></label>
+        <label class="qual">Fondo <select id="trSel"><option value="0">Normal</option><option value="1">Transparente (con degradé)</option><option value="2">Transparente (solo diseño)</option></select></label>
         <span class="hint" id="dlmsg" role="status"></span><span class="hint" id="autosave" role="status"></span><span class="hint" id="syncmsg" role="status"></span>
       </div>
       <div class="cardnav" id="cardNav" hidden><button type="button" id="cnPrev" aria-label="Partido anterior">‹</button><div id="cnLab" role="status"></div><button type="button" id="cnNext" aria-label="Partido siguiente">›</button></div>
@@ -1738,9 +1739,9 @@ function draw(){
   if(S.tpl==='partido'&&!S.exporting) saveCard();
   if(!S.exporting&&!(window.VID&&VID.playing)){ queueSave(); histQueue(); }
   S.logoBot=0; S.bzFlat=(typeof bzFlatOn==='function')?bzFlatOn():null;
-  drawPhoto(c,W,H,tint);
+  if(S.tr) S.bzFlat=null; else drawPhoto(c,W,H,tint);
   if(S.bzFlat){ c.fillStyle=S.bzFlat.bg; c.fillRect(0,0,W,H); S.bzFlat.deco(c,W,H,S.bzFlat); drawHeader(c,W,F.top,currentAccount()); } else
-  if(S.tpl==='partido') drawDark(c,W,H,S.ly.ov/100); else {drawOverlay(c,W,H,tint,S.tpl==='tabla'||isRed(S.tpl)||S.tpl==='resumen'||S.tpl==='equipos'||S.tpl==='arbitros'||S.tpl==='precios'||S.tpl==='agenda'); if(S.format!=='portada') drawHeader(c,W,F.top,currentAccount());}
+  if(S.tpl==='partido'){ if(S.tr!==2) drawDark(c,W,H,S.ly.ov/100); } else {if(S.tr!==2) drawOverlay(c,W,H,tint,S.tpl==='tabla'||isRed(S.tpl)||S.tpl==='resumen'||S.tpl==='equipos'||S.tpl==='arbitros'||S.tpl==='precios'||S.tpl==='agenda'); if(S.format!=='portada') drawHeader(c,W,F.top,currentAccount());}
   const _mo=moAny(); if(_mo) moSnapshot();
   const _tfn=({noticia:drawNoticia,resultado:drawResultado,consigna:drawConsigna,vs:drawVs,tabla:drawTabla,partido:drawPartido,reducido:drawReducido,red_qf:drawReducido,red_sf:drawReducido,red_fin:drawReducido,red_all:drawReducido,resumen:drawResumen,equipos:drawEquipos,arbitros:drawArbitros,precios:drawLista,agenda:drawLista,aviso:drawAviso,evento:drawEvento})[S.tpl]; _tfn(c,W,H,F);
   if(_mo) moApply(c,_tfn,W,H,F);
@@ -2484,6 +2485,8 @@ function buildQual(){
   sel.value=S.quality;
 }
 $('#qual').onchange=e=>{S.quality=e.target.value;persist()};
+S.tr=0; function trUI(){ cv.style.backgroundColor=S.tr?'#fff':''; cv.style.backgroundImage=S.tr?'linear-gradient(45deg,#d9dce1 25%,transparent 25%,transparent 75%,#d9dce1 75%),linear-gradient(45deg,#d9dce1 25%,transparent 25%,transparent 75%,#d9dce1 75%)':''; cv.style.backgroundSize=S.tr?'24px 24px':''; cv.style.backgroundPosition=S.tr?'0 0,12px 12px':''; }
+$('#trSel').onchange=e=>{S.tr=+e.target.value; trUI(); render()};
 $('#dl').onclick=download;
 
 /* cuentas propias */

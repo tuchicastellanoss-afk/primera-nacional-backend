@@ -107,46 +107,46 @@ a{color:var(--accent)}
 #gate h1{font-size:28px}
 #gate .err{color:var(--warn);min-height:1.2em;font-size:13px}
 
-/* ===== Estilo editor profesional (oscuro, compacto) ===== */
+/* ===== Estilo editor profesional (claro, compacto) ===== */
 :root,:root:not([data-theme="light"]),:root[data-theme="dark"],:root[data-theme="light"]{
-  --bg:#1b1b1d; --panel:#262628; --fg:#ececec; --muted:#9b9ba1; --line:#3a3a3e;
-  --accent:#3b8cf5; --accent-fg:#ffffff; --soft:#303034; --warn:#ff8a7a; color-scheme:dark;
+  --bg:#f3f4f6; --panel:#ffffff; --fg:#1c1d21; --muted:#6a6e76; --line:#dfe1e6;
+  --accent:#2f7df6; --accent-fg:#ffffff; --soft:#eceef2; --warn:#c0392b; color-scheme:light;
   --f-disp:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif}
-html{color-scheme:dark}
+html{color-scheme:light}
 body{font-size:13px;letter-spacing:-.003em}
 h1{font-family:var(--f-ui);font-weight:600;font-size:14px;letter-spacing:0;display:flex;align-items:center;gap:10px}
-h1::before{content:'';width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,#3b8cf5,#8a5cf6);flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+h1::before{content:'';width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,#2f7df6,#7c5cf6);flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.35)}
 #gate h1{font-size:20px} #gate h1::before{width:28px;height:28px}
 .seg button,.chip{border-radius:6px;min-height:30px;padding:5px 12px;font-size:12.5px;background:var(--soft);border-color:transparent}
-.seg button:hover,.chip:hover{background:#3a3a3f}
+.seg button:hover,.chip:hover{background:#e0e3e9}
 .seg button[aria-pressed="true"],.chip[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600}
-.ghost{border-radius:6px;min-height:30px;padding:5px 12px;font-size:12.5px;background:var(--soft);border-color:transparent}
-.ghost:hover{background:#3a3a3f}
+.ghost{border-radius:6px;min-height:30px;padding:5px 12px;font-size:12.5px;background:var(--panel);border-color:var(--line)}
+.ghost:hover{background:var(--soft)}
 .primary{border-radius:6px;min-height:34px;padding:7px 16px;font-size:13px}
 .panel{border-radius:0}
 .sec{padding:12px 14px}
-h2{font-size:10.5px;letter-spacing:.1em;color:#8b8b92}
-input[type=text],input[type=number],textarea,select{background:#1b1b1d;border-radius:6px;min-height:32px;padding:6px 9px;font-size:12.5px}
-input[type=color]{height:32px;width:40px;background:#1b1b1d}
-.file{background:#1b1b1d;border-radius:6px;min-height:36px;font-size:12.5px}
-.crest{background:#1b1b1d;border-radius:6px}
+h2{font-size:10.5px;letter-spacing:.1em;color:#7b7f88}
+input[type=text],input[type=number],textarea,select{background:#fff;border-radius:6px;min-height:32px;padding:6px 9px;font-size:12.5px}
+input[type=color]{height:32px;width:40px;background:#fff}
+.file{background:#fafbfc;border-radius:6px;min-height:36px;font-size:12.5px}
+.crest{background:#fff;border-radius:6px}
 .sug{border-radius:6px;background:var(--soft);border-color:transparent}
 input[type=range]{height:16px}
 .canvasWrap{background:transparent;border:0;padding:20px 20px 8px}
-canvas{box-shadow:0 0 0 1px rgba(255,255,255,.08),0 12px 40px rgba(0,0,0,.6)}
+canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 #qe{border-radius:8px;background:var(--panel)}
 @media (max-width:860px){ body{padding-top:env(safe-area-inset-top,0px)} .top{padding-top:10px} }
 @media (min-width:861px){
   html,body{height:100%;overflow:hidden}
   body{padding:0}
   .wrap{max-width:none;height:100vh;padding:0;display:flex;flex-direction:column}
-  .top{margin:0;height:48px;flex:none;padding:0 16px;background:#202022;border-bottom:1px solid #000;flex-wrap:nowrap;gap:16px}
+  .top{margin:0;height:48px;flex:none;padding:0 16px;background:#fff;border-bottom:1px solid var(--line);flex-wrap:nowrap;gap:16px}
   .top .seg{flex-wrap:nowrap;overflow-x:auto;gap:4px;padding:2px}
   .grid{flex:1;min-height:0;grid-template-columns:minmax(0,1fr) 344px;gap:0;align-items:stretch}
-  .stage{position:static;max-height:none;height:100%;overflow-y:auto;padding:0 16px 16px;background:#141415;background-image:radial-gradient(#242427 1px,transparent 1px);background-size:18px 18px;justify-content:flex-start}
+  .stage{position:static;max-height:none;height:100%;overflow-y:auto;padding:0 16px 16px;background:#e9ebef;background-image:radial-gradient(#d3d6dd 1px,transparent 1px);background-size:18px 18px;justify-content:flex-start}
   canvas{max-height:calc(100vh - 230px)}
-  .panel{height:100%;overflow-y:auto;border:0;border-left:1px solid #000;background:var(--panel)}
-  .panel::-webkit-scrollbar,.stage::-webkit-scrollbar{width:10px}.panel::-webkit-scrollbar-thumb,.stage::-webkit-scrollbar-thumb{background:#454549;border-radius:6px;border:2px solid transparent;background-clip:padding-box}
+  .panel{height:100%;overflow-y:auto;border:0;border-left:1px solid var(--line);background:var(--panel)}
+  .panel::-webkit-scrollbar,.stage::-webkit-scrollbar{width:10px}.panel::-webkit-scrollbar-thumb,.stage::-webkit-scrollbar-thumb{background:#c4c7ce;border-radius:6px;border:2px solid transparent;background-clip:padding-box}
 }
 </style>
 </head>
@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(255,255,255,.08),0 12px 40px rgba(0,0,0,.6)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 12/11 · 13:50</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 12/11 · 14:05</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 

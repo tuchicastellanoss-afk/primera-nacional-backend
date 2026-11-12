@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 12/11 · 13:55</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 12/11 · 14:50</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -1026,8 +1026,48 @@ function redHeader(c,W,F,tk,sk,idT,idS,y0,k){
   if((R[sk]||'').trim()){y+=62*k; const ts=fit(c,R[sk].toUpperCase(),FD,600,W-140,1,48*k,22,'rSub'); c.fillStyle='rgba(226,226,226,.94)'; c.fillText(ts.lines[0]||'',W/2,y); hitLines(c,idS,'Subtítulo',ts.lines,W/2,y,ts.size,ts.size,'center',false,{ctrls:[SZ('rSub')]});}
   return y+54*k;
 }
+
+const TAB_NOTE='Se ordena por posición en la zona, luego puntos, diferencia de gol y goles a favor. En las series de ida y vuelta define de local la vuelta el mejor ubicado.';
+function redTabParse(txt){ const num=v=>{ const m=String(v==null?'':v).replace('−','-').replace(/[^\d+\-]/g,''); return m===''||m==='+'||m==='-'?null:parseInt(m,10); };
+  return String(txt||'').split(/\r?\n/).map(l=>l.trim()).filter(Boolean).map((l,i)=>{ const p=l.split(/\s*[,;|]\s*/), zm=String(p[1]||'').match(/(\d+)\D*([A-Za-z])?/); return {club:p[0],pz:zm?+zm[1]:99,zone:zm?(zm[2]?zm[2].toUpperCase():''):'',pts:num(p[2]),dg:num(p[3]),gf:num(p[4]),i,zraw:p[1]||''}; }).filter(r=>r.club).slice(0,8); }
+function redTabSort(rows,auto){ if(auto===false) return rows; const d=(a,b)=>(b==null?-1e9:b)-(a==null?-1e9:a); return rows.slice().sort((a,b)=>a.pz-b.pz||d(a.pts,b.pts)||d(a.dg,b.dg)||d(a.gf,b.gf)||a.i-b.i); }
+function drawRedTabla(c,W,H,F){
+  const R=S.red; if(R.tabT==null) R.tabT='TABLA DEL REDUCIDO'; if(R.tabS==null) R.tabS='Cuartos de final'; const stage=R.tabStage||'qf', bottom=H-F.bottom+10, M=56;
+  let y=redHeader(c,W,F,'tabT','tabS','f-tabT','f-tabS',null,.85); let yb=bottom;
+  const nt=String(R.tabNote==null?TAB_NOTE:R.tabNote).trim();
+  if(nt){ const ft=fit(c,nt,FD,600,W-150,3,28,16,'tabNote'), lh=ft.size*1.12, first=yb-(ft.lines.length-1)*lh; c.textAlign='center'; c.font=`600 ${ft.size}px ${FD}`; c.fillStyle='rgba(226,226,226,.82)'; ft.lines.forEach((l,q)=>c.fillText(l,W/2,first+q*lh)); hitLines(c,'f-tabNote','Aclaración',ft.lines,W/2,first,ft.size,lh,'center',true,{ctrls:[SZ('tabNote')]}); yb=first-ft.size-20; }
+  const rows=redTabSort(redTabParse(R.tabRows),R.tabAuto!==false), n=rows.length; c.textAlign='center'; c.textBaseline='alphabetic';
+  if(!n){ if(!S.exporting){ c.fillStyle='rgba(255,255,255,.55)'; c.font=`600 36px ${FD}`; c.fillText('CARGÁ LOS EQUIPOS EN EL PANEL',W/2,y+90); } return; }
+  const PAIRS=stage==='qf'?[[0,7],[1,6],[2,5],[3,4]]:stage==='sf'?[[0,3],[1,2]]:[[0,1]], pairs=PAIRS.filter(([i,j])=>i<n&&j<n), np=pairs.length;
+  const avail=yb-y, rt=Math.min(64,(avail*(np?.55:1)-40)/n), rc=np?Math.min(92,(avail*.45-64)/np):0, CA='#f8f0cc';
+  const hasPts=rows.some(r=>r.pts!=null), hasDg=rows.some(r=>r.dg!=null), hasGf=rows.some(r=>r.gf!=null), hasZ=rows.some(r=>r.zraw);
+  const cols=[]; const cx=[660,765,865,960]; if(hasZ) cols.push(['ZONA',cx[0],r=>r.pz<99?`${r.pz}.º${r.zone?' '+r.zone:''}`:r.zraw]); if(hasPts) cols.push(['PTS',cx[1],r=>r.pts==null?'':String(r.pts)]); if(hasDg) cols.push(['DG',cx[2],r=>r.dg==null?'':(r.dg>0?'+':'')+r.dg]); if(hasGf) cols.push(['GF',cx[3],r=>r.gf==null?'':String(r.gf)]);
+  c.font=`600 24px ${FD}`; c.fillStyle='rgba(226,226,226,.7)'; cols.forEach(([lb,x])=>c.fillText(lb,x,y+22)); c.textAlign='left'; c.fillText('POS · EQUIPO',M+18,y+22); y+=34;
+  rows.forEach((r,i)=>{ const by=y+i*rt, top=i===0; c.fillStyle=top?'rgba(248,240,204,.16)':'rgba(0,0,0,.42)'; rrect(c,M,by+2,W-2*M,rt-4,12); c.fill(); if(top){ c.strokeStyle='rgba(248,240,204,.7)'; c.lineWidth=3; rrect(c,M,by+2,W-2*M,rt-4,12); c.stroke(); }
+    const cy=by+rt/2; c.textAlign='center'; c.font=`700 ${rt*.5}px ${FN}`; c.fillStyle=top?CA:'rgba(255,255,255,.65)'; c.fillText(String(i+1),M+34,cy+rt*.17);
+    const cs=rt*.7, img=findCrest(r.club); if(img) drawBox(c,img,M+66,cy-cs/2,cs,cs); const nx=M+66+cs+12, ft=fit(c,nm(r.club).toUpperCase(),FD,700,cx[0]-52-nx,1,rt*.46,16); c.textAlign='left'; c.fillStyle='#fff'; c.font=`700 ${ft.size}px ${FD}`; c.fillText(ft.lines[0]||'',nx,cy+ft.size*.3);
+    c.textAlign='center'; c.font=`700 ${rt*.46}px ${FN}`; c.fillStyle='#fff'; cols.forEach(([lb,x,fn])=>c.fillText(fn(r),x,cy+rt*.16)); });
+  hitBox('f-tabRows','Tabla',M,y,W-2*M,n*rt,true,{});
+  y+=n*rt+22;
+  if(np){ const tt=stage==='fin'?'LA FINAL':'LOS CRUCES'; c.textAlign='center'; c.font=`700 32px ${FD}`; c.fillStyle='rgba(240,240,240,.95)'; c.fillText(tt,W/2,y+24); c.save(); c.strokeStyle='rgba(255,255,255,.35)'; c.lineWidth=3; const mw=c.measureText(tt).width; c.beginPath(); c.moveTo(M,y+14); c.lineTo(W/2-mw/2-20,y+14); c.moveTo(W/2+mw/2+20,y+14); c.lineTo(W-M,y+14); c.stroke(); c.restore(); y+=44;
+    pairs.forEach(([i,j],k)=>{ const by=y+k*rc, a=rows[i], b=rows[j]; c.fillStyle='rgba(0,0,0,.42)'; rrect(c,M,by+3,W-2*M,rc-6,14); c.fill(); const cy=by+rc/2, cs=rc*.64, nw=W/2-M-70-cs-60;
+      c.textAlign='left'; c.font=`700 ${rc*.34}px ${FN}`; c.fillStyle=CA; c.fillText(`${i+1}.º`,M+14,cy+rc*.12); const imA=findCrest(a.club); if(imA) drawBox(c,imA,M+14+rc*.62,cy-cs/2,cs,cs); const fa=fit(c,nm(a.club).toUpperCase(),FD,700,nw,1,rc*.34,14); c.fillStyle='#fff'; c.font=`700 ${fa.size}px ${FD}`; c.fillText(fa.lines[0]||'',M+14+rc*.62+cs+12,cy+fa.size*.3);
+      c.textAlign='right'; c.font=`700 ${rc*.34}px ${FN}`; c.fillStyle=CA; c.fillText(`${j+1}.º`,W-M-14,cy+rc*.12); const imB=findCrest(b.club); if(imB) drawBox(c,imB,W-M-14-rc*.62-cs,cy-cs/2,cs,cs); const fb=fit(c,nm(b.club).toUpperCase(),FD,700,nw,1,rc*.34,14); c.fillStyle='#fff'; c.font=`700 ${fb.size}px ${FD}`; c.fillText(fb.lines[0]||'',W-M-14-rc*.62-cs-12,cy+fb.size*.3);
+      c.textAlign='center'; c.font=`700 ${rc*.3}px ${FN}`; c.fillStyle='rgba(255,255,255,.7)'; c.fillText('VS',W/2,cy+rc*.11); }); }
+}
+function buildRedTabUI(w){
+  const R=S.red; if(R.tabT==null) R.tabT='TABLA DEL REDUCIDO'; if(R.tabS==null) R.tabS='Cuartos de final';
+  const ST=[['qf','Cuartos de final'],['sf','Semifinales'],['fin','Final']], row=document.createElement('div'); row.className='chips'; row.setAttribute('role','group');
+  ST.forEach(([k,lb])=>{ const b=document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=lb; b.setAttribute('aria-pressed',(R.tabStage||'qf')===k); b.onclick=()=>{ R.tabStage=k; R.tabS=lb; buildFields(); render(); }; row.appendChild(b); }); w.appendChild(row);
+  const inp=(l,k,f)=>{ const lab=document.createElement('label'); lab.textContent=l; const e=document.createElement('input'); e.type='text'; e.id=f; e.value=R[k]||''; e.autocomplete='off'; e.addEventListener('input',()=>{R[k]=e.value; render()}); lab.appendChild(e); w.appendChild(lab); };
+  inp('Título','tabT','f-tabT'); inp('Subtítulo','tabS','f-tabS');
+  const lab=document.createElement('label'); lab.textContent='Equipos (uno por línea): Club, posición en su zona, puntos, DG, GF'; const ta=document.createElement('textarea'); ta.id='f-tabRows'; ta.rows=9; ta.style.cssText='width:100%;box-sizing:border-box'; ta.placeholder='Ej:\nTristán Suárez, 1B, 70, 22, 55\nFerro, 2A, 64, 15, 48\nTemperley, 3B, 60, 10, 44'; ta.value=R.tabRows||''; ta.addEventListener('input',()=>{R.tabRows=ta.value; render()}); lab.appendChild(ta); w.appendChild(lab);
+  if(R.tabAuto==null) R.tabAuto=true; chk(w,'Ordenar según el reglamento (si lo desmarcás, queda en el orden que escribas)',R,'tabAuto');
+  const nl=document.createElement('label'); nl.textContent='Aclaración debajo'; const na=document.createElement('textarea'); na.id='f-tabNote'; na.style.minHeight='70px'; na.value=R.tabNote==null?TAB_NOTE:R.tabNote; na.addEventListener('input',()=>{R.tabNote=na.value; render()}); nl.appendChild(na); w.appendChild(nl);
+  const det=document.createElement('details'); const sm=document.createElement('summary'); sm.textContent='Cómo se arma esta tabla (reglamento)'; det.appendChild(sm); const dd=document.createElement('div'); dd.className='hint'; dd.innerHTML='Después de cada instancia los cruces se vuelven a armar con una <b>tabla nueva</b> entre los clasificados. Orden: <b>1)</b> posición que ocupó cada club en su zona (el perdedor de la final por el primer ascenso, que fue 1.º de su zona, queda primero), <b>2)</b> puntos, <b>3)</b> diferencia de gol, <b>4)</b> goles a favor, <b>5)</b> sorteo.<br><b>Cuartos:</b> 1.º–8.º, 2.º–7.º, 3.º–6.º, 4.º–5.º. <b>Semifinales:</b> 1.º–4.º y 2.º–3.º. <b>Final:</b> 1.º–2.º. El mejor ubicado define de local la vuelta. Escribí la posición como "2A" (2.º de la zona A), "1B", etc.<br><i>Los criterios salen de lo que informó la prensa sobre el reglamento; si tenés el reglamento oficial de la AFA, chequealo.</i>'; det.appendChild(dd); w.appendChild(det);
+}
 function drawReducido(c,W,H,F){
-  const R=S.red; if(R.subs&&R.subs[R.mode]!=null) R.sub=R.subs[R.mode];
+  const R=S.red; if(R.mode==='tab') return drawRedTabla(c,W,H,F); if(R.subs&&R.subs[R.mode]!=null) R.sub=R.subs[R.mode];
   const bottom=H-F.bottom+10, ph0=R.mode, hasF=ph0==='p1'&&R.f1show!==false&&(R.f1||[]).length>0; let y, yF=0, chF=0, rhF=0;
   if(hasF){
     const yt=F.top+58*2+84; c.textAlign='center'; c.textBaseline='alphabetic'; const ft0=fit(c,String(R.f1title||'FINAL POR EL PRIMER ASCENSO').toUpperCase(),FD,700,W-100,1,84,40,'f1T');
@@ -1644,6 +1684,7 @@ function makeCopyPN(kind){
     if(mn>0&&mx/mn>=1.2) ctx.push('🔥 '+W2+' vendió '+(mx/mn).toFixed(1).replace('.',',')+' veces más entradas.'); else if(na&&nb) ctx.push('Paridad total en la venta de entradas.');
     if(nz(F.enWhen)) ctx.push('🗓 '+nz(F.enWhen)); if(nz(F.enWhere)) ctx.push('📍 '+nz(F.enWhere)); addC(F.enA); addC(F.enB); cta=pick(['¿Vas a la cancha? Contanos 👇','¿Quién se lleva la localía en las tribunas? 👇']); }
   else if(t==='entranking'){ hook='🎟 '+nz(F.enrT); if(nz(F.enrS)) ctx.push(sent(F.enrS)+'.'); ctx.push(''); enrParse(F.enrRows).forEach((r,i)=>{ ctx.push((i+1)+'. '+r.club+(r.det?' ('+r.det+')':'')+' – '+fmtN(r.n)); addC(r.club); }); cta=pick(['¿Qué final recordás con más color? 👇','Guardá el posteo y compartilo con un hincha 📲']); }
+  else if(t==='reducido'&&S.red.mode==='tab'){ hook=pick(['📊 Así queda la tabla del Reducido','🔁 Se vuelve a armar la tabla del Reducido']); ctx.push(sent(S.red.tabS||'')+'.'); ctx.push(''); const rr=redTabSort(redTabParse(S.red.tabRows),S.red.tabAuto!==false); rr.forEach((r,i)=>{ ctx.push((i+1)+'. '+nm(r.club)+(r.pts!=null?' – '+r.pts+' pts':'')); addC(r.club); }); const pr=(S.red.tabStage==='sf'?[[0,3],[1,2]]:S.red.tabStage==='fin'?[[0,1]]:[[0,7],[1,6],[2,5],[3,4]]).filter(([i,j])=>i<rr.length&&j<rr.length); if(pr.length){ ctx.push(''); ctx.push('Los cruces:'); pr.forEach(([i,j])=>ctx.push('• '+nm(rr[i].club)+' vs '+nm(rr[j].club))); } cta=pick(['¿Quién llega mejor? Contanos 👇','¿Con qué cruce te quedás? 👇']); }
   else if(t==='arbitros'){ hook=pick(['🟨 Estos son los árbitros designados','🟨 Designaciones: así se arbitra el reducido']); ctx.push(sent(S.red.arSub||'Reducido · Primera instancia')+'.'); cta=pick(['¿Qué opinás de las designaciones? 👇','¿Quién creés que va a tener el partido más caliente? 👇']); }
   else { hook='📊 '+((TEMPLATES[t]&&TEMPLATES[t].label)||'Primera Nacional')+' de la Primera Nacional'; cta='Seguinos para no perderte nada 📲'; }
   const base=['#PrimeraNacional','#AscensoArgentino','#FutbolArgentino'], tags=[...new Set([...clubs.map(tagify).filter(Boolean),...base,'#LigaProfesional'])].slice(0,a.id==='pn'?9:6), cc=ctx.filter((x,i,arr)=>x!==''||arr[i-1]!=='');
@@ -1921,7 +1962,7 @@ function draw(){
   const c=cv.getContext('2d'); c.setTransform(Q,0,0,Q,0,0); c.clearRect(0,0,W,H);
   if(!S.exporting) S.hits=[]; S.hitsAll=[]; _hcnt={};
   navUpdate();
-  if(S.tpl==='reducido'){ if(!['p1','qf','sf','fin','all'].includes(S.red.mode)) S.red.mode='p1'; } else if(isRed(S.tpl)) S.red.mode=PHMAP[S.tpl];
+  if(S.tpl==='reducido'){ if(!['p1','qf','sf','fin','all','tab'].includes(S.red.mode)) S.red.mode='p1'; } else if(isRed(S.tpl)) S.red.mode=PHMAP[S.tpl];
   let tint=mainTint(); if(S.account==='pn'&&!S.photo&&PS.n()<2) tint='#3b5260';
   if(S.autoTint){const ti=$('#tint'); if(ti.value!==tint) ti.value=tint;}
   if(S.tpl==='partido'&&!S.exporting) saveCard();
@@ -1998,7 +2039,7 @@ function group(parent,title,open){
   const d=document.createElement('details'); if(open) d.open=true; const sm=document.createElement('summary'); sm.textContent=title;
   const b=document.createElement('div'); b.className='grp'; d.append(sm,b); parent.appendChild(d); return b;
 }
-const SIZED=new Set(['enrT','enrS','enrNote','enTag','enAn','enBn','enNa','enNb','enUnit','enWhen','enWhere','vsTag','vsAn','vsBn','vsWhen','vsWhere','vsTv','headline','sub','home','away','status','detail','q','a','b','cta','spon','tTitle','tSub','rows']);
+const SIZED=new Set(['tabNote','enrT','enrS','enrNote','enTag','enAn','enBn','enNa','enNb','enUnit','enWhen','enWhere','vsTag','vsAn','vsBn','vsWhen','vsWhere','vsTv','headline','sub','home','away','status','detail','q','a','b','cta','spon','tTitle','tSub','rows']);
 const CRESTSZ=new Set(['enA','enB','vsA','vsB','crest','home','away','a','b']);
 function say(el,text,cls){const s=document.createElement('span');s.textContent=text;if(cls)s.className=cls;el.appendChild(s);return s}
 function pngLink(el,c){ if(!c.file) return; const a=document.createElement('a');a.href=PN_URL+c.file;a.target='_blank';a.rel='noopener';a.textContent='Bajarlo de la Escudoteca';el.appendChild(document.createTextNode(' '));el.appendChild(a)}
@@ -2118,11 +2159,12 @@ function buildArbitrosUI(box){
 }
 function buildReducidoUI(box){
   const R=S.red, w=document.createElement('div'); w.style.cssText='display:flex;flex-direction:column;gap:12px'; box.appendChild(w);
-  const MODES=[['p1','Primera instancia'],['qf','Cuartos'],['sf','Semifinales'],['fin','Final'],['all','Cuadro completo']], NAMES={f1:'Final por el primer ascenso',p1:'Primera instancia',qf:'Cuartos de final',sf:'Semifinales',fin:'Final'};
+  const MODES=[['p1','Primera instancia'],['qf','Cuartos'],['sf','Semifinales'],['fin','Final'],['all','Cuadro completo'],['tab','Tabla']], NAMES={f1:'Final por el primer ascenso',p1:'Primera instancia',qf:'Cuartos de final',sf:'Semifinales',fin:'Final'};
   const ttl=document.createElement('div'); ttl.className='chips'; ttl.setAttribute('role','group'); ttl.setAttribute('aria-label','Instancia del Reducido');
   MODES.forEach(([k,lb])=>{const b=document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=lb; b.setAttribute('aria-pressed',k===R.mode); b.onclick=()=>{R.mode=k; buildFields(); render()}; ttl.appendChild(b)}); w.appendChild(ttl);
   if(R.mode==='p1'){ chk(w,'Mostrar arriba la final por el primer ascenso',R,'f1show').querySelector('input').addEventListener('change',()=>{buildFields()}); if(R.f1show!==false){ const tl=document.createElement('label'); tl.textContent='Título de la final'; const ti=document.createElement('input'); ti.type='text'; ti.id='f-f1Title'; ti.autocomplete='off'; ti.value=R.f1title==null?'FINAL POR EL PRIMER ASCENSO':R.f1title; ti.addEventListener('input',()=>{R.f1title=ti.value; render()}); tl.appendChild(ti); w.appendChild(tl);} }
   if(R.mode==='all'){ const nl=document.createElement('label'); nl.textContent='Aclaración debajo del cuadro'; const na=document.createElement('textarea'); na.id='f-rNote'; na.style.minHeight='70px'; na.value=R.note==null?RED_NOTE:R.note; na.addEventListener('input',()=>{R.note=na.value; render()}); nl.appendChild(na); w.appendChild(nl); }
+  if(R.mode==='tab'){ buildRedTabUI(w); return; }
   [['f-rTitle','Título','title'],['f-rSub','Subtítulo','sub']].forEach(([id,l,k])=>{const lab=document.createElement('label'); lab.textContent=l; const e=document.createElement('input'); e.type='text'; e.id=id; e.value=(k==='sub'&&R.subs&&R.subs[R.mode]!=null)?R.subs[R.mode]:(R[k]||''); e.autocomplete='off'; e.addEventListener('input',()=>{R[k]=e.value; if(k==='sub'&&R.subs) R.subs[R.mode]=e.value; render()}); lab.appendChild(e); w.appendChild(lab);});
   const det=document.createElement('details'); const sm=document.createElement('summary'); sm.textContent='Cómo funciona el Reducido (reglamento)'; det.appendChild(sm);
   const dd=document.createElement('div'); dd.className='hint'; dd.innerHTML='<b>Participan 15 equipos:</b> del 2.º al 8.º de cada zona (14) y el perdedor de la final por el primer ascenso.<br><b>Primera instancia:</b> un solo partido, en cancha del mejor ubicado: 2ºA-8ºB, 2ºB-8ºA, 3ºA-7ºB, 3ºB-7ºA, 4ºA-6ºB, 4ºB-6ºA y 5ºA-5ºB. Si hay empate, avanza el mejor ubicado de su zona.<br><b>Cuartos:</b> los 7 ganadores + el perdedor de la final (entra como 1.º) se ordenan en una tabla general. Cruces: 1º-8º, 2º-7º, 3º-6º, 4º-5º, ida y vuelta, con ventaja deportiva.<br><b>Semifinales:</b> otra tabla con los 4 ganadores: 1º-4º y 2º-3º, ida y vuelta.<br><b>Final:</b> ida y vuelta; si siguen igualados en puntos y diferencia de gol, definen por penales. El ganador asciende.<br>Las posiciones de cada tabla las definís vos: cargá los equipos y mové los cruces como corresponda.'; det.appendChild(dd); w.appendChild(det);
@@ -2225,7 +2267,7 @@ function buildFields00(){
   const box=$('#fields'); box.innerHTML='';
   $('#tintSec').hidden = S.tpl==='partido'; $('#dlAll').hidden = S.tpl!=='partido';
   if(S.tpl==='partido'){ buildPartidoUI(box); return; }
-  if(isRed(S.tpl)){ if(S.tpl!=='reducido') S.red.mode=PHMAP[S.tpl]; else if(!['p1','qf','sf','fin','all'].includes(S.red.mode)) S.red.mode='p1'; buildReducidoUI(box); return; }
+  if(isRed(S.tpl)){ if(S.tpl!=='reducido') S.red.mode=PHMAP[S.tpl]; else if(!['p1','qf','sf','fin','all','tab'].includes(S.red.mode)) S.red.mode='p1'; buildReducidoUI(box); return; }
   if(S.tpl==='resumen'){ buildResumenUI(box); return; }
   if(S.tpl==='equipos'){ buildEquiposUI(box); return; }
   if(S.tpl==='arbitros'){ buildArbitrosUI(box); return; }

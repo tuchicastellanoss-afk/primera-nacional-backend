@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 12/11 · 20:45</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 12/11 · 20:58</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -1552,6 +1552,16 @@ function flyIcon(c,k,x,y,r,ring,deep){
 }
 function ffit(c,text,fam,weight,maxW,maxLines,start,min,key){ const m=key?(S.sz[key]||100)/100:1; if(m===1) return fit(c,text,fam,weight,maxW,maxLines,start,min,key); const size=Math.max(10,Math.round(start*m)); c.font=`${weight} ${size}px ${fam}`; return {size,lines:wrapLines(c,text,maxW*1.7).slice(0,Math.max(maxLines,3))}; }
 const FZ=k=>({label:'Tamaño del texto (libre, no se ajusta solo)',o:S.sz,k,min:30,max:300,step:5,unit:'%',def:100});
+function flyTrim(img){
+  const k=Math.min(1,1200/Math.max(img.width,img.height)), w=Math.max(1,Math.round(img.width*k)), h=Math.max(1,Math.round(img.height*k)), cv0=document.createElement('canvas'); cv0.width=w; cv0.height=h; const x=cv0.getContext('2d'); x.drawImage(img,0,0,w,h);
+  try{ const d=x.getImageData(0,0,w,h).data, px=(xx,yy)=>{ const i=(yy*w+xx)*4; return [d[i],d[i+1],d[i+2],d[i+3]]; }, cs=[px(2,2),px(w-3,2),px(2,h-3),px(w-3,h-3)], bg=[0,1,2].map(j=>cs.reduce((a,q)=>a+q[j],0)/4);
+    const isBg=(xx,yy)=>{ const i=(yy*w+xx)*4; return d[i+3]<30||Math.max(Math.abs(d[i]-bg[0]),Math.abs(d[i+1]-bg[1]),Math.abs(d[i+2]-bg[2]))<=38; };
+    const rowFg=yy=>{ let n=0; for(let xx=0;xx<w;xx+=2) if(!isBg(xx,yy)) n++; return n/(w/2)>.04; }, colFg=xx=>{ let n=0; for(let yy=0;yy<h;yy+=2) if(!isBg(xx,yy)) n++; return n/(h/2)>.04; };
+    let y0=0,y1=h-1,x0=0,x1=w-1; while(y0<y1&&!rowFg(y0)) y0++; while(y1>y0&&!rowFg(y1)) y1--; while(x0<x1&&!colFg(x0)) x0++; while(x1>x0&&!colFg(x1)) x1--;
+    const ix=Math.round((x1-x0)*.02), iy=Math.round((y1-y0)*.02); x0+=ix; x1-=ix; y0+=iy; y1-=iy;
+    if(x1-x0>w*.2&&y1-y0>h*.2&&(x1-x0<w-4||y1-y0<h-4)){ const o=document.createElement('canvas'); o.width=x1-x0+1; o.height=y1-y0+1; o.getContext('2d').drawImage(cv0,x0,y0,o.width,o.height,0,0,o.width,o.height); return o; } }catch(e){}
+  return cv0;
+}
 const DUMC=document.createElement('canvas').getContext('2d');
 function elOn(n){ return S.solo?S.solo===n:!(S.skip&&S.skip.has(n)); }
 function E(c,n,fn){ S.curEl=n; try{ fn(elOn(n)?c:DUMC); } finally { S.curEl=null; } }
@@ -1575,7 +1585,7 @@ function drawFlyer(c0,W,H,F){
   S.flyPT=bens.length?panelTop:pBot; S.flyTT=yTitleEnd; const yBase=bens.length?panelTop:pBot; let circTop=yBase-12*k, noteX=Mx+8, noteW=W*.42, noteCy=panelTop+panelH*.55;
   if(circOn){ const D=Math.min(W*.24,215*k,Math.max(120,panelH-40*k))*(S.sz.fCirc||100)/100, cx=Mx+D/2+8, cy=(bens.length?panelTop+22*k+D/2:yBase-D/2-20*k), im=S.flyIn;
     E(c0,'circ',c=>{ c.save(); c.shadowColor='rgba(0,0,0,.35)'; c.shadowBlur=14*(S.qNow||1); c.fillStyle='#fff'; c.beginPath(); c.arc(cx,cy,D/2+8,0,7); c.fill(); c.restore();
-      c.save(); c.beginPath(); c.arc(cx,cy,D/2,0,7); c.clip(); if(im){ const sc=Math.max(D/im.width,D/im.height); c.drawImage(im,cx-im.width*sc/2,cy-im.height*sc/2,im.width*sc,im.height*sc); } else { c.fillStyle='#dbeaf5'; c.fillRect(cx-D/2,cy-D/2,D,D); if(!S.exporting){ c.fillStyle='#0a3c87'; c.textAlign='center'; c.font=`700 ${D*.1}px ${FAM}`; c.fillText('FOTO DE',cx,cy-4); c.fillText('DETALLE',cx,cy+D*.12); } } c.restore();
+      c.save(); c.beginPath(); c.arc(cx,cy,D/2,0,7); c.clip(); if(im){ const sc=Math.max(D/im.width,D/im.height)*(S.flyZ||100)/100; c.drawImage(im,cx-im.width*sc/2,cy-im.height*sc/2,im.width*sc,im.height*sc); } else { c.fillStyle='#dbeaf5'; c.fillRect(cx-D/2,cy-D/2,D,D); if(!S.exporting){ c.fillStyle='#0a3c87'; c.textAlign='center'; c.font=`700 ${D*.1}px ${FAM}`; c.fillText('FOTO DE',cx,cy-4); c.fillText('DETALLE',cx,cy+D*.12); } } c.restore();
       hitBox('f-fCirc','Círculo con foto',cx-D/2-8,cy-D/2-8,D+16,D+16,false,{ctrls:[{label:'Tamaño del círculo',o:S.sz,k:'fCirc',min:50,max:150,step:5,unit:'%',def:100}]}); });
     circTop=cy-D/2-8; noteX=cx+D/2+24*k; noteW=W*.45-12*k-noteX; noteCy=cy; }
   const note=String(d.note||'').trim();
@@ -1842,8 +1852,8 @@ function buildBizUI(box){
     F('fT1','Título: línea de arriba (ej: CAMBIO DE)','t1'); F('fT2','Palabra grande (ej: GRAVA)','t2'); F('fT3','Título: línea de abajo (ej: DE FILTROS)','t3'); F('fT4','Frase en cursiva (ej: para piscinas)','t4');
     F('fTag','Rótulo del producto (ej: FILTROS)','tag'); F('fBrand','Marca (en recuadro blanco)','brand'); F('fBsub','Lema de la marca (opcional)','bsub'); F('fDesc','Descripción','desc',true,60);
     F('fBens','Beneficios (uno por línea, hasta 4; el ícono se elige solo)','bens',true,110); F('fNote','Frase en cursiva de abajo a la izquierda','note'); F('fCtaT','Texto sobre el teléfono (ej: Consultanos)','cta');
-    chk(w,'Mostrar círculo con foto de detalle',d,'circ'); { const lab=document.createElement('label'); lab.textContent='Foto del círculo (ej: la grava de cerca)'; const fi=document.createElement('input'); fi.type='file'; fi.accept='image/*'; fi.onchange=()=>{ const f=fi.files&&fi.files[0]; if(!f) return; const u=URL.createObjectURL(f), im=new Image(); im.onload=()=>{ S.flyIn=im; d.circ='1'; buildFields(); render(); }; im.src=u; }; lab.appendChild(fi); w.appendChild(lab); }
-    ctl(w,'Tamaño de los beneficios',S.sz,'fBen',{min:60,max:130,step:5,unit:'%',def:100}); ctl(w,'Tamaño del círculo',S.sz,'fCirc',{min:50,max:150,step:5,unit:'%',def:100});
+    chk(w,'Mostrar círculo con foto de detalle',d,'circ'); { const lab=document.createElement('label'); lab.textContent='Foto del círculo (ej: la grava de cerca)'; const fi=document.createElement('input'); fi.type='file'; fi.accept='image/*'; fi.onchange=()=>{ const f=fi.files&&fi.files[0]; if(!f) return; const u=URL.createObjectURL(f), im=new Image(); im.onload=()=>{ S.flyIn=flyTrim(im); d.circ='1'; buildFields(); render(); }; im.src=u; }; lab.appendChild(fi); w.appendChild(lab); }
+    ctl(w,'Tamaño de los beneficios',S.sz,'fBen',{min:60,max:130,step:5,unit:'%',def:100}); ctl(w,'Tamaño del círculo',S.sz,'fCirc',{min:50,max:150,step:5,unit:'%',def:100}); ctl(w,'Zoom de la foto dentro del círculo',S,'flyZ',{min:100,max:300,step:5,unit:'%',def:100});
   } else if(t==='evento'){
     F('eTag','Etiqueta (ej: TORNEO)','tag'); F('eTitle','Título','title'); F('eDate','Fecha','date'); F('eTime','Hora','time'); F('ePlace','Lugar','place'); F('eText','Texto (opcional)','text',true,70);
     ctl(w,'Tamaño del título',S.sz,'bTitle',{min:30,max:200,step:5,unit:'%',def:100}); ctl(w,'Tamaño de los datos',S.sz,'bRows',{min:50,max:150,step:5,unit:'%',def:100});
@@ -2654,10 +2664,12 @@ $('#photoIn').addEventListener('change',async e=>{const fs=[...e.target.files]; 
     const row=document.createElement('div'); row.style.cssText='display:flex;gap:8px;flex-wrap:wrap';
     const yes=document.createElement('button'); yes.type='button'; yes.className='primary'; yes.textContent='Sí, adaptarla al fondo';
     const as=document.createElement('button'); as.type='button'; as.className='ghost'; as.textContent='Usarla como foto de fondo';
+    const ci=document.createElement('button'); ci.type='button'; ci.className='ghost'; ci.textContent='Ponerla en el círculo';
+    ci.onclick=()=>{ close(); const u2=URL.createObjectURL(f), i2=new Image(); i2.onload=()=>{ S.flyIn=flyTrim(i2); bzData().circ='1'; buildFields(); render(); }; i2.src=u2; };
     const no=document.createElement('button'); no.type='button'; no.className='ghost'; no.textContent='No';
     yes.onclick=async()=>{ close(); if(biz) scAdd([f]); else await addPhotos([f]); };
     as.onclick=async()=>{ close(); await addPhotos([f]); };
-    no.onclick=close; row.append(yes); if(biz) row.append(as); row.append(no); col.append(q,sub,row); box.append(im,col); document.body.appendChild(box); yes.focus();
+    no.onclick=close; row.append(yes); if(biz) row.append(as); if(biz&&S.tpl==='flyer') row.append(ci); row.append(no); col.append(q,sub,row); box.append(im,col); document.body.appendChild(box); yes.focus();
   };
   document.addEventListener('paste',e=>{
     const items=[...(e.clipboardData&&e.clipboardData.items||[])]; const it=items.find(i=>i.kind==='file'&&/^image\//.test(i.type)); if(!it) return;

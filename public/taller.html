@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 12/11 · 12:10</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 12/11 · 12:45</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -317,6 +317,10 @@ const TEMPLATES = {
     {k:'enB',l:'Equipo 2 (escudo)',t:'crest'},{k:'enBn',l:'Nombre a mostrar del equipo 2 (vacío = el del escudo)',t:'text'},{k:'enNb',l:'Entradas vendidas equipo 2',t:'num'},
     {k:'enUnit',l:'Texto debajo de los números',t:'text'},
     {k:'enWhen',l:'Partido / fecha',t:'text'},{k:'enWhere',l:'Estadio / nota',t:'text'}]},
+  entranking:{label:'Entradas: ranking',main:null,fields:[
+    {k:'enrT',l:'Título',t:'area'},{k:'enrS',l:'Bajada',t:'text'},
+    {k:'enrRows',l:'Ranking (una línea por equipo: Club, detalle, entradas)',t:'area'},
+    {k:'enrNote',l:'Nota al pie (fuente)',t:'text'}]},
   partido:{label:'Resultados',main:null,fields:[]},
   tabla:{label:'Tabla',main:null,fields:[
     {k:'tTitle',l:'Título',t:'text'},{k:'tSub',l:'Subtítulo',t:'text'},
@@ -362,6 +366,7 @@ const S = {
     q:'¿Quién es más grande?', a:'', b:'', cta:'Respondé en los comentarios', spon:'',
     tTitle:'Así va la tabla', tSub:'Zona A · Fecha 31', startPos:'1',
     vsTag:'REDUCIDO · PRIMERA INSTANCIA', vsA:'Ferro', vsAn:'', vsB:'Gimnasia y Tiro', vsBn:'', vsSa:'', vsSb:'', vsWhen:'Domingo 15/11 · 20:00', vsWhere:'', vsTv:'',
+    enrT:'Las finales con más entradas vendidas', enrS:'Final por el primer ascenso · Primera Nacional', enrRows:'Godoy Cruz, Final 2026, 14500\nSan Martín (T), Final 2024, 19000', enrNote:'',
     enTag:'ENTRADAS VENDIDAS', enA:'Godoy Cruz', enAn:'', enB:'Tristán Suárez', enBn:'', enNa:'14500', enNb:'1080', enUnit:'entradas', enWhen:'Sábado 14/11 · 17:00', enWhere:'',
     rows:'Club A, 31, 60\nClub B, 31, 58\nClub C, 31, 55\nClub D, 31, 54'
   }
@@ -857,6 +862,30 @@ function drawEntradas(c,W,H,F){
     if(mn>0&&mxv/mn>=1.2&&wn){ c.font=`600 34px ${FD}`; c.fillStyle='rgba(226,226,226,.88)'; c.fillText(`${wn.toUpperCase()} VENDIÓ ${(mxv/mn).toFixed(1).replace('.',',')} VECES MÁS`,W/2,dy+46); }
   }
 }
+
+function enrParse(txt){ return String(txt||'').split(/\r?\n/).map(l=>l.trim()).filter(Boolean).map(l=>{ const p=l.split(/\s*[,;|]\s*/); const last=p.length>1?p[p.length-1]:'', n=numOf(last); if(!n&&p.length>1) return null; return {club:p[0]||'',det:p.length>2?p.slice(1,-1).join(' · '):'',n}; }).filter(r=>r&&r.club&&r.n).sort((a,b)=>b.n-a.n).slice(0,8); }
+function drawEnRanking(c,W,H,F){
+  const f=S.f, M=60, rows=enrParse(f.enrRows); c.textAlign='center'; c.textBaseline='alphabetic';
+  let yb=H-F.bottom; const nt=String(f.enrNote||'').trim();
+  if(nt){ const ft=fit(c,nt,FD,600,W-140,2,30,18,'enrNote'), lh=ft.size*1.1, first=yb-(ft.lines.length-1)*lh; c.fillStyle='rgba(226,226,226,.8)'; ft.lines.forEach((l,q)=>c.fillText(l,W/2,first+q*lh)); hitLines(c,'f-enrNote','Nota',ft.lines,W/2,first,ft.size,lh,'center',false,{ctrls:[SZ('enrNote')]}); yb=first-ft.size-24; }
+  let y=F.top+150; const tt=String(f.enrT||'').trim().toUpperCase();
+  if(tt){ const ft=fit(c,tt,FD,700,W-140,3,76,36,'enrT'), lh=ft.size*1.04; c.save(); c.shadowColor='rgba(0,0,0,.45)'; c.shadowBlur=14*(S.qNow||1); c.fillStyle='#fff'; c.font=`700 ${ft.size}px ${FD}`; ft.lines.forEach((l,q)=>c.fillText(l,W/2,y+ft.size*.8+q*lh)); c.restore(); hitLines(c,'f-enrT','Título',ft.lines,W/2,y+ft.size*.8,ft.size,lh,'center',true,{ctrls:[SZ('enrT')]}); y+=ft.size*.8+(ft.lines.length-1)*lh+26; }
+  const sb=String(f.enrS||'').trim().toUpperCase();
+  if(sb){ const ft=fit(c,sb,FD,600,W-140,2,38,20,'enrS'), lh=ft.size*1.1; c.fillStyle='rgba(235,235,235,.92)'; ft.lines.forEach((l,q)=>c.fillText(l,W/2,y+ft.size*.8+q*lh)); hitLines(c,'f-enrS','Bajada',ft.lines,W/2,y+ft.size*.8,ft.size,lh,'center',false,{ctrls:[SZ('enrS')]}); y+=ft.size*.8+(ft.lines.length-1)*lh+34; }
+  if(!rows.length){ if(!S.exporting){ c.fillStyle='rgba(255,255,255,.55)'; c.font=`600 36px ${FD}`; c.fillText('ESCRIBÍ EL RANKING EN EL PANEL',W/2,y+80); } return; }
+  const n=rows.length, avail=yb-y, gap=14, rh=Math.min(140,(avail-(n-1)*gap)/n), mx=rows[0].n, CA='#f8f0cc', CB='#86b6cf';
+  rows.forEach((r,i)=>{
+    const by=y+i*(rh+gap), top=i===0; c.fillStyle=top?'rgba(248,240,204,.16)':'rgba(0,0,0,.42)'; rrect(c,M,by,W-2*M,rh,14); c.fill(); if(top){ c.strokeStyle='rgba(248,240,204,.7)'; c.lineWidth=3; rrect(c,M,by,W-2*M,rh,14); c.stroke(); }
+    const cy=by+rh/2; c.textAlign='center'; c.font=`700 ${rh*.5}px ${FN}`; c.fillStyle=top?CA:'rgba(255,255,255,.6)'; c.fillText(String(i+1),M+rh*.45,cy+rh*.18);
+    const cs=rh*.66, img=findCrest(r.club); if(img) drawBox(c,img,M+rh*.9,cy-cs/2,cs,cs);
+    const nx=M+rh*.9+cs+18, nw=W*.25; c.textAlign='left'; const nmx=nm(r.club).toUpperCase(), ft=fit(c,nmx,FD,700,nw,1,rh*.34,16); c.fillStyle='#fff'; c.font=`700 ${ft.size}px ${FD}`; const hasD=!!r.det; c.fillText(ft.lines[0]||'',nx,hasD?cy-2:cy+ft.size*.3);
+    if(hasD){ const fd=fit(c,r.det.toUpperCase(),FD,600,nw,1,rh*.22,12); c.fillStyle='rgba(226,226,226,.78)'; c.font=`600 ${fd.size}px ${FD}`; c.fillText(fd.lines[0]||'',nx,cy+fd.size+6); }
+    const numW=rh*1.6, bx=nx+nw+14, bw=Math.max(30,(W-M-numW-18)-bx), bh=Math.min(rh*.3,34), pw=Math.max(bh,bw*r.n/mx);
+    c.fillStyle='rgba(255,255,255,.12)'; rrect(c,bx,cy-bh/2,bw,bh,bh/2); c.fill(); c.fillStyle=top?CA:CB; rrect(c,bx,cy-bh/2,pw,bh,bh/2); c.fill();
+    c.textAlign='right'; c.fillStyle='#fff'; c.font=`700 ${rh*.5}px ${FN}`; c.fillText(fmtN(r.n),W-M-18,cy+rh*.18);
+  });
+  hitBox('f-enrRows','Ranking',M,y,W-2*M,rows.length*(rh+gap)-gap,true,{});
+}
 function drawDark(c,W,H,k){
   const [dr,dg,db]=hexRgb(S.ly.dcol||'#000000'), RGB=`${dr},${dg},${db}`;
   const g1=c.createLinearGradient(0,0,0,H*.2); g1.addColorStop(0,`rgba(${RGB},${.35*k})`); g1.addColorStop(1,`rgba(${RGB},0)`); c.fillStyle=g1; c.fillRect(0,0,W,H*.2);
@@ -1240,7 +1269,7 @@ function drawArbitros(c,W,H,F){
 const BIZ_T=['precios','aviso','agenda','evento'];
 const ACC_TPLS={tz:['precios','aviso'],se:['precios','aviso'],fb:['precios','aviso'],mz:['precios','aviso'],lg:['evento','agenda','precios','aviso']};
 function tplKeys(){
-  const a=currentAccount(), base=Object.keys(TEMPLATES).filter(k=>k==='reducido'||!isRed(k)), fbk=base.filter(k=>!BIZ_T.includes(k)); const nopn=fbk.filter(k=>k!=='entradas');
+  const a=currentAccount(), base=Object.keys(TEMPLATES).filter(k=>k==='reducido'||!isRed(k)), fbk=base.filter(k=>!BIZ_T.includes(k)); const nopn=fbk.filter(k=>k!=='entradas'&&k!=='entranking');
   if(ACC_TPLS[a.id]) return ACC_TPLS[a.id]; if(a.id==='pn') return fbk; return [...nopn,'precios','aviso'];
 }
 function fixTpl(){ const k=tplKeys(); if(!k.includes(S.tpl)) S.tpl=k[0]; }
@@ -1601,6 +1630,7 @@ function makeCopyPN(kind){
   else if(t==='vs'){ b.push('⚔️ '+nz(F.vsAn||F.vsA)+' vs '+nz(F.vsBn||F.vsB)); if(nz(F.vsWhen)) b.push('🗓 '+nz(F.vsWhen)); if(nz(F.vsWhere)) b.push('📍 '+nz(F.vsWhere)); if(nz(F.vsTv)) b.push('📺 '+nz(F.vsTv)); }
   else if(t==='partido'){ b.push('⚽ Resultados'); S.cards.filter(k=>k.home&&k.away).slice(0,tw?3:12).forEach(k=>{ b.push('• '+nz(k.home)+' '+(nz(k.hs)||'-')+' - '+(nz(k.as)||'-')+' '+nz(k.away)); const gs=[nz(k.gh),nz(k.ga)].filter(Boolean).join(' | '); if(gs&&!tw) b.push('   ⚽ '+gs); }); }
   else if(t==='entradas'){ b.push('🎟 Entradas vendidas'); b.push(nz(F.enAn||F.enA)+': '+nz(F.enNa)+'  |  '+nz(F.enBn||F.enB)+': '+nz(F.enNb)); if(nz(F.enWhen)) b.push('🗓 '+nz(F.enWhen)); }
+  else if(t==='entranking'){ b.push('🎟 '+nz(F.enrT)); if(nz(F.enrS)) b.push(nz(F.enrS)); b.push(''); enrParse(F.enrRows).forEach((r,i)=>b.push((i+1)+'. '+r.club+(r.det?' ('+r.det+')':'')+': '+fmtN(r.n))); }
   else if(t==='arbitros'){ b.push('🟨 Árbitros designados'); b.push(nz(S.red.arSub)||'Reducido · Primera instancia'); }
   else b.push('📊 '+(TEMPLATES[t]&&TEMPLATES[t].label||'Primera Nacional')+' de la Primera Nacional');
   const tag=a.id==='pn'?'#PrimeraNacional #AscensoArgentino':'#'+String(a.name||'').replace(/\s+/g,''), h=a.handle?('\n\n'+a.handle):'';
@@ -1886,7 +1916,7 @@ function draw(){
   if(S.bzFlat){ c.fillStyle=S.bzFlat.bg; c.fillRect(0,0,W,H); S.bzFlat.deco(c,W,H,S.bzFlat); drawHeader(c,W,F.top,currentAccount()); } else
   if(S.tpl==='partido'){ if(S.tr!==2) drawDark(c,W,H,S.ly.ov/100); } else {if(S.tr!==2) drawOverlay(c,W,H,tint,S.tpl==='tabla'||isRed(S.tpl)||S.tpl==='resumen'||S.tpl==='equipos'||S.tpl==='arbitros'||S.tpl==='precios'||S.tpl==='agenda'); if(S.format!=='portada') drawHeader(c,W,F.top,currentAccount());}
   const _mo=moAny(); if(_mo) moSnapshot();
-  const _tfn=({noticia:drawNoticia,resultado:drawResultado,consigna:drawConsigna,vs:drawVs,entradas:drawEntradas,tabla:drawTabla,partido:drawPartido,reducido:drawReducido,red_qf:drawReducido,red_sf:drawReducido,red_fin:drawReducido,red_all:drawReducido,resumen:drawResumen,equipos:drawEquipos,arbitros:drawArbitros,precios:drawLista,agenda:drawLista,aviso:drawAviso,evento:drawEvento})[S.tpl]; _tfn(c,W,H,F);
+  const _tfn=({noticia:drawNoticia,resultado:drawResultado,consigna:drawConsigna,vs:drawVs,entradas:drawEntradas,entranking:drawEnRanking,tabla:drawTabla,partido:drawPartido,reducido:drawReducido,red_qf:drawReducido,red_sf:drawReducido,red_fin:drawReducido,red_all:drawReducido,resumen:drawResumen,equipos:drawEquipos,arbitros:drawArbitros,precios:drawLista,agenda:drawLista,aviso:drawAviso,evento:drawEvento})[S.tpl]; _tfn(c,W,H,F);
   if(_mo) moApply(c,_tfn,W,H,F);
   drawTexts(c,W,H);
   if(!S.exporting&&S.guide){c.save();c.strokeStyle='#ff2fd0';c.lineWidth=3;c.setLineDash([16,10]);
@@ -1953,7 +1983,7 @@ function group(parent,title,open){
   const d=document.createElement('details'); if(open) d.open=true; const sm=document.createElement('summary'); sm.textContent=title;
   const b=document.createElement('div'); b.className='grp'; d.append(sm,b); parent.appendChild(d); return b;
 }
-const SIZED=new Set(['enTag','enAn','enBn','enNa','enNb','enUnit','enWhen','enWhere','vsTag','vsAn','vsBn','vsWhen','vsWhere','vsTv','headline','sub','home','away','status','detail','q','a','b','cta','spon','tTitle','tSub','rows']);
+const SIZED=new Set(['enrT','enrS','enrNote','enTag','enAn','enBn','enNa','enNb','enUnit','enWhen','enWhere','vsTag','vsAn','vsBn','vsWhen','vsWhere','vsTv','headline','sub','home','away','status','detail','q','a','b','cta','spon','tTitle','tSub','rows']);
 const CRESTSZ=new Set(['enA','enB','vsA','vsB','crest','home','away','a','b']);
 function say(el,text,cls){const s=document.createElement('span');s.textContent=text;if(cls)s.className=cls;el.appendChild(s);return s}
 function pngLink(el,c){ if(!c.file) return; const a=document.createElement('a');a.href=PN_URL+c.file;a.target='_blank';a.rel='noopener';a.textContent='Bajarlo de la Escudoteca';el.appendChild(document.createTextNode(' '));el.appendChild(a)}

@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 12/11 · 11:45</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 12/11 · 12:10</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -661,6 +661,34 @@ function fxGet(){ const k=S.phKey||(S.account+'|'+S.tpl); S.red.phfx=S.red.phfx|
 function fxSet(k,v){ const key=S.phKey||(S.account+'|'+S.tpl); S.red.phfx=S.red.phfx||{}; const o=S.red.phfx[key]=S.red.phfx[key]||{}; o[k]=v; }
 let CUR_FX=FXDEF;
 function fxFilter(fx){ const a=[]; if(fx.blur>0) a.push(`blur(${fx.blur*.9}px)`); if(fx.bri!==100) a.push(`brightness(${fx.bri}%)`); if(fx.con!==100) a.push(`contrast(${fx.con}%)`); if(fx.sat!==100) a.push(`saturate(${fx.sat}%)`); if(fx.gray>0) a.push(`grayscale(${fx.gray}%)`); return a.length?a.join(' '):'none'; }
+
+/* efectos de foto por píxeles: el iPhone (Safari) no soporta ctx.filter, así que no dependemos de él */
+const FXC=new WeakMap();
+function fxNeeded(fx){ return fx.blur>0||fx.bri!==100||fx.con!==100||fx.sat!==100||fx.gray>0; }
+function fxBoxes(sg,n){ const wi=Math.sqrt(12*sg*sg/n+1); let wl=Math.floor(wi); if(wl%2===0) wl--; const wu=wl+2, m=Math.round((12*sg*sg-n*wl*wl-4*n*wl-3*n)/(-4*wl-4)), o=[]; for(let i=0;i<n;i++) o.push(i<m?wl:wu); return o; }
+function fxBoxPass(src,dst,w,h,r,horiz){ const len=horiz?w:h, lines=horiz?h:w, sp=horiz?4:4*w, sl=horiz?4*w:4, d=2*r+1;
+  for(let l=0;l<lines;l++){ const b=l*sl; for(let ch=0;ch<3;ch++){ const o=b+ch, first=src[o]; let v=(r+1)*first; for(let j=1;j<=r;j++) v+=src[o+Math.min(j,len-1)*sp];
+    for(let i=0;i<len;i++){ dst[o+i*sp]=(v/d+.5)|0; v+=src[o+Math.min(i+r+1,len-1)*sp]-src[o+Math.max(i-r,0)*sp]; } } } }
+function fxBlurData(img,w,h,sg){ let a=img.data, bf=new Uint8ClampedArray(a.length); bf.set(a); fxBoxes(sg,3).forEach(bw=>{ const r=(bw-1)>>1; if(r<1) return; fxBoxPass(a,bf,w,h,r,true); fxBoxPass(bf,a,w,h,r,false); }); }
+function fxImg(p,dw){
+  const fx=CUR_FX; if(!p||!fxNeeded(fx)||!p.width) return p;
+  const lim=S.exporting?2600:1300, k=Math.min(1,lim/Math.max(p.width,p.height)), pw=Math.max(1,Math.round(p.width*k)), ph=Math.max(1,Math.round(p.height*k));
+  const sig=fx.blur>0?fx.blur*.9*(pw/Math.max(1,dw||pw)):0, key=[fx.bri,fx.con,fx.sat,fx.gray,sig.toFixed(1),pw,ph].join('|'), hit=FXC.get(p);
+  if(hit&&hit.key===key) return hit.cv;
+  const cv2=document.createElement('canvas'); cv2.width=pw; cv2.height=ph; const g=cv2.getContext('2d',{willReadFrequently:true}); g.imageSmoothingEnabled=true; g.imageSmoothingQuality='high'; g.drawImage(p,0,0,pw,ph);
+  if(fx.bri!==100||fx.con!==100||fx.sat!==100||fx.gray>0){
+    const id=g.getImageData(0,0,pw,ph), d=id.data, bri=fx.bri/100, con=fx.con/100, sat=fx.sat/100, gr=fx.gray/100;
+    for(let i=0;i<d.length;i+=4){ let r=d[i]*bri, gg=d[i+1]*bri, b=d[i+2]*bri;
+      if(con!==1){ r=(r-127.5)*con+127.5; gg=(gg-127.5)*con+127.5; b=(b-127.5)*con+127.5; }
+      if(sat!==1){ const l=.2126*r+.7152*gg+.0722*b; r=l+(r-l)*sat; gg=l+(gg-l)*sat; b=l+(b-l)*sat; }
+      if(gr>0){ const l=.2126*r+.7152*gg+.0722*b; r+=(l-r)*gr; gg+=(l-gg)*gr; b+=(l-b)*gr; }
+      d[i]=r; d[i+1]=gg; d[i+2]=b; }
+    g.putImageData(id,0,0);
+  }
+  if(sig>.4){ const f=sig>5?Math.ceil(sig/4):1, sw=Math.max(2,Math.round(pw/f)), sh=Math.max(2,Math.round(ph/f)), sm=document.createElement('canvas'); sm.width=sw; sm.height=sh; const sg2=sm.getContext('2d',{willReadFrequently:true}); sg2.imageSmoothingQuality='high'; sg2.drawImage(cv2,0,0,sw,sh);
+    const id=sg2.getImageData(0,0,sw,sh); fxBlurData(id,sw,sh,Math.max(.5,sig/f)); sg2.putImageData(id,0,0); g.clearRect(0,0,pw,ph); g.imageSmoothingEnabled=true; g.imageSmoothingQuality='high'; g.drawImage(sm,0,0,pw,ph); }
+  FXC.set(p,{key,cv:cv2}); return cv2;
+}
 function drawPhoto(c,W,H,tint){ const fx=fxGet(); CUR_FX=fx; drawPhoto0(c,W,H,tint);
   if(S.photo||PS.n()>=2){ if(fx.ca>0){ c.save(); c.globalAlpha=fx.ca/100; c.fillStyle=fx.col; c.fillRect(0,0,W,H); c.restore(); } if(fx.vig>0){ const vg=c.createRadialGradient(W/2,H/2,Math.min(W,H)*.25,W/2,H/2,Math.max(W,H)*.75); vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,`rgba(0,0,0,${fx.vig/100*.9})`); c.fillStyle=vg; c.fillRect(0,0,W,H); } } }
 function drawPhoto0(c,W,H,tint){
@@ -671,8 +699,8 @@ function drawPhoto0(c,W,H,tint){
     R.polys.forEach((poly,i)=>{
       const p=PS.get(i), [bx,by,bw,bh]=polyBox(poly);
       c.save(); c.beginPath(); poly.forEach((q,j)=>j?c.lineTo(q[0],q[1]):c.moveTo(q[0],q[1])); c.closePath(); c.clip();
-      if(CUR_FX.op<100) c.globalAlpha=CUR_FX.op/100; { const ff=fxFilter(CUR_FX); if(ff!=='none') c.filter=ff; }
-      if(p.img){ const [ox,oy]=drawCover(c,p.img,bx,by,bw,bh,p.zoom,p.ox,p.oy); if(ox!==p.ox||oy!==p.oy) PS.set(i,{...p,ox,oy}); }
+      if(CUR_FX.op<100) c.globalAlpha=CUR_FX.op/100;
+      if(p.img){ const pdw=p.img.width*Math.max(bw/p.img.width,bh/p.img.height)*(p.zoom||1); const [ox,oy]=drawCover(c,fxImg(p.img,pdw),bx,by,bw,bh,p.zoom,p.ox,p.oy); if(ox!==p.ox||oy!==p.oy) PS.set(i,{...p,ox,oy}); }
       c.restore();
     });
     if(C.gap>0){c.save();c.strokeStyle=C.gc;c.lineWidth=C.gap;R.lines.forEach(l=>{c.beginPath();c.moveTo(l[0][0],l[0][1]);c.lineTo(l[1][0],l[1][1]);c.stroke()});c.restore();}
@@ -683,7 +711,7 @@ function drawPhoto0(c,W,H,tint){
     const p=S.photo, k=Math.max(W/p.width,H/p.height)*S.zoom, dw=p.width*k, dh=p.height*k;
     const mx=Math.max(0,(dw-W)/2), my=Math.max(0,(dh-H)/2);
     S.ox=Math.max(-mx,Math.min(mx,S.ox)); S.oy=Math.max(-my,Math.min(my,S.oy));
-    if(CUR_FX.op<100) bg(); c.save(); if(CUR_FX.op<100) c.globalAlpha=CUR_FX.op/100; { const ff=fxFilter(CUR_FX); if(ff!=='none') c.filter=ff; } c.imageSmoothingEnabled=true; c.imageSmoothingQuality='high'; c.drawImage(p,(W-dw)/2+S.ox,(H-dh)/2+S.oy,dw,dh); c.restore();
+    if(CUR_FX.op<100) bg(); c.save(); if(CUR_FX.op<100) c.globalAlpha=CUR_FX.op/100; let pi=p; const isV=window.VID&&p===VID.cv; if(isV){ if('filter' in c){ const ff=fxFilter(CUR_FX); if(ff!=='none') c.filter=ff; } } else pi=fxImg(p,dw); c.imageSmoothingEnabled=true; c.imageSmoothingQuality='high'; c.drawImage(pi,(W-dw)/2+S.ox,(H-dh)/2+S.oy,dw,dh); c.restore();
   } else {
     bg();
     if(!S.exporting&&S.account!=='pn'){c.fillStyle='rgba(255,255,255,.35)';c.font=`600 40px ${FN}`;c.textAlign='center';

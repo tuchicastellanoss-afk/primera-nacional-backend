@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 12/11 · 20:58</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 12/11 · 21:10</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -1552,14 +1552,15 @@ function flyIcon(c,k,x,y,r,ring,deep){
 }
 function ffit(c,text,fam,weight,maxW,maxLines,start,min,key){ const m=key?(S.sz[key]||100)/100:1; if(m===1) return fit(c,text,fam,weight,maxW,maxLines,start,min,key); const size=Math.max(10,Math.round(start*m)); c.font=`${weight} ${size}px ${fam}`; return {size,lines:wrapLines(c,text,maxW*1.7).slice(0,Math.max(maxLines,3))}; }
 const FZ=k=>({label:'Tamaño del texto (libre, no se ajusta solo)',o:S.sz,k,min:30,max:300,step:5,unit:'%',def:100});
+function flyAvg(im){ if(im._avg) return im._avg; try{ const t=document.createElement('canvas'); t.width=t.height=8; const x=t.getContext('2d'); x.drawImage(im,0,0,8,8); const d=x.getImageData(0,0,8,8).data; let r=0,g=0,b=0,n=0; for(let i=0;i<d.length;i+=4){ if(d[i+3]>200){ r+=d[i]; g+=d[i+1]; b+=d[i+2]; n++; } } im._avg=n?`rgb(${r/n|0},${g/n|0},${b/n|0})`:'#dbeaf5'; }catch(e){ im._avg='#dbeaf5'; } return im._avg; }
 function flyTrim(img){
   const k=Math.min(1,1200/Math.max(img.width,img.height)), w=Math.max(1,Math.round(img.width*k)), h=Math.max(1,Math.round(img.height*k)), cv0=document.createElement('canvas'); cv0.width=w; cv0.height=h; const x=cv0.getContext('2d'); x.drawImage(img,0,0,w,h);
   try{ const d=x.getImageData(0,0,w,h).data, px=(xx,yy)=>{ const i=(yy*w+xx)*4; return [d[i],d[i+1],d[i+2],d[i+3]]; }, cs=[px(2,2),px(w-3,2),px(2,h-3),px(w-3,h-3)], bg=[0,1,2].map(j=>cs.reduce((a,q)=>a+q[j],0)/4);
-    const isBg=(xx,yy)=>{ const i=(yy*w+xx)*4; return d[i+3]<30||Math.max(Math.abs(d[i]-bg[0]),Math.abs(d[i+1]-bg[1]),Math.abs(d[i+2]-bg[2]))<=38; };
-    const rowFg=yy=>{ let n=0; for(let xx=0;xx<w;xx+=2) if(!isBg(xx,yy)) n++; return n/(w/2)>.04; }, colFg=xx=>{ let n=0; for(let yy=0;yy<h;yy+=2) if(!isBg(xx,yy)) n++; return n/(h/2)>.04; };
+    const isBg=(xx,yy)=>{ const i=(yy*w+xx)*4; return d[i+3]<235||Math.max(Math.abs(d[i]-bg[0]),Math.abs(d[i+1]-bg[1]),Math.abs(d[i+2]-bg[2]))<=58; };
+    const rowFg=yy=>{ let n=0; for(let xx=0;xx<w;xx+=2) if(!isBg(xx,yy)) n++; return n/(w/2)>.25; }, colFg=xx=>{ let n=0; for(let yy=0;yy<h;yy+=2) if(!isBg(xx,yy)) n++; return n/(h/2)>.25; };
     let y0=0,y1=h-1,x0=0,x1=w-1; while(y0<y1&&!rowFg(y0)) y0++; while(y1>y0&&!rowFg(y1)) y1--; while(x0<x1&&!colFg(x0)) x0++; while(x1>x0&&!colFg(x1)) x1--;
-    const ix=Math.round((x1-x0)*.02), iy=Math.round((y1-y0)*.02); x0+=ix; x1-=ix; y0+=iy; y1-=iy;
-    if(x1-x0>w*.2&&y1-y0>h*.2&&(x1-x0<w-4||y1-y0<h-4)){ const o=document.createElement('canvas'); o.width=x1-x0+1; o.height=y1-y0+1; o.getContext('2d').drawImage(cv0,x0,y0,o.width,o.height,0,0,o.width,o.height); return o; } }catch(e){}
+    const ix=Math.round((x1-x0)*.04), iy=Math.round((y1-y0)*.04); x0+=ix; x1-=ix; y0+=iy; y1-=iy;
+    if(x1-x0>w*.15&&y1-y0>h*.15&&(x1-x0<w-4||y1-y0<h-4)){ const o=document.createElement('canvas'); o.width=x1-x0+1; o.height=y1-y0+1; o.getContext('2d').drawImage(cv0,x0,y0,o.width,o.height,0,0,o.width,o.height); return o; } }catch(e){}
   return cv0;
 }
 const DUMC=document.createElement('canvas').getContext('2d');
@@ -1585,7 +1586,7 @@ function drawFlyer(c0,W,H,F){
   S.flyPT=bens.length?panelTop:pBot; S.flyTT=yTitleEnd; const yBase=bens.length?panelTop:pBot; let circTop=yBase-12*k, noteX=Mx+8, noteW=W*.42, noteCy=panelTop+panelH*.55;
   if(circOn){ const D=Math.min(W*.24,215*k,Math.max(120,panelH-40*k))*(S.sz.fCirc||100)/100, cx=Mx+D/2+8, cy=(bens.length?panelTop+22*k+D/2:yBase-D/2-20*k), im=S.flyIn;
     E(c0,'circ',c=>{ c.save(); c.shadowColor='rgba(0,0,0,.35)'; c.shadowBlur=14*(S.qNow||1); c.fillStyle='#fff'; c.beginPath(); c.arc(cx,cy,D/2+8,0,7); c.fill(); c.restore();
-      c.save(); c.beginPath(); c.arc(cx,cy,D/2,0,7); c.clip(); if(im){ const sc=Math.max(D/im.width,D/im.height)*(S.flyZ||100)/100; c.drawImage(im,cx-im.width*sc/2,cy-im.height*sc/2,im.width*sc,im.height*sc); } else { c.fillStyle='#dbeaf5'; c.fillRect(cx-D/2,cy-D/2,D,D); if(!S.exporting){ c.fillStyle='#0a3c87'; c.textAlign='center'; c.font=`700 ${D*.1}px ${FAM}`; c.fillText('FOTO DE',cx,cy-4); c.fillText('DETALLE',cx,cy+D*.12); } } c.restore();
+      c.save(); c.beginPath(); c.arc(cx,cy,D/2,0,7); c.clip(); if(im){ c.fillStyle=flyAvg(im); c.fillRect(cx-D/2,cy-D/2,D,D); const sc=Math.max(D/im.width,D/im.height)*(S.flyZ||100)/100; c.drawImage(im,cx-im.width*sc/2,cy-im.height*sc/2,im.width*sc,im.height*sc); } else { c.fillStyle='#dbeaf5'; c.fillRect(cx-D/2,cy-D/2,D,D); if(!S.exporting){ c.fillStyle='#0a3c87'; c.textAlign='center'; c.font=`700 ${D*.1}px ${FAM}`; c.fillText('FOTO DE',cx,cy-4); c.fillText('DETALLE',cx,cy+D*.12); } } c.restore();
       hitBox('f-fCirc','Círculo con foto',cx-D/2-8,cy-D/2-8,D+16,D+16,false,{ctrls:[{label:'Tamaño del círculo',o:S.sz,k:'fCirc',min:50,max:150,step:5,unit:'%',def:100}]}); });
     circTop=cy-D/2-8; noteX=cx+D/2+24*k; noteW=W*.45-12*k-noteX; noteCy=cy; }
   const note=String(d.note||'').trim();

@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 12/11 · 12:45</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 12/11 · 13:40</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -1536,7 +1536,7 @@ function makeCopy(kind){
     const it=parseLista(d.items).filter(x=>x.t==='it'||x.t==='sec');
     body.push((cap(d.title)?'🔥 '+cap(d.title)+(cap(d.sub)?' · '+cap(d.sub):''):'🔥 Precios'));
     const lim=tw?3:12; it.slice(0,lim).forEach(x=>body.push('• '+cap(x.name)+(x.right?' – '+cap(x.right):'')));
-    if(!tw){ body.push(''); body.push('Consultá disponibilidad y stock por mensaje directo.'); }
+    if(!tw){ body.push(''); body.push('Precios sujetos a cambios y stock.'); }
   } else if(t==='agenda'){
     body.push('🗓 '+(cap(d.title)||'Horarios')+(cap(d.sub)?' · '+cap(d.sub):''));
     const it=parseLista(d.items); it.slice(0,tw?3:12).forEach(x=>body.push('• '+[x.name,x.det&&x.det[0],x.right].filter(Boolean).join(' · ')));
@@ -1546,10 +1546,10 @@ function makeCopy(kind){
   } else {
     const ls=cap(d.lines).split(/\n/).map(low).filter(Boolean); body.push('📢 '+(ls[0]||'Aviso')); ls.slice(1).forEach(l=>body.push(l)); if(d.sub) body.push(cap(d.sub));
   }
-  const tags=(BZ_TAGS[id]||['#'+nm.replace(/\s+/g,'')]);
+  const tags=(BZ_TAGS[id]||['#'+nm.replace(/\s+/g,'')]), ctaL=id==='lg'?['Reservá tu clase por mensaje directo 🐴','Escribinos y coordinamos tu primera clase 🐴']:['Escribinos por mensaje directo y te respondemos al toque 📩','Consultanos sin compromiso por mensaje directo 📩'], cta=ctaL[(COPYV++)%ctaL.length];
   let out;
   if(tw){ out=body.join('\n')+(contact.length?'\n'+contact[0]:'')+'\n'+tags[0]; }
-  else out=body.join('\n')+(contact.length?'\n\n'+contact.join('\n'):'')+'\n\n'+tags.join(' ');
+  else out=body.join('\n')+'\n\n'+cta+(contact.length?'\n\n'+contact.join('\n'):'')+'\n\n'+tags.join(' ');
   if(tw&&out.length>280){ out=out.slice(0,277).replace(/\s+\S*$/,'')+'…'; }
   return out;
 }
@@ -1558,12 +1558,16 @@ function ideaBox(){  const bx=document.createElement('div'); bx.className='grp';
     const go=document.createElement('button'); go.type='button'; go.className='primary'; go.id='ideaGo'; go.textContent='Armar plantilla'; const msg=document.createElement('p'); msg.className='hint'; msg.textContent='Detecto precios, horarios, teléfono y @usuario. Después podés retocar todo.';
     go.onclick=()=>{ const v=ta.value; if(!applyIdeaAny(v)){ msg.textContent='Escribí al menos una línea con la idea.'; } else { const t2=document.getElementById('ideaTxt'); if(t2) t2.value=v; } };
     l.appendChild(ta); bx.append(l,go,msg); return bx; }
+
+const EN_FIX={'Reservá tu clase por mensaje directo 🐴':'Book your class by direct message 🐴','Escribinos y coordinamos tu primera clase 🐴':'Message us and we will arrange your first class 🐴','Precios sujetos a cambios y stock.':'Prices subject to change and availability.'};
+async function mt(line){ if(EN_FIX[line]) return EN_FIX[line]; const em=(line.match(/^[^\p{L}\p{N}]+/u)||[''])[0], core=line.slice(em.length); if(!/\p{L}/u.test(core)) return line; try{ const r=await fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(core.slice(0,480))+'&langpair=es|en'); const j=await r.json(); const t=j&&j.responseData&&j.responseData.translatedText; if(t&&!/MYMEMORY|QUERY LENGTH/i.test(t)) return em+t.replace(/&#39;/g,"'").replace(/&quot;/g,'"'); }catch(_){} return line; }
+async function englishVersion(es){ const lines=es.split('\n'), out=[]; for(const l of lines){ const tl=l.trim(); if(!tl||/^(📲|📸|#)/.test(tl)||/^\+?[\d\s()-]{6,}$/.test(tl)||/@\w+/.test(tl)&&!/\s.*\s.*\s/.test(tl)) out.push(l); else out.push(await mt(tl)); } return out.join('\n'); }
 function copyBox(){  const bx=document.createElement('div'); bx.className='grp'; bx.style.cssText='border-top:1px solid var(--line);padding-top:10px;display:flex;flex-direction:column;gap:6px';
     const h=document.createElement('b'); h.textContent='✍️ Copy del posteo'; const ta=document.createElement('textarea'); ta.id='copyTxt'; ta.rows=9; ta.style.cssText='width:100%;box-sizing:border-box'; const cnt=document.createElement('p'); cnt.className='hint';
     const upd=()=>{ cnt.textContent=ta.value.length+' caracteres'+(ta.value.length>280?' (para X/Twitter, máximo 280)':''); }; ta.oninput=upd;
     const row=document.createElement('div'); row.style.cssText='display:flex;gap:6px;flex-wrap:wrap';
     const mk=(txt,fn,cls)=>{const b=document.createElement('button'); b.type='button'; b.className=cls||'ghost'; b.textContent=txt; b.onclick=fn; row.appendChild(b); return b;};
-    mk('Generar para Instagram',()=>{ta.value=makeCopyAny('ig'); upd();},'primary').id='copyIg'; mk('Versión X / Twitter',()=>{ta.value=makeCopyAny('tw'); upd();}).id='copyTw';
+    mk('Generar para Instagram',async()=>{ const es=makeCopyAny('ig'); ta.value=es; upd(); if(currentAccount().id==='lg'){ ta.value=es+'\n\n———\n🇬🇧 English\n\n(traduciendo…)'; upd(); const en=await englishVersion(es); ta.value=es+'\n\n———\n🇬🇧 English\n\n'+en; upd(); } },'primary').id='copyIg'; mk('Versión X / Twitter',()=>{ta.value=makeCopyAny('tw'); upd();}).id='copyTw';
     mk('Copiar',function(){ const done=()=>{this.textContent='¡Copiado!'; setTimeout(()=>this.textContent='Copiar',1500)}; try{ navigator.clipboard.writeText(ta.value).then(done,()=>{ta.select(); document.execCommand('copy'); done();}); }catch(e){ ta.select(); try{document.execCommand('copy')}catch(_){} done(); } });
     bx.append(h,row,ta,cnt); return bx; }
 
@@ -1623,18 +1627,29 @@ function ideaToPN(txt){
   buildTpls(); buildFormats(); buildQual(); buildFields(); render(); return true;
 }
 function applyIdeaAny(v){ if(currentAccount().id!=='pn'&&applyIdea(v)) return true; if(currentAccount().id!=='pn'&&!tplKeys().includes('precios')) return ideaToPN(v); return currentAccount().id==='pn'?ideaToPN(v):false; }
+let COPYV=0;
+const tagify=n=>{ const t=String(n||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\([^)]*\)/g,'').split(/[^A-Za-z0-9]+/).filter(Boolean).map(w=>w[0].toUpperCase()+w.slice(1)).join(''); return t?'#'+t:''; };
 function makeCopyPN(kind){
-  const tw=kind==='tw', a=currentAccount(), F=S.f, t=S.tpl, nz=x=>String(x||'').trim(); let b=[];
-  if(t==='noticia'){ b.push('📰 '+nz(F.headline)); if(nz(F.sub)) b.push(nz(F.sub)); }
-  else if(t==='consigna'){ b.push('❓ '+nz(F.q)); b.push(''); b.push('🅰️ '+nz(F.a)+'   🅱️ '+nz(F.b)); b.push(nz(F.cta)||'Contanos en los comentarios 👇'); }
-  else if(t==='vs'){ b.push('⚔️ '+nz(F.vsAn||F.vsA)+' vs '+nz(F.vsBn||F.vsB)); if(nz(F.vsWhen)) b.push('🗓 '+nz(F.vsWhen)); if(nz(F.vsWhere)) b.push('📍 '+nz(F.vsWhere)); if(nz(F.vsTv)) b.push('📺 '+nz(F.vsTv)); }
-  else if(t==='partido'){ b.push('⚽ Resultados'); S.cards.filter(k=>k.home&&k.away).slice(0,tw?3:12).forEach(k=>{ b.push('• '+nz(k.home)+' '+(nz(k.hs)||'-')+' - '+(nz(k.as)||'-')+' '+nz(k.away)); const gs=[nz(k.gh),nz(k.ga)].filter(Boolean).join(' | '); if(gs&&!tw) b.push('   ⚽ '+gs); }); }
-  else if(t==='entradas'){ b.push('🎟 Entradas vendidas'); b.push(nz(F.enAn||F.enA)+': '+nz(F.enNa)+'  |  '+nz(F.enBn||F.enB)+': '+nz(F.enNb)); if(nz(F.enWhen)) b.push('🗓 '+nz(F.enWhen)); }
-  else if(t==='entranking'){ b.push('🎟 '+nz(F.enrT)); if(nz(F.enrS)) b.push(nz(F.enrS)); b.push(''); enrParse(F.enrRows).forEach((r,i)=>b.push((i+1)+'. '+r.club+(r.det?' ('+r.det+')':'')+': '+fmtN(r.n))); }
-  else if(t==='arbitros'){ b.push('🟨 Árbitros designados'); b.push(nz(S.red.arSub)||'Reducido · Primera instancia'); }
-  else b.push('📊 '+(TEMPLATES[t]&&TEMPLATES[t].label||'Primera Nacional')+' de la Primera Nacional');
-  const tag=a.id==='pn'?'#PrimeraNacional #AscensoArgentino':'#'+String(a.name||'').replace(/\s+/g,''), h=a.handle?('\n\n'+a.handle):'';
-  let out=tw?b.join('\n')+'\n#PrimeraNacional':b.join('\n')+h+'\n\n'+tag; if(tw&&out.length>280) out=out.slice(0,277).replace(/\s+\S*$/,'')+'…'; return out;
+  const tw=kind==='tw', a=currentAccount(), F=S.f, t=S.tpl, nz=x=>String(x||'').trim(), v=COPYV++, pick=arr=>arr[v%arr.length], clubs=[], addC=x=>{ const n=nz(x)&&nm(x); if(n&&!clubs.includes(n)) clubs.push(n); };
+  const sent=x=>{ x=nz(x); return x?x.charAt(0)+(x===x.toUpperCase()?x.slice(1).toLowerCase():x.slice(1)):x; };
+  let hook='', ctx=[], cta='';
+  if(t==='noticia'){ const H=nz(F.headline); hook=pick(['🚨 '+H,'📰 ÚLTIMO MOMENTO | '+H,'‼️ '+H]); if(nz(F.sub)) ctx.push(sent(F.sub)+'.'); addC(F.crest); addC(F.crest2);
+    cta=pick(['¿Qué te parece? Te leemos en los comentarios 👇','Contanos qué opinás 👇 y compartilo con un hincha del club','Seguinos para enterarte de todo lo que pasa en el ascenso 📲']); }
+  else if(t==='consigna'){ const q=nz(F.q); hook=pick(['❓ '+q,'🗳 VOTÁ: '+q,'🔥 '+q]); ctx=['🅰️ '+nz(F.a),'🅱️ '+nz(F.b)]; addC(F.a); addC(F.b); cta=nz(F.cta)||pick(['Comentá A o B 👇 ¿Con cuál te quedás?','Votá en los comentarios y etiquetá a un amigo que piense distinto 😏']); }
+  else if(t==='vs'){ const A=nz(F.vsAn||F.vsA), B=nz(F.vsBn||F.vsB); hook=pick(['🔥 '+A+' vs '+B+': se viene un partidazo','⚔️ '+A+' vs '+B+': ya hay fecha y hora']); if(nz(F.vsWhen)) ctx.push('🗓 '+nz(F.vsWhen)); if(nz(F.vsWhere)) ctx.push('📍 '+nz(F.vsWhere)); if(nz(F.vsTv)) ctx.push('📺 '+nz(F.vsTv)); addC(F.vsA); addC(F.vsB);
+    cta=pick(['¿Cómo lo ves? Dejá tu pronóstico 👇','Pronóstico en los comentarios: ¿quién gana? 👇']); }
+  else if(t==='partido'){ hook=pick(['⚽ Así quedaron los resultados de la fecha','📊 Se jugó la fecha en la Primera Nacional']); S.cards.filter(k=>k.home&&k.away).slice(0,tw?3:12).forEach(k=>{ ctx.push('• '+nz(k.home)+' '+(nz(k.hs)||'-')+' - '+(nz(k.as)||'-')+' '+nz(k.away)); if(!tw){ const gs=[nz(k.gh),nz(k.ga)].filter(Boolean).join(' | '); if(gs) ctx.push('   ⚽ '+gs); } addC(k.home); addC(k.away); }); cta=pick(['¿Qué resultado te sorprendió más? 👇','¿Cómo te fue en la fecha? Contanos 👇']); }
+  else if(t==='entradas'){ const A=nz(F.enAn)||nm(F.enA), B=nz(F.enBn)||nm(F.enB), na=numOf(F.enNa), nb=numOf(F.enNb), mn=Math.min(na,nb), mx=Math.max(na,nb), W2=na>=nb?A:B;
+    hook=pick(['🎟 '+A+' vendió '+fmtN(na)+' entradas. '+B+', '+fmtN(nb)+'.','🎟 Los números de la previa: '+A+' '+fmtN(na)+' | '+B+' '+fmtN(nb)]);
+    if(mn>0&&mx/mn>=1.2) ctx.push('🔥 '+W2+' vendió '+(mx/mn).toFixed(1).replace('.',',')+' veces más entradas.'); else if(na&&nb) ctx.push('Paridad total en la venta de entradas.');
+    if(nz(F.enWhen)) ctx.push('🗓 '+nz(F.enWhen)); if(nz(F.enWhere)) ctx.push('📍 '+nz(F.enWhere)); addC(F.enA); addC(F.enB); cta=pick(['¿Vas a la cancha? Contanos 👇','¿Quién se lleva la localía en las tribunas? 👇']); }
+  else if(t==='entranking'){ hook='🎟 '+nz(F.enrT); if(nz(F.enrS)) ctx.push(sent(F.enrS)+'.'); ctx.push(''); enrParse(F.enrRows).forEach((r,i)=>{ ctx.push((i+1)+'. '+r.club+(r.det?' ('+r.det+')':'')+' – '+fmtN(r.n)); addC(r.club); }); cta=pick(['¿Qué final recordás con más color? 👇','Guardá el posteo y compartilo con un hincha 📲']); }
+  else if(t==='arbitros'){ hook=pick(['🟨 Estos son los árbitros designados','🟨 Designaciones: así se arbitra el reducido']); ctx.push(sent(S.red.arSub||'Reducido · Primera instancia')+'.'); cta=pick(['¿Qué opinás de las designaciones? 👇','¿Quién creés que va a tener el partido más caliente? 👇']); }
+  else { hook='📊 '+((TEMPLATES[t]&&TEMPLATES[t].label)||'Primera Nacional')+' de la Primera Nacional'; cta='Seguinos para no perderte nada 📲'; }
+  const base=['#PrimeraNacional','#AscensoArgentino','#FutbolArgentino'], tags=[...new Set([...clubs.map(tagify).filter(Boolean),...base,'#LigaProfesional'])].slice(0,a.id==='pn'?9:6), cc=ctx.filter((x,i,arr)=>x!==''||arr[i-1]!=='');
+  if(tw){ let out=[hook,...cc.filter(Boolean).slice(0,3),'',cta].join('\n').replace(/\n{3,}/g,'\n\n')+'\n'+tags.slice(0,2).join(' '); if(out.length>280) out=out.slice(0,277).replace(/\s+\S*$/,'')+'…'; return out; }
+  const h=a.handle?('📲 Seguinos: '+a.handle):'';
+  return [hook,'',...cc,'',cta,'',h,'',tags.join(' ')].filter((x,i,arr)=>!(x===''&&(arr[i-1]===''||i===0))).join('\n').replace(/\n{3,}/g,'\n\n').trim();
 }
 function makeCopyAny(kind){ return BIZ_T.includes(S.tpl)?makeCopy(kind):makeCopyPN(kind); }
 function buildBizUI(box){

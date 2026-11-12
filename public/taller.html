@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 11/11 · 17:40</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 12/11 · 11:05</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -1488,8 +1488,9 @@ function makeCopy(kind){
 function ideaBox(){  const bx=document.createElement('div'); bx.className='grp'; bx.style.cssText='border:1px dashed var(--line);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:6px';
     const l=document.createElement('label'); l.textContent='💡 Escribí tu idea y armo la plantilla'; const ta=document.createElement('textarea'); ta.id='ideaTxt'; ta.rows=4; ta.placeholder='Ej: Nuevos horarios\nLunes a viernes de 9 a 18\nSábados de 9 a 13\nAv. Constituyentes 3148\n\nO pegá una lista: Cloro 5L - $4.900 ...'; ta.style.cssText='width:100%;box-sizing:border-box'; ta.value=(S.red.idea||{})[currentAccount().id+':'+S.tpl]||''; ta.oninput=()=>{ (S.red.idea=S.red.idea||{})[currentAccount().id+':'+S.tpl]=ta.value; };
     const go=document.createElement('button'); go.type='button'; go.className='primary'; go.id='ideaGo'; go.textContent='Armar plantilla'; const msg=document.createElement('p'); msg.className='hint'; msg.textContent='Detecto precios, horarios, teléfono y @usuario. Después podés retocar todo.';
-    go.onclick=()=>{ const v=ta.value; if(!applyIdeaAny(v)){ msg.textContent='Escribí al menos una línea con la idea.'; } else { const t2=document.getElementById('ideaTxt'); if(t2) t2.value=v; } };
-    l.appendChild(ta); bx.append(l,go,msg); return bx; }
+    go.onclick=()=>{ const v=ta.value; if(!applyIdeaAny(v)){ msg.textContent='Escribí al menos una línea con la idea.'; } else { const t2=document.getElementById('ideaTxt'); if(t2) t2.value=v; if(currentAccount().id==='pn') suggestPhotos(v); } };
+    const sug=document.createElement('div'); sug.id='phSug'; sug.style.cssText='display:flex;flex-direction:column;gap:8px';
+    l.appendChild(ta); bx.append(l,go,msg,sug); return bx; }
 function copyBox(){  const bx=document.createElement('div'); bx.className='grp'; bx.style.cssText='border-top:1px solid var(--line);padding-top:10px;display:flex;flex-direction:column;gap:6px';
     const h=document.createElement('b'); h.textContent='✍️ Copy del posteo'; const ta=document.createElement('textarea'); ta.id='copyTxt'; ta.rows=9; ta.style.cssText='width:100%;box-sizing:border-box'; const cnt=document.createElement('p'); cnt.className='hint';
     const upd=()=>{ cnt.textContent=ta.value.length+' caracteres'+(ta.value.length>280?' (para X/Twitter, máximo 280)':''); }; ta.oninput=upd;
@@ -1499,6 +1500,48 @@ function copyBox(){  const bx=document.createElement('div'); bx.className='grp';
     mk('Copiar',function(){ const done=()=>{this.textContent='¡Copiado!'; setTimeout(()=>this.textContent='Copiar',1500)}; try{ navigator.clipboard.writeText(ta.value).then(done,()=>{ta.select(); document.execCommand('copy'); done();}); }catch(e){ ta.select(); try{document.execCommand('copy')}catch(_){} done(); } });
     bx.append(h,row,ta,cnt); return bx; }
 
+
+/* ---------- fotos de fondo sugeridas (Wikimedia Commons, fotos libres) ---------- */
+const PH_STOP=new Set(['de','del','la','el','los','las','en','y','a','por','para','con','que','un','una','al','se','su','es','lo','vs','fecha','hoy','mañana']);
+function photoQueries(txt){
+  const t=String(txt||''), low=t.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase(), q=[];
+  const words=t.split(/[\s,.;:¿?¡!()"“”\-\/]+/).filter(Boolean), seen=new Set(), clubs=[];
+  for(let n=3;n>=1&&clubs.length<2;n--) for(let i=0;i+n<=words.length&&clubs.length<2;i++){ const g=words.slice(i,i+n).join(' '); if(g.length<4||PH_STOP.has(g.toLowerCase())) continue; let r; try{ r=resolve(g); }catch(_){ continue; } if(r&&r.best&&!seen.has(r.best.slug)){ seen.add(r.best.slug); clubs.push(r.best.label||g); } }
+  if(/arbitro|asistente|var\b|designacion/.test(low)) q.push('football referee match','árbitro de fútbol','referee soccer');
+  clubs.forEach(c=>{ q.push('Estadio '+c, c+' hinchada', c+' fútbol partido'); });
+  if(/huelga|paro|deuda|salari/.test(low)) q.push('tribuna estadio fútbol Argentina');
+  if(/gol|goleada|ganó|gano|victoria|campe/.test(low)) q.push('gol fútbol Argentina','festejo gol fútbol');
+  if(/descen|ascen|reducido|final/.test(low)) q.push('estadio fútbol Argentina','tribuna hinchas Argentina');
+  q.push('estadio de fútbol Argentina','hinchada fútbol Argentina');
+  return [...new Set(q)].slice(0,8);
+}
+async function commonsSearch(q,off){
+  const u='https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrlimit=14&gsroffset='+(off||0)+'&gsrsearch='+encodeURIComponent(q+' filetype:bitmap')+'&prop=imageinfo&iiprop=url|size|mime|extmetadata&iiurlwidth=1600&format=json&origin=*';
+  const r=await fetch(u); if(!r.ok) throw new Error('http'); const j=await r.json(), pages=Object.values((j.query||{}).pages||{}).sort((a,b)=>a.index-b.index), strip=h=>String(h||'').replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim();
+  return pages.map(p=>{ const ii=(p.imageinfo||[])[0]; if(!ii||!/jpeg|png/.test(ii.mime||'')||(ii.width||0)<1000||(ii.height||0)<700) return null; if(/logo|escudo|flag|bandera|map[ao]?\b|crest|badge|diagram|scheme|stamp|poster|cartel/i.test(p.title)) return null; const em=ii.extmetadata||{}; return {title:p.title,thumb:ii.thumburl||ii.url,w:ii.width,h:ii.height,by:strip((em.Artist||{}).value).slice(0,60),lic:strip((em.LicenseShortName||{}).value)||'licencia libre',page:ii.descriptionshorturl||''}; }).filter(Boolean);
+}
+async function pickPhotos(queries,off){
+  const res=await Promise.all(queries.slice(0,5).map(q=>commonsSearch(q,off).catch(()=>[]))), out=[], seen=new Set();
+  for(let i=0;out.length<3&&i<14;i++) for(const r of res){ const x=r[i]; if(x&&!seen.has(x.title)){ seen.add(x.title); out.push(x); if(out.length>=3) break; } }
+  return out;
+}
+let PHQ={q:[],off:0};
+async function suggestPhotos(txt,custom,more){
+  const box=document.getElementById('phSug'); if(!box) return;
+  if(!more){ PHQ.q=custom?[custom]:photoQueries(txt); PHQ.off=0; } else PHQ.off+=14;
+  box.innerHTML='<p class="hint">Buscando fotos de fondo…</p>';
+  let list=[]; try{ list=await pickPhotos(PHQ.q,PHQ.off); }catch(_){}
+  box.innerHTML=''; const h=document.createElement('b'); h.textContent='📷 Fondos sugeridos: elegí uno'; box.appendChild(h);
+  if(!list.length){ const p=document.createElement('p'); p.className='hint'; p.textContent='No encontré fotos para eso. Probá con otra búsqueda (por ejemplo "Estadio Ferro").'; box.appendChild(p); }
+  const grid=document.createElement('div'); grid.style.cssText='display:grid;grid-template-columns:repeat(3,1fr);gap:6px';
+  list.forEach(x=>{ const b=document.createElement('button'); b.type='button'; b.className='ghost'; b.style.cssText='padding:0;overflow:hidden;border-radius:8px;min-height:0;display:flex;flex-direction:column;text-align:left'; const im=document.createElement('img'); im.src=x.thumb; im.alt=x.title; im.loading='lazy'; im.style.cssText='width:100%;aspect-ratio:4/5;object-fit:cover;display:block'; const cap=document.createElement('span'); cap.style.cssText='font-size:10px;line-height:1.2;padding:3px 4px;color:var(--muted)'; cap.textContent=(x.by?x.by+' · ':'')+x.lic; b.append(im,cap);
+    b.onclick=async()=>{ b.style.opacity='.5'; try{ const r=await fetch(x.thumb,{mode:'cors'}); const bl=await shrinkPhoto(await r.blob()); PS.load([]); await addPhotos([bl]); S.red.phCredit=`Foto: ${x.by||'autor'} · ${x.lic} · Wikimedia Commons`; credit.textContent=S.red.phCredit+'. Algunas licencias piden mencionar al autor.'; }catch(_){ credit.textContent='No pude descargar esa foto. Probá con otra.'; } b.style.opacity=''; }; grid.appendChild(b); });
+  box.appendChild(grid); const credit=document.createElement('p'); credit.className='hint'; credit.textContent='Son fotos libres de Wikimedia Commons (no puedo generar imágenes desde acá).'; box.appendChild(credit);
+  const row=document.createElement('div'); row.style.cssText='display:flex;gap:6px;flex-wrap:wrap'; const inp=document.createElement('input'); inp.type='text'; inp.placeholder='Buscar otra foto: ej. Estadio Ferro'; inp.style.cssText='flex:1;min-width:140px'; inp.value=custom||'';
+  const bs=document.createElement('button'); bs.type='button'; bs.className='ghost'; bs.textContent='Buscar'; bs.onclick=()=>{ if(inp.value.trim()) suggestPhotos(txt,inp.value.trim()); }; inp.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); bs.onclick(); } };
+  const bm=document.createElement('button'); bm.type='button'; bm.className='ghost'; bm.textContent='Más opciones'; bm.onclick=()=>suggestPhotos(txt,custom,true);
+  row.append(inp,bs,bm); box.appendChild(row);
+}
 function ideaToPN(txt){
   const L=String(txt||'').split(/\r?\n/).map(l=>l.trim()).filter(Boolean); if(!L.length) return false; const all=L.join(' ');
   if(/[aá]rbitro|asistente/i.test(all)){ S.red.arTxt=String(txt).trim(); S.tpl='arbitros'; }

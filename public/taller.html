@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 12/11 · 11:30</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 12/11 · 11:45</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -201,10 +201,16 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
       <div class="sec">
         <h2>Foto de fondo</h2>
         <label class="file"><input id="photoIn" type="file" accept="image/*" multiple><span>Agregar foto (podés elegir varias)</span></label>
+        <div id="gFind" style="display:flex;flex-direction:column;gap:6px;border:1px dashed var(--line);border-radius:10px;padding:10px">
+          <b>🔎 Buscar en Google Imágenes</b>
+          <div style="display:flex;gap:6px"><input id="gQ" type="text" placeholder="Ej: árbitro fútbol de espaldas, Estadio Ferro" style="flex:1;min-width:0"><button class="primary" id="gGo" type="button">Buscar</button></div>
+          <button class="ghost" id="gPaste" type="button">📋 Pegar imagen copiada</button>
+          <p class="hint" id="gMsg">Se abre Google en otra pestaña. Mantené apretada la foto elegida, tocá "Copiar", volvé acá y tocá "Pegar imagen copiada".</p>
+        </div>
         <label>Zoom de la foto 1 <input id="zoom" type="range" min="100" max="400" value="100"></label>
         <div class="row" style="justify-content:flex-start"><button class="ghost" id="resetPhoto" type="button">Centrar foto</button><button class="ghost" id="clearPhoto" type="button">Quitar foto</button></div>
         <div id="phFind" style="display:flex;flex-direction:column;gap:6px;border:1px dashed var(--line);border-radius:10px;padding:10px">
-          <b>🔎 Buscar foto de fondo</b>
+          <b>🔎 Fotos libres (Wikimedia Commons)</b>
           <div style="display:flex;gap:6px"><input id="phQ" type="text" placeholder="Ej: árbitro, Estadio Ferro, hinchada Platense" style="flex:1;min-width:0"><button class="primary" id="phGo" type="button">Buscar</button></div>
           <div id="phSug" style="display:flex;flex-direction:column;gap:8px"></div>
         </div>
@@ -1530,6 +1536,13 @@ async function pickPhotos(queries,off){
   for(let i=0;out.length<3&&i<14;i++) for(const r of res){ const x=r[i]; if(x&&!seen.has(x.title)){ seen.add(x.title); out.push(x); if(out.length>=3) break; } }
   return out;
 }
+
+function gQuery(){ let q=($('#gQ').value||'').trim(); if(!q){ const f=S.f||{}; q=[f.headline,f.sub?'':'',nm(f.crest||f.vsA||f.a||f.home||'')].filter(Boolean).join(' ').trim(); if(q) q+=' fútbol'; } return q; }
+$('#gGo').onclick=()=>{ const q=gQuery(); if(!q){ $('#gMsg').textContent='Escribí qué foto buscás.'; return; } window.open('https://www.google.com/search?tbm=isch&q='+encodeURIComponent(q),'_blank','noopener'); $('#gMsg').textContent='Elegí la foto en Google, mantenela apretada → Copiar, y volvé acá a tocar "Pegar imagen copiada".'; };
+$('#gQ').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); $('#gGo').onclick(); } });
+async function useBlob(bl){ const b2=await shrinkPhoto(bl); PS.load([]); await addPhotos([b2]); $('#gMsg').textContent='Listo: la foto quedó de fondo.'; }
+$('#gPaste').onclick=async()=>{ const m=$('#gMsg'); try{ const items=await navigator.clipboard.read(); for(const it of items){ const t=it.types.find(x=>/^image\//.test(x)); if(t){ await useBlob(await it.getType(t)); return; } } m.textContent='No hay ninguna imagen copiada. Copiá la foto en Google y probá de nuevo.'; }catch(e){ m.textContent='No pude leer el portapapeles. Probá copiar la foto y pegarla (Ctrl+V / mantener apretado → Pegar) en cualquier parte de esta página.'; } };
+document.addEventListener('paste',e=>{ const t=e.target; if(t&&/^(INPUT|TEXTAREA)$/.test(t.tagName)&&!(e.clipboardData&&[...e.clipboardData.files].some(f=>/^image\//.test(f.type)))) return; const f=e.clipboardData&&[...e.clipboardData.files].find(f=>/^image\//.test(f.type)); if(f){ e.preventDefault(); useBlob(f); } });
 let PHQ={q:[],off:0};
 async function suggestPhotos(txt,custom,more){
   const box=document.getElementById('phSug'); if(!box) return; txt=String(txt||'').trim(); if(!txt) { box.innerHTML='<p class="hint">Escribí qué foto buscás: un club, "árbitro", "hinchada"…</p>'; return; }

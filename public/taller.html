@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 12/11 · 14:50</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 12/11 · 19:55</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -337,7 +337,8 @@ const TEMPLATES = {
   precios:{label:'Lista de precios',main:null,fields:[]},
   aviso:{label:'Aviso con texto',main:null,fields:[]},
   agenda:{label:'Agenda / horarios',main:null,fields:[]},
-  evento:{label:'Evento',main:null,fields:[]}
+  evento:{label:'Evento',main:null,fields:[]},
+  flyer:{label:'Flyer',main:null,fields:[]}
 };
 const REAL_P1=[['Ferro','Gimnasia y Tiro'],['Atlanta','Estudiantes de Buenos Aires'],['Deportivo Morón','Colegiales'],['Temperley','Ciudad de Bolívar'],['Deportivo Madryn','Deportivo Maipú'],['Gimnasia de Jujuy','Almirante Brown'],['Colón','Midland']];
 const P1_WHEN=[['Dom 15/11','20:00'],['Sáb 14/11','15:00'],['Dom 15/11','15:00'],['Sáb 14/11','16:00'],['Sáb 14/11','19:00'],['Sáb 14/11','20:00'],['Sáb 14/11','18:00']];
@@ -1306,8 +1307,8 @@ function drawArbitros(c,W,H,F){
   });
 }
 /* ================= CUENTAS DE NEGOCIOS: lista de precios, aviso, agenda, evento ================= */
-const BIZ_T=['precios','aviso','agenda','evento'];
-const ACC_TPLS={tz:['precios','aviso'],se:['precios','aviso'],fb:['precios','aviso'],mz:['precios','aviso'],lg:['evento','agenda','precios','aviso']};
+const BIZ_T=['precios','aviso','agenda','evento','flyer'];
+const ACC_TPLS={tz:['precios','aviso'],se:['precios','aviso'],fb:['flyer','precios','aviso'],mz:['precios','aviso'],lg:['evento','agenda','precios','aviso']};
 function tplKeys(){
   const a=currentAccount(), base=Object.keys(TEMPLATES).filter(k=>k==='reducido'||!isRed(k)), fbk=base.filter(k=>!BIZ_T.includes(k)); const nopn=fbk.filter(k=>k!=='entradas'&&k!=='entranking');
   if(ACC_TPLS[a.id]) return ACC_TPLS[a.id]; if(a.id==='pn') return fbk; return [...nopn,'precios','aviso'];
@@ -1405,7 +1406,8 @@ const BZ_DEF={
     aviso:{lines:'TE ESPERAMOS DE\nLUNES A SÁBADO - 8 A 13 // 16:30 A 20:30\nDOMINGOS Y FERIADOS DE 9 A 13',sub:'',sticker:'',pos:'low',box:'color',c1:'',c2:'Avenida Constituyentes 3148, General Pacheco'}},
   fb:{
     precios:{title:'SUPER PROMOS',sub:'en productos de pileta',items:'Cloro líquido 5L - $4.900\nÁcido 5L - $7.499\nClarificador - $6.500\nAlguicida - $6.500\nSulfato de cobre - $9.500\nLimpiafondo - $27.300',c1:'+54 9 11 6601-2377',c2:''},
-    aviso:{lines:'ASÍ ESTABA LA PILETA',sub:'Sin mantenimiento del piso',sticker:'',pos:'low',box:'none',c1:'+54 9 11 6601-2377',c2:''}},
+    aviso:{lines:'ASÍ ESTABA LA PILETA',sub:'Sin mantenimiento del piso',sticker:'',pos:'low',box:'none',c1:'+54 9 11 6601-2377',c2:''},
+    flyer:{t1:'CAMBIO DE',t2:'GRAVA',t3:'DE FILTROS',t4:'para piscinas',tag:'FILTROS',brand:'VULCANO',bsub:'Inspirados por el agua',desc:'Mantenimiento y renovación de filtros Vulcano',bens:'Mejora la filtración del agua\nMayor rendimiento del filtro\nAgua más limpia y cristalina',note:'Grava nueva, mejor filtrado',circ:'1',cta:'Consultanos',c1:'11 6601-2377',c2:''}},
   lg:{
     precios:{title:'PLANES Y VALORES',sub:'Clases de polo',items:'Clase de iniciación | 1 hora | $00.000\nPack de 4 clases | por mes | $00.000\nAlquiler de caballo | por hora | $00.000\nPupilaje | por mes | $00.000',c1:'',c2:'@laguapeadapolo'},
     aviso:{lines:'COMUNICADO\nEscribí acá el aviso',sub:'',sticker:'',pos:'mid',box:'none',c1:'',c2:'@laguapeadapolo'},
@@ -1528,6 +1530,51 @@ function drawEvento(c,W,H,F){
   const tx=String(d.text||'').trim();
   if(tx){ const f3=fit(c,tx,TH.font,600,W-200,4,44,22,'bSub'); bzGlow(c,()=>{c.fillStyle=bzA(TH,.88); c.font=`600 ${f3.size}px ${TH.font}`; f3.lines.forEach((l,i)=>c.fillText(l,W/2,y+f3.size*.9+i*f3.size*1.18));}); hitLines(c,'f-eText','Texto',f3.lines,W/2,y+f3.size*.9,f3.size,f3.size*1.18,'center',true,{ctrls:[SZ('bSub')]}); }
 }
+/* ===== Flyer de Fabeck: título grande, bloque de producto, beneficios con íconos y WhatsApp ===== */
+function flyBand(c,x,y,w,h,col){ c.fillStyle=col; c.beginPath(); c.moveTo(x+14,y+7); c.lineTo(x+w*.55,y); c.lineTo(x+w-4,y+9); c.lineTo(x+w,y+h*.55); c.lineTo(x+w-18,y+h-3); c.lineTo(x+w*.42,y+h); c.lineTo(x+6,y+h-8); c.lineTo(x,y+h*.4); c.closePath(); c.fill(); }
+function flyIconKind(t){ t=String(t||'').toLowerCase(); if(/rendim|motor|bomba|equipo|potencia|fuerza/.test(t)) return 'gear'; if(/cristal|limpi|ola|agua más/.test(t)) return 'waves'; if(/filtr|agua|gota|mejora/.test(t)) return 'drop'; return 'check'; }
+function flyIcon(c,k,x,y,r,ring,deep){
+  c.save(); c.fillStyle=deep; c.beginPath(); c.arc(x,y,r,0,7); c.fill(); c.strokeStyle=ring; c.lineWidth=r*.12; c.beginPath(); c.arc(x,y,r*.94,0,7); c.stroke(); c.fillStyle='#fff'; c.strokeStyle='#fff'; c.lineCap='round'; c.lineJoin='round';
+  if(k==='drop'){ c.beginPath(); c.moveTo(x,y-r*.5); c.bezierCurveTo(x+r*.1,y-r*.25,x+r*.38,y+r*.02,x+r*.38,y+r*.2); c.arc(x,y+r*.2,r*.38,0,Math.PI,false); c.bezierCurveTo(x-r*.38,y+r*.02,x-r*.1,y-r*.25,x,y-r*.5); c.fill(); c.fillStyle=deep; c.beginPath(); c.arc(x-r*.12,y+r*.28,r*.1,0,7); c.fill(); }
+  else if(k==='gear'){ const R1=r*.42, R2=r*.28; for(let i=0;i<8;i++){ const a=i*Math.PI/4; c.save(); c.translate(x,y); c.rotate(a); c.fillRect(-r*.08,-R1-r*.1,r*.16,r*.2); c.restore(); } c.beginPath(); c.arc(x,y,R1,0,7); c.fill(); c.fillStyle=deep; c.beginPath(); c.arc(x,y,R2*.55,0,7); c.fill(); }
+  else if(k==='waves'){ c.lineWidth=r*.1; for(let j=-1;j<=1;j+=2){ c.beginPath(); const yy=y+j*r*.2; c.moveTo(x-r*.42,yy); c.bezierCurveTo(x-r*.25,yy-r*.2,x-r*.12,yy-r*.2,x,yy); c.bezierCurveTo(x+r*.12,yy+r*.2,x+r*.25,yy+r*.2,x+r*.42,yy); c.stroke(); } }
+  else { c.lineWidth=r*.14; c.beginPath(); c.moveTo(x-r*.34,y+r*.02); c.lineTo(x-r*.08,y+r*.3); c.lineTo(x+r*.38,y-r*.28); c.stroke(); }
+  c.restore();
+}
+function drawFlyer(c,W,H,F){
+  const TH=bzTh(), d=bzData(), NAVY='#0a3c87', DEEP='#06295c', CY='#1aa6ee', IC='#19d8f2', SCR='"Kaushan Script","Segoe Script","Brush Script MT",cursive', FAM=TH.font, k=Math.min(1.3,H/1350), up=s=>String(s||'').toUpperCase().trim();
+  try{ ensureFont({f:'Kaushan Script',w:400}); }catch(e){}
+  c.textBaseline='alphabetic'; const Mx=60, ybot=H-F.bottom+10; let y=(S.logoBot||F.top+200)+4;
+  const outl=(txt,x,yy,size,fill,font,al)=>{ c.save(); c.font=font; c.textAlign=al||'center'; c.lineJoin='round'; c.shadowColor='rgba(0,0,0,.28)'; c.shadowBlur=10*(S.qNow||1); c.strokeStyle='#fff'; c.lineWidth=size*.15; c.strokeText(txt,x,yy); c.shadowColor='transparent'; c.fillStyle=fill; c.fillText(txt,x,yy); c.restore(); };
+  const t1=up(d.t1), t2=up(d.t2), t3=up(d.t3), t4=String(d.t4||'').trim();
+  if(t1){ const f=fit(c,t1,FAM,800,W-260,1,46*k,22,'fT1'), bh=f.size*1.5; c.font=`800 ${f.size}px ${FAM}`; const bw=c.measureText(f.lines[0]||'').width+90, x=(W-bw)/2; flyBand(c,x,y,bw,bh,DEEP); c.fillStyle='#fff'; c.textAlign='center'; c.fillText(f.lines[0]||'',W/2,y+bh*.7); hitBox('f-fT1','Título (arriba)',x,y,bw,bh,false,{ctrls:[SZ('fT1')]}); y+=bh+2*k; }
+  if(t2){ const f=fit(c,t2,FAM,800,W-90,1,170*k,60,'fT2'); outl(f.lines[0]||'',W/2,y+f.size*.8,f.size,CY,`800 ${f.size}px ${FAM}`); hitLines(c,'f-fT2','Palabra grande',f.lines,W/2,y+f.size*.8,f.size,f.size,'center',false,{ctrls:[SZ('fT2')]}); y+=f.size*.84; }
+  if(t3){ const f=fit(c,t3,FAM,800,W-120,1,58*k,26,'fT3'); outl(f.lines[0]||'',W/2,y+f.size*.82,f.size,DEEP,`800 ${f.size}px ${FAM}`); hitLines(c,'f-fT3','Título (abajo)',f.lines,W/2,y+f.size*.82,f.size,f.size,'center',false,{ctrls:[SZ('fT3')]}); y+=f.size*.92; }
+  if(t4){ const f=fit(c,t4,SCR,400,W-200,1,62*k,26,'fT4'); outl(f.lines[0]||'',W/2+W*.06,y+f.size*.85,f.size,CY,`400 ${f.size}px ${SCR}`); hitLines(c,'f-fT4','Frase en cursiva',f.lines,W/2+W*.06,y+f.size*.85,f.size,f.size,'center',false,{ctrls:[SZ('fT4')]}); y+=f.size*1.0; }
+  const yTitleEnd=y;
+  const phone=String(d.c1||'').trim(), cta=up(d.cta), cH=(phone||cta)?122*k:0, ctaY=ybot-cH;
+  const bens=String(d.bens||'').split(/\r?\n/).map(s=>s.trim()).filter(Boolean).slice(0,4), bs=(S.sz.fBen||100)/100, rh=84*k*Math.min(1.25,bs), panelH=bens.length?(bens.length*rh+50*k):0, pBot=ctaY-(cH?8*k:0), panelTop=pBot-panelH, circOn=!!(d.circ&&String(d.circ)!=='0');
+  if(bens.length){ c.save(); c.fillStyle='rgba(6,41,92,.95)'; c.beginPath(); c.moveTo(0,panelTop+40*k); c.lineTo(W,panelTop); c.lineTo(W,pBot); c.lineTo(0,pBot); c.closePath(); c.fill(); c.restore();
+    const bx=W*.45+44*k, ir=34*k*Math.min(1.2,bs), tx=bx+ir+20*k, tw=W-Mx-tx;
+    bens.forEach((b,i)=>{ const cy=panelTop+46*k+i*rh+rh/2-6*k, f=fit(c,up(b),FAM,800,tw,2,28*k,15,'fBen'), lh=f.size*1.1; flyIcon(c,flyIconKind(b),bx,cy,ir,IC,'#0a3c87'); c.fillStyle='#fff'; c.textAlign='left'; c.font=`800 ${f.size}px ${FAM}`; const ty=cy-(f.lines.length-1)*lh/2+f.size*.34; f.lines.forEach((l,q)=>c.fillText(l,tx,ty+q*lh)); hitLines(c,'f-fBens','Beneficios',f.lines,tx,ty,f.size,lh,'left',true,{ctrls:[SZ('fBen')]});
+      if(i<bens.length-1){ c.fillStyle=IC; c.fillRect(tx-6,cy+rh/2-3*k,tw+6,3*k); } }); }
+  const yBase=bens.length?panelTop:pBot; let circTop=yBase-12*k, noteX=Mx+8, noteW=W*.42, noteCy=panelTop+panelH*.55;
+  if(circOn){ const D=Math.min(W*.24,215*k,Math.max(120,panelH-40*k))*(S.sz.fCirc||100)/100, cx=Mx+D/2+8, cy=(bens.length?panelTop+22*k+D/2:yBase-D/2-20*k), im=S.flyIn; c.save(); c.shadowColor='rgba(0,0,0,.35)'; c.shadowBlur=14*(S.qNow||1); c.fillStyle='#fff'; c.beginPath(); c.arc(cx,cy,D/2+8,0,7); c.fill(); c.restore();
+    c.save(); c.beginPath(); c.arc(cx,cy,D/2,0,7); c.clip(); if(im){ const sc=Math.max(D/im.width,D/im.height); c.drawImage(im,cx-im.width*sc/2,cy-im.height*sc/2,im.width*sc,im.height*sc); } else { c.fillStyle='#dbeaf5'; c.fillRect(cx-D/2,cy-D/2,D,D); if(!S.exporting){ c.fillStyle='#0a3c87'; c.textAlign='center'; c.font=`700 ${D*.1}px ${FAM}`; c.fillText('FOTO DE',cx,cy-4); c.fillText('DETALLE',cx,cy+D*.12); } } c.restore();
+    hitBox('f-fCirc','Círculo con foto',cx-D/2,cy-D/2,D,D,false,{ctrls:[{label:'Tamaño del círculo',o:S.sz,k:'fCirc',min:50,max:150,step:5,unit:'%',def:100}]}); circTop=cy-D/2-8; noteX=cx+D/2+24*k; noteW=W*.45-12*k-noteX; noteCy=cy; }
+  const note=String(d.note||'').trim();
+  if(note&&bens.length){ const f=fit(c,note,SCR,400,Math.max(120,noteW),3,40*k,16,'fNote'), lh=f.size*1.12, ny=noteCy-(f.lines.length-1)*lh/2+f.size*.3; c.fillStyle='#fff'; c.textAlign='left'; c.font=`400 ${f.size}px ${SCR}`; f.lines.forEach((l,q)=>c.fillText(l,noteX,ny+q*lh)); const ly=ny+(f.lines.length-1)*lh+f.size*.32; let mw=0; f.lines.forEach(l=>mw=Math.max(mw,c.measureText(l).width)); c.strokeStyle=IC; c.lineWidth=5*k; c.lineCap='round'; c.beginPath(); c.moveTo(noteX,ly+5*k); c.quadraticCurveTo(noteX+mw*.5,ly-5*k,noteX+mw,ly+1*k); c.stroke(); hitLines(c,'f-fNote','Frase de la izquierda',f.lines,noteX,ny,f.size,lh,'left',true,{ctrls:[SZ('fNote')]}); }
+  const tag=up(d.tag), brand=String(d.brand||'').trim(), bsub=String(d.bsub||'').trim(), desc=up(d.desc);
+  if(tag||brand||desc){ const py=yTitleEnd+6*k, availH=Math.max(90,(circOn&&!bens.length?circTop:(bens.length?panelTop:ctaY))-py-8*k), pw=W*.50, need=((tag?60:0)+(brand?(bsub?112:92):0)+(desc?66:0)+22)*k, bk=Math.min(1,availH/need), blockH=Math.min(availH,need);
+    c.save(); c.fillStyle='rgba(6,41,92,.95)'; c.beginPath(); c.moveTo(0,py+14*k); c.lineTo(pw-16*k,py); c.lineTo(pw,py+blockH-18*k); c.lineTo(0,py+blockH); c.closePath(); c.fill(); c.restore(); let iy=py+8*k*bk;
+    if(tag){ const f=fit(c,tag,FAM,800,pw-110,1,46*k*bk,18,'fTag'); c.fillStyle='#fff'; c.textAlign='left'; c.font=`800 ${f.size}px ${FAM}`; c.fillText(f.lines[0]||'',Mx,iy+f.size*.95); hitLines(c,'f-fTag','Rótulo',f.lines,Mx,iy+f.size*.95,f.size,f.size,'left',false,{ctrls:[SZ('fTag')]}); iy+=f.size*1.12+4*k*bk; }
+    if(brand){ const f=fit(c,up(brand),FAM,800,pw-170,1,54*k*bk,20,'fBrand'), ph=f.size*1.25+(bsub?f.size*.4:0); c.fillStyle='#fff'; rrect(c,Mx-14,iy,pw-96,ph,12*k); c.fill(); c.fillStyle=NAVY; c.textAlign='center'; c.font=`800 ${f.size}px ${FAM}`; c.fillText(f.lines[0]||'',Mx-14+(pw-96)/2,iy+f.size*.98); if(bsub){ c.fillStyle='#35527a'; c.font=`italic 600 ${f.size*.3}px ${FAM}`; c.fillText(bsub,Mx-14+(pw-96)/2,iy+f.size*.98+f.size*.32); } hitBox('f-fBrand','Marca',Mx-14,iy,pw-96,ph,false,{ctrls:[SZ('fBrand')]}); iy+=ph+8*k*bk; }
+    if(desc){ const f=fit(c,desc,FAM,700,pw-110,3,26*k*bk,12,'fDesc'), lh=f.size*1.15; c.fillStyle='#fff'; c.textAlign='left'; c.font=`700 ${f.size}px ${FAM}`; f.lines.forEach((l,q)=>c.fillText(l,Mx,iy+f.size*.9+q*lh)); hitLines(c,'f-fDesc','Descripción',f.lines,Mx,iy+f.size*.9,f.size,lh,'left',true,{ctrls:[SZ('fDesc')]}); } }
+  if(cH){ flyBand(c,Mx-30,ctaY,W-2*Mx+60,cH-6*k,'rgba(6,41,92,.97)'); const cy=ctaY+(cH-6*k)/2, r=cH*.3; bzIconWA(c,Mx+r+14,cy,r); const x1=Mx+r*2+50*k; c.fillStyle='rgba(255,255,255,.85)'; c.fillRect(x1-16*k,cy-r*.95,3*k,r*1.9);
+    const pf0=fit(c,phone||' ',FAM,800,W-x1-Mx-20,1,Math.min(66*k,(cH-6*k)*.5),22,'fPhone'), cf0=cta?fit(c,cta,FAM,700,W-x1-Mx-20,1,pf0.size*.42,12,'fCta'):null, ch=cf0?cf0.size*1.2:0, tot=ch+pf0.size*.95, top0=cy-tot/2;
+    if(cf0){ c.fillStyle='#fff'; c.textAlign='left'; c.font=`700 ${cf0.size}px ${FAM}`; c.fillText(cf0.lines[0]||'',x1,top0+cf0.size*.9); hitLines(c,'f-fCtaT','Consultanos',cf0.lines,x1,top0+cf0.size*.9,cf0.size,cf0.size,'left',false,{ctrls:[SZ('fCta')]}); }
+    if(phone){ c.fillStyle='#fff'; c.textAlign='left'; c.font=`800 ${pf0.size}px ${FAM}`; c.fillText(pf0.lines[0]||'',x1,top0+ch+pf0.size*.85); hitLines(c,'f-c1','Teléfono',pf0.lines,x1,top0+ch+pf0.size*.85,pf0.size,pf0.size,'left',false,{ctrls:[SZ('fPhone')]}); } }
+}
 function bzField(parent,id,label,val,onin,multi,rows){
   const lab=document.createElement('label'); lab.textContent=label; const e=document.createElement(multi?'textarea':'input'); if(!multi){e.type='text'; e.autocomplete='off';} else {e.style.minHeight=(rows||90)+'px'; e.spellcheck=false;} e.id=id; e.value=val||''; e.addEventListener('input',()=>{onin(e.value); render();}); lab.appendChild(e); parent.appendChild(lab); return e;
 }
@@ -1583,6 +1630,9 @@ function makeCopy(kind){
   } else if(t==='evento'){
     body.push('📣 '+low(d.tag||'Evento')+': '+cap(d.title));
     if(d.date) body.push('🗓 '+cap(d.date)); if(d.time) body.push('🕒 '+cap(d.time)); if(d.place) body.push('📍 '+cap(d.place)); if(d.text) body.push(cap(d.text));
+  } else if(t==='flyer'){
+    const ttl=[d.t1,d.t2,d.t3,d.t4].map(cap).filter(Boolean).join(' '); body.push('🔧 '+(ttl?ttl.charAt(0).toUpperCase()+ttl.slice(1).toLowerCase():'Novedad')+(cap(d.brand)?' · '+cap(d.brand):''));
+    if(cap(d.desc)) body.push(cap(d.desc).replace(/\.$/,'')+'.'); cap(d.bens).split(/\n/).map(cap).filter(Boolean).forEach(b=>body.push('✅ '+b)); if(cap(d.note)) body.push(cap(d.note)+'.');
   } else {
     const ls=cap(d.lines).split(/\n/).map(low).filter(Boolean); body.push('📢 '+(ls[0]||'Aviso')); ls.slice(1).forEach(l=>body.push(l)); if(d.sub) body.push(cap(d.sub));
   }
@@ -1718,6 +1768,12 @@ function buildBizUI(box){
     F('bLines','Texto principal (cada línea va en una línea)','lines',true,110); F('bSub','Texto chico abajo (opcional)','sub'); F('bSticker','Sello redondo (opcional, ej: NUEVO INGRESO)','sticker',true,60);
     bzSelect(w,'Recuadro del texto',d,'box',[['color','Color de la marca'],['white','Blanco'],['dark','Oscuro'],['none','Sin recuadro']]); bzSelect(w,'Posición',d,'pos',[['low','Abajo'],['mid','En el medio'],['top','Arriba']]);
     ctl(w,'Tamaño del texto',S.sz,'bTitle',{min:30,max:200,step:5,unit:'%',def:100});
+  } else if(t==='flyer'){
+    F('fT1','Título: línea de arriba (ej: CAMBIO DE)','t1'); F('fT2','Palabra grande (ej: GRAVA)','t2'); F('fT3','Título: línea de abajo (ej: DE FILTROS)','t3'); F('fT4','Frase en cursiva (ej: para piscinas)','t4');
+    F('fTag','Rótulo del producto (ej: FILTROS)','tag'); F('fBrand','Marca (en recuadro blanco)','brand'); F('fBsub','Lema de la marca (opcional)','bsub'); F('fDesc','Descripción','desc',true,60);
+    F('fBens','Beneficios (uno por línea, hasta 4; el ícono se elige solo)','bens',true,110); F('fNote','Frase en cursiva de abajo a la izquierda','note'); F('fCtaT','Texto sobre el teléfono (ej: Consultanos)','cta');
+    chk(w,'Mostrar círculo con foto de detalle',d,'circ'); { const lab=document.createElement('label'); lab.textContent='Foto del círculo (ej: la grava de cerca)'; const fi=document.createElement('input'); fi.type='file'; fi.accept='image/*'; fi.onchange=()=>{ const f=fi.files&&fi.files[0]; if(!f) return; const u=URL.createObjectURL(f), im=new Image(); im.onload=()=>{ S.flyIn=im; d.circ='1'; buildFields(); render(); }; im.src=u; }; lab.appendChild(fi); w.appendChild(lab); }
+    ctl(w,'Tamaño de los beneficios',S.sz,'fBen',{min:60,max:130,step:5,unit:'%',def:100}); ctl(w,'Tamaño del círculo',S.sz,'fCirc',{min:50,max:150,step:5,unit:'%',def:100});
   } else if(t==='evento'){
     F('eTag','Etiqueta (ej: TORNEO)','tag'); F('eTitle','Título','title'); F('eDate','Fecha','date'); F('eTime','Hora','time'); F('ePlace','Lugar','place'); F('eText','Texto (opcional)','text',true,70);
     ctl(w,'Tamaño del título',S.sz,'bTitle',{min:30,max:200,step:5,unit:'%',def:100}); ctl(w,'Tamaño de los datos',S.sz,'bRows',{min:50,max:150,step:5,unit:'%',def:100});
@@ -1970,9 +2026,9 @@ function draw(){
   S.logoBot=0; S.bzFlat=(typeof bzFlatOn==='function')?bzFlatOn():null;
   if(S.tr) S.bzFlat=null; else drawPhoto(c,W,H,tint);
   if(S.bzFlat){ c.fillStyle=S.bzFlat.bg; c.fillRect(0,0,W,H); S.bzFlat.deco(c,W,H,S.bzFlat); drawHeader(c,W,F.top,currentAccount()); } else
-  if(S.tpl==='partido'){ if(S.tr!==2) drawDark(c,W,H,S.ly.ov/100); } else {if(S.tr!==2) drawOverlay(c,W,H,tint,S.tpl==='tabla'||isRed(S.tpl)||S.tpl==='resumen'||S.tpl==='equipos'||S.tpl==='arbitros'||S.tpl==='precios'||S.tpl==='agenda'); if(S.format!=='portada') drawHeader(c,W,F.top,currentAccount());}
+  if(S.tpl==='partido'){ if(S.tr!==2) drawDark(c,W,H,S.ly.ov/100); } else {if(S.tr!==2&&S.tpl!=='flyer') drawOverlay(c,W,H,tint,S.tpl==='tabla'||isRed(S.tpl)||S.tpl==='resumen'||S.tpl==='equipos'||S.tpl==='arbitros'||S.tpl==='precios'||S.tpl==='agenda'); if(S.format!=='portada') drawHeader(c,W,F.top,currentAccount());}
   const _mo=moAny(); if(_mo) moSnapshot();
-  const _tfn=({noticia:drawNoticia,resultado:drawResultado,consigna:drawConsigna,vs:drawVs,entradas:drawEntradas,entranking:drawEnRanking,tabla:drawTabla,partido:drawPartido,reducido:drawReducido,red_qf:drawReducido,red_sf:drawReducido,red_fin:drawReducido,red_all:drawReducido,resumen:drawResumen,equipos:drawEquipos,arbitros:drawArbitros,precios:drawLista,agenda:drawLista,aviso:drawAviso,evento:drawEvento})[S.tpl]; _tfn(c,W,H,F);
+  const _tfn=({noticia:drawNoticia,resultado:drawResultado,consigna:drawConsigna,vs:drawVs,entradas:drawEntradas,entranking:drawEnRanking,tabla:drawTabla,partido:drawPartido,reducido:drawReducido,red_qf:drawReducido,red_sf:drawReducido,red_fin:drawReducido,red_all:drawReducido,resumen:drawResumen,equipos:drawEquipos,arbitros:drawArbitros,precios:drawLista,agenda:drawLista,aviso:drawAviso,evento:drawEvento,flyer:drawFlyer})[S.tpl]; _tfn(c,W,H,F);
   if(_mo) moApply(c,_tfn,W,H,F);
   drawTexts(c,W,H);
   if(!S.exporting&&S.guide){c.save();c.strokeStyle='#ff2fd0';c.lineWidth=3;c.setLineDash([16,10]);
@@ -2039,7 +2095,7 @@ function group(parent,title,open){
   const d=document.createElement('details'); if(open) d.open=true; const sm=document.createElement('summary'); sm.textContent=title;
   const b=document.createElement('div'); b.className='grp'; d.append(sm,b); parent.appendChild(d); return b;
 }
-const SIZED=new Set(['tabNote','enrT','enrS','enrNote','enTag','enAn','enBn','enNa','enNb','enUnit','enWhen','enWhere','vsTag','vsAn','vsBn','vsWhen','vsWhere','vsTv','headline','sub','home','away','status','detail','q','a','b','cta','spon','tTitle','tSub','rows']);
+const SIZED=new Set(['fT1','fT2','fT3','fT4','fTag','fBrand','fDesc','fBen','fNote','fCta','fPhone','fCirc','tabNote','enrT','enrS','enrNote','enTag','enAn','enBn','enNa','enNb','enUnit','enWhen','enWhere','vsTag','vsAn','vsBn','vsWhen','vsWhere','vsTv','headline','sub','home','away','status','detail','q','a','b','cta','spon','tTitle','tSub','rows']);
 const CRESTSZ=new Set(['enA','enB','vsA','vsB','crest','home','away','a','b']);
 function say(el,text,cls){const s=document.createElement('span');s.textContent=text;if(cls)s.className=cls;el.appendChild(s);return s}
 function pngLink(el,c){ if(!c.file) return; const a=document.createElement('a');a.href=PN_URL+c.file;a.target='_blank';a.rel='noopener';a.textContent='Bajarlo de la Escudoteca';el.appendChild(document.createTextNode(' '));el.appendChild(a)}

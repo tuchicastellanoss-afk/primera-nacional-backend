@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 12/11 · 13:40</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 12/11 · 13:55</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -1546,7 +1546,7 @@ function makeCopy(kind){
   } else {
     const ls=cap(d.lines).split(/\n/).map(low).filter(Boolean); body.push('📢 '+(ls[0]||'Aviso')); ls.slice(1).forEach(l=>body.push(l)); if(d.sub) body.push(cap(d.sub));
   }
-  const tags=(BZ_TAGS[id]||['#'+nm.replace(/\s+/g,'')]), ctaL=id==='lg'?['Reservá tu clase por mensaje directo 🐴','Escribinos y coordinamos tu primera clase 🐴']:['Escribinos por mensaje directo y te respondemos al toque 📩','Consultanos sin compromiso por mensaje directo 📩'], cta=ctaL[(COPYV++)%ctaL.length];
+  const tags=(BZ_TAGS[id]||['#'+nm.replace(/\s+/g,'')]), ctaL=id==='lg'?['Comentá "POLO" y te enviamos información por mensaje privado 🐴']:['Escribinos por mensaje directo y te respondemos al toque 📩','Consultanos sin compromiso por mensaje directo 📩'], cta=ctaL[(COPYV++)%ctaL.length];
   let out;
   if(tw){ out=body.join('\n')+(contact.length?'\n'+contact[0]:'')+'\n'+tags[0]; }
   else out=body.join('\n')+'\n\n'+cta+(contact.length?'\n\n'+contact.join('\n'):'')+'\n\n'+tags.join(' ');
@@ -1559,7 +1559,7 @@ function ideaBox(){  const bx=document.createElement('div'); bx.className='grp';
     go.onclick=()=>{ const v=ta.value; if(!applyIdeaAny(v)){ msg.textContent='Escribí al menos una línea con la idea.'; } else { const t2=document.getElementById('ideaTxt'); if(t2) t2.value=v; } };
     l.appendChild(ta); bx.append(l,go,msg); return bx; }
 
-const EN_FIX={'Reservá tu clase por mensaje directo 🐴':'Book your class by direct message 🐴','Escribinos y coordinamos tu primera clase 🐴':'Message us and we will arrange your first class 🐴','Precios sujetos a cambios y stock.':'Prices subject to change and availability.'};
+const EN_FIX={'Comentá "POLO" y te enviamos información por mensaje privado 🐴':'Comment "POLO" and we\'ll send you the information by private message 🐴','Reservá tu clase por mensaje directo 🐴':'Book your class by direct message 🐴','Escribinos y coordinamos tu primera clase 🐴':'Message us and we will arrange your first class 🐴','Precios sujetos a cambios y stock.':'Prices subject to change and availability.'};
 async function mt(line){ if(EN_FIX[line]) return EN_FIX[line]; const em=(line.match(/^[^\p{L}\p{N}]+/u)||[''])[0], core=line.slice(em.length); if(!/\p{L}/u.test(core)) return line; try{ const r=await fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(core.slice(0,480))+'&langpair=es|en'); const j=await r.json(); const t=j&&j.responseData&&j.responseData.translatedText; if(t&&!/MYMEMORY|QUERY LENGTH/i.test(t)) return em+t.replace(/&#39;/g,"'").replace(/&quot;/g,'"'); }catch(_){} return line; }
 async function englishVersion(es){ const lines=es.split('\n'), out=[]; for(const l of lines){ const tl=l.trim(); if(!tl||/^(📲|📸|#)/.test(tl)||/^\+?[\d\s()-]{6,}$/.test(tl)||/@\w+/.test(tl)&&!/\s.*\s.*\s/.test(tl)) out.push(l); else out.push(await mt(tl)); } return out.join('\n'); }
 function copyBox(){  const bx=document.createElement('div'); bx.className='grp'; bx.style.cssText='border-top:1px solid var(--line);padding-top:10px;display:flex;flex-direction:column;gap:6px';

@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 13/11 · 14:10</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 13/11 · 14:30</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -1594,9 +1594,9 @@ function clIcon(c,k,x,y,r,col){
   else { c.beginPath(); c.moveTo(x-r*.5,y+r*.02); c.lineTo(x-r*.12,y+r*.42); c.lineTo(x+r*.55,y-r*.4); c.stroke(); }
   c.restore();
 }
-function clKind(t){ t=String(t||'').toLowerCase(); if(/dura|tiempo|hora|minut/.test(t)) return 'clock'; if(/apren|clase|equit|caball|taque/.test(t)) return 'shoe'; if(/equip|casco|bota|taco|incluye/.test(t)) return 'helmet'; if(/segui|person|alumn|nivel/.test(t)) return 'person'; return 'check'; }
+function clKind(t){ t=String(t||'').toLowerCase(); if(/dura|tiempo|hora|minut|hours?\b|minutes?|time/.test(t)) return 'clock'; if(/apren|clase|equit|caball|taque|learn|lesson|riding|horse|stick/.test(t)) return 'shoe'; if(/equip|casco|bota|taco|incluye|helmet|boots|mallet/.test(t)) return 'helmet'; if(/segui|person|alumn|nivel|coach|rider|level/.test(t)) return 'person'; return 'check'; }
 function drawClases(c,W,H,F){
-  const TH=bzTh(), d=bzData(), M=80; c.textBaseline='alphabetic';
+  const TH=bzTh(), d0=bzData(), d=(S.clLang==='en'&&d0.en)?Object.assign({},d0,d0.en):d0, M=80; c.textBaseline='alphabetic';
   const yEnd=bzContact(c,W,H,F,d,TH)-26; let y=Math.max(F.top+58*2+60,(S.logoBot||0)+50);
   c.textAlign='center';
   const tg=String(d.tag||'').trim().toUpperCase();
@@ -1610,7 +1610,7 @@ function drawClases(c,W,H,F){
     const iw=W-2*M-80; let ty=ctaY+(cH-((cta1?52:0)+(cta2?58:0)))/2;
     if(cta1){ const f1=fit(cc,cta1,TH.font,TH.hw,iw,1,50,22,'bTitle2'); cc.fillStyle=TH.on; cc.textAlign='center'; cc.font=`${TH.hw} ${f1.size}px ${TH.font}`; cc.fillText(f1.lines[0]||'',W/2,ty+f1.size*.86); ty+=f1.size*1.12; }
     if(cta2){ const f2=fit(cc,cta2,TH.font,TH.bw,iw,1,44,18,'bSub2'); cc.fillStyle=TH.on; cc.textAlign='center'; cc.font=`${TH.bw} ${f2.size}px ${TH.font}`; cc.fillText(f2.lines[0]||'',W/2,ty+f2.size*.9+6); }
-    hitBox('f-cCta','Llamada a escribir',M,ctaY,W-2*M,cH,false,{ctrls:[SZ('bSub')]}); });
+    hitBox('f-cCta1','Llamada a escribir',M,ctaY,W-2*M,cH,false,{ctrls:[SZ('bSub')]}); });
   /* tarjetas */
   const list=String(d.items||'').split(/\r?\n/).map(l=>l.trim()).filter(Boolean).slice(0,6).map(l=>{ const p=l.split('|').map(s=>s.trim()); return p.length>1?{lb:p[0],v:p.slice(1).join(' ')}:{lb:'',v:p[0]}; });
   const bot=(hasCta?ctaY-30:yEnd)-0, avail=bot-y, n=list.length; if(!n) return;
@@ -1836,14 +1836,32 @@ function ideaBox(){  const bx=document.createElement('div'); bx.className='grp';
     l.appendChild(ta); bx.append(l,go,msg); return bx; }
 
 const EN_FIX={'Comentá "POLO" y te enviamos información por mensaje privado 🐴':'Comment "POLO" and we\'ll send you the information by private message 🐴','Reservá tu clase por mensaje directo 🐴':'Book your class by direct message 🐴','Escribinos y coordinamos tu primera clase 🐴':'Message us and we will arrange your first class 🐴','Precios sujetos a cambios y stock.':'Prices subject to change and availability.'};
-async function mt(line){ if(EN_FIX[line]) return EN_FIX[line]; const em=(line.match(/^[^\p{L}\p{N}]+/u)||[''])[0], core=line.slice(em.length); if(!/\p{L}/u.test(core)) return line; try{ const r=await fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(core.slice(0,480))+'&langpair=es|en'); const j=await r.json(); const t=j&&j.responseData&&j.responseData.translatedText; if(t&&!/MYMEMORY|QUERY LENGTH/i.test(t)) return em+t.replace(/&#39;/g,"'").replace(/&quot;/g,'"'); }catch(_){} return line; }
+/* ===== Traducción al inglés con vocabulario de polo ===== */
+const POLO_PH={'asi son las clases':'HOW THE LESSONS WORK','clases de polo':'Polo lessons','duracion':'Duration','que aprendes':"What you'll learn",'equipamiento incluido':'Equipment included','seguimiento personalizado':'Personalized coaching','1 hora a 1 hora y media':'1 to 1½ hours','fechas, valores y paquetes':'Dates, prices and packages','escribinos por whatsapp':'Message us on WhatsApp','preparar el caballo, equitacion basica y taqueo':'Getting your horse ready, basic riding and stick-and-ball practice','botas, casco y taco':'Boots, helmet and mallet','segun el conocimiento de cada uno':"Based on each rider's experience",'iniciacion':'Beginner','nivel intermedio':'Intermediate','practica libre':'Open practice','partidos':'Matches','torneo':'Tournament','inscripcion abierta':'Registration open','cupos limitados':'Limited spots'};
+const POLO_GL=[[/preparar (?:al|el) caballo/gi,'getting the horse ready'],[/equitaci[oó]n b[aá]sica/gi,'basic riding'],[/seguimiento personalizado/gi,'personalized coaching'],[/taqueo/gi,'stick-and-ball practice'],[/tacos?/gi,m=>/s$/i.test(m)?'mallets':'mallet'],[/pupilaje/gi,'horse boarding'],[/chukkers?|chukas?/gi,'chukker'],[/caballos?/gi,m=>/s$/i.test(m)?'horses':'horse'],[/botas/gi,'boots'],[/casco/gi,'helmet'],[/clases?/gi,m=>/s$/i.test(m)?'lessons':'lesson'],[/equipamiento/gi,'equipment']];
+const poloKey=t=>String(t||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[¿¡?!.:]+$/,'').trim();
+function poloPre(t){ let o=String(t||''); POLO_GL.forEach(([re,to])=>{ o=o.replace(re,to); }); return o; }
+async function poloTr(t){ t=String(t||'').trim(); if(!t) return ''; const k=poloKey(t); if(POLO_PH[k]) return POLO_PH[k]; return await mt(t); }
+async function clTranslate(d){ const en={}; en.tag=await poloTr(d.tag); en.title=await poloTr(d.title); en.sub=await poloTr(d.sub); en.cta1=await poloTr(d.cta1); en.cta2=await poloTr(d.cta2);
+  const rows=[]; for(const l of String(d.items||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean)){ const p=l.split('|').map(x=>x.trim()); const o=[]; for(const seg of p) o.push(await poloTr(seg)); rows.push(o.join(' | ')); } en.items=rows.join('\n'); return en; }
+function clEnCopy(){ const d=bzData(), en=d.en||{}, bak={}; Object.keys(en).forEach(k=>{ bak[k]=d[k]; d[k]=en[k]; }); let t; try{ t=makeCopyAny('ig'); }finally{ Object.keys(bak).forEach(k=>{ d[k]=bak[k]; }); } return t.split('\n').map(l=>EN_FIX[l.trim()]||l).join('\n'); }
+async function clSaveBoth(){
+  const msg=$('#dlmsg'), keep=S.clLang, files=[]; const d0=new Date(), ymd=`${d0.getFullYear()}${String(d0.getMonth()+1).padStart(2,'0')}${String(d0.getDate()).padStart(2,'0')}`, handle=(currentAccount().handle||'posteo').replace(/[^\w-]+/g,'');
+  for(const lg of ['es','en']){ S.clLang=lg; S.q=qFor(FORMATS[S.format].w,FORMATS[S.format].h); S.exporting=true; draw(); const blob=await new Promise(r=>cv.toBlob(r,'image/png')); S.exporting=false; if(blob) files.push(new File([blob],`${handle}-clases-${lg}-${S.format}-${ymd}.png`,{type:'image/png'})); }
+  S.clLang=keep; render(); if(files.length<2){ msg.textContent='No se pudieron generar las dos imágenes.'; return; }
+  const touch=window.matchMedia&&matchMedia('(pointer:coarse)').matches;
+  if(touch&&navigator.canShare&&navigator.canShare({files})){ try{ await navigator.share({files}); msg.textContent='Listo: elegí "Guardar imagen" (salen las dos).'; return; }catch(err){ if(err&&err.name==='AbortError'){ msg.textContent='Cancelaste.'; return; } } }
+  files.forEach((f,i)=>setTimeout(()=>{ const u=URL.createObjectURL(f), a=document.createElement('a'); a.href=u; a.download=f.name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),4000); },i*600)); msg.textContent='Se descargaron las dos versiones: español e inglés.';
+}
+
+async function mt(line){ if(EN_FIX[line]) return EN_FIX[line]; const em=(line.match(/^[^\p{L}\p{N}]+/u)||[''])[0]; let core=line.slice(em.length); if(POLO_PH[poloKey(core)]) return em+POLO_PH[poloKey(core)]; core=poloPre(core); if(!/\p{L}/u.test(core)) return line; try{ const r=await fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(core.slice(0,480))+'&langpair=es|en'); const j=await r.json(); const t=j&&j.responseData&&j.responseData.translatedText; if(t&&!/MYMEMORY|QUERY LENGTH/i.test(t)) return em+t.replace(/&#39;/g,"'").replace(/&quot;/g,'"'); }catch(_){} return line; }
 async function englishVersion(es){ const lines=es.split('\n'), out=[]; for(const l of lines){ const tl=l.trim(); if(!tl||/^(📲|📸|#)/.test(tl)||/^\+?[\d\s()-]{6,}$/.test(tl)||/@\w+/.test(tl)&&!/\s.*\s.*\s/.test(tl)) out.push(l); else out.push(await mt(tl)); } return out.join('\n'); }
 function copyBox(){  const bx=document.createElement('div'); bx.className='grp'; bx.style.cssText='border-top:1px solid var(--line);padding-top:10px;display:flex;flex-direction:column;gap:6px';
     const h=document.createElement('b'); h.textContent='✍️ Copy del posteo'; const ta=document.createElement('textarea'); ta.id='copyTxt'; ta.rows=9; ta.style.cssText='width:100%;box-sizing:border-box'; const cnt=document.createElement('p'); cnt.className='hint';
     const upd=()=>{ cnt.textContent=ta.value.length+' caracteres'+(ta.value.length>280?' (para X/Twitter, máximo 280)':''); }; ta.oninput=upd;
     const row=document.createElement('div'); row.style.cssText='display:flex;gap:6px;flex-wrap:wrap';
     const mk=(txt,fn,cls)=>{const b=document.createElement('button'); b.type='button'; b.className=cls||'ghost'; b.textContent=txt; b.onclick=fn; row.appendChild(b); return b;};
-    mk('Generar para Instagram',async()=>{ const es=makeCopyAny('ig'); ta.value=es; upd(); if(currentAccount().id==='lg'){ ta.value=es+'\n\n———\n🇬🇧 English\n\n(traduciendo…)'; upd(); const en=await englishVersion(es); ta.value=es+'\n\n———\n🇬🇧 English\n\n'+en; upd(); } },'primary').id='copyIg'; mk('Versión X / Twitter',()=>{ta.value=makeCopyAny('tw'); upd();}).id='copyTw';
+    mk('Generar para Instagram',async()=>{ const es=makeCopyAny('ig'); ta.value=es; upd(); if(currentAccount().id==='lg'){ ta.value=es+'\n\n———\n🇬🇧 English\n\n(traduciendo…)'; upd(); const en=(S.tpl==='clases'&&bzData().en)?clEnCopy():await englishVersion(es); ta.value=es+'\n\n———\n🇬🇧 English\n\n'+en; upd(); } },'primary').id='copyIg'; mk('Versión X / Twitter',()=>{ta.value=makeCopyAny('tw'); upd();}).id='copyTw';
     mk('Copiar',function(){ const done=()=>{this.textContent='¡Copiado!'; setTimeout(()=>this.textContent='Copiar',1500)}; try{ navigator.clipboard.writeText(ta.value).then(done,()=>{ta.select(); document.execCommand('copy'); done();}); }catch(e){ ta.select(); try{document.execCommand('copy')}catch(_){} done(); } });
     bx.append(h,row,ta,cnt); return bx; }
 
@@ -1962,9 +1980,15 @@ function buildBizUI(box){
     chk(w,'Mostrar círculo con foto de detalle',d,'circ'); { const lab=document.createElement('label'); lab.textContent='Foto del círculo (ej: la grava de cerca)'; const fi=document.createElement('input'); fi.type='file'; fi.accept='image/*'; fi.onchange=()=>{ const f=fi.files&&fi.files[0]; if(!f) return; const u=URL.createObjectURL(f), im=new Image(); im.onload=()=>{ S.flyIn=flyTrim(im); d.circ='1'; buildFields(); render(); }; im.src=u; }; lab.appendChild(fi); w.appendChild(lab); }
     ctl(w,'Tamaño de los beneficios',S.sz,'fBen',{min:60,max:130,step:5,unit:'%',def:100}); ctl(w,'Tamaño del círculo',S.sz,'fCirc',{min:50,max:150,step:5,unit:'%',def:100}); ctl(w,'Zoom de la foto dentro del círculo',S,'flyZ',{min:100,max:300,step:5,unit:'%',def:100});
   } else if(t==='clases'){
-    F('cTag','Etiqueta (ej: ASÍ SON LAS CLASES)','tag'); F('bTitle','Título','title'); F('bSub','Subtítulo','sub');
-    F('cItems','Tarjetas (una por línea: Título | Texto; hasta 6)','items',true,150);
-    F('cCta1','Llamada: línea grande','cta1'); F('cCta2','Llamada: línea chica','cta2');
+    { const en=S.clLang==='en', D=en?(d.en=d.en||{}):d, FF=(id,l,k,m,r)=>bzField(w,'f-'+id,l,D[k],v=>{D[k]=v;},m,r);
+      { const lb=document.createElement('label'); lb.textContent='Idioma que se ve y se edita'; const sl=document.createElement('select'); [['es','Español'],['en','English']].forEach(([v,n])=>{ const o=document.createElement('option'); o.value=v; o.textContent=n; sl.appendChild(o); }); sl.value=en?'en':'es'; sl.onchange=()=>{ S.clLang=sl.value; buildFields(); render(); }; lb.appendChild(sl); w.appendChild(lb); }
+      { const row=document.createElement('div'); row.style.cssText='display:flex;gap:6px;flex-wrap:wrap'; const st=document.createElement('p'); st.className='hint';
+        const b1=document.createElement('button'); b1.type='button'; b1.className='primary'; b1.id='clTr'; b1.textContent='🇬🇧 Traducir al inglés'; b1.onclick=async()=>{ st.textContent='Traduciendo…'; b1.disabled=true; try{ d.en=await clTranslate(d); S.clLang='en'; st.textContent='Listo. Revisá el inglés y retocalo si querés.'; buildFields(); render(); }catch(e){ st.textContent='No pude traducir (¿sin internet?). Escribí el inglés a mano.'; } b1.disabled=false; };
+        const b2=document.createElement('button'); b2.type='button'; b2.className='primary'; b2.id='clBoth'; b2.textContent='Descargar las dos (ES + EN)'; b2.onclick=async()=>{ if(!d.en){ st.textContent='Traduciendo…'; try{ d.en=await clTranslate(d); }catch(e){ st.textContent='Primero traducí al inglés.'; return; } } await clSaveBoth(); st.textContent=''; };
+        row.append(b1,b2); w.append(row,st); const h2=document.createElement('p'); h2.className='hint'; h2.textContent='La traducción respeta los términos del polo (taco = mallet, taqueo = stick-and-ball practice, pupilaje = horse boarding, etc.). Siempre conviene leerla antes de publicar.'; w.appendChild(h2); }
+      FF('cTag','Etiqueta (ej: ASÍ SON LAS CLASES)','tag'); FF('bTitle','Título','title'); FF('bSub','Subtítulo','sub');
+      FF('cItems','Tarjetas (una por línea: Título | Texto; hasta 6)','items',true,150);
+      FF('cCta1','Llamada: línea grande','cta1'); FF('cCta2','Llamada: línea chica','cta2'); }
     ctl(w,'Tamaño del título',S.sz,'bTitle',{min:30,max:200,step:5,unit:'%',def:100}); ctl(w,'Tamaño de las tarjetas',S.sz,'bRows',{min:50,max:130,step:5,unit:'%',def:100});
   } else if(t==='evento'){
     F('eTag','Etiqueta (ej: TORNEO)','tag'); F('eTitle','Título','title'); F('eDate','Fecha','date'); F('eTime','Hora','time'); F('ePlace','Lugar','place'); F('eText','Texto (opcional)','text',true,70);

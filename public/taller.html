@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 13/11 · 11:10</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 13/11 · 14:10</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -347,7 +347,8 @@ const TEMPLATES = {
   aviso:{label:'Aviso con texto',main:null,fields:[]},
   agenda:{label:'Agenda / horarios',main:null,fields:[]},
   evento:{label:'Evento',main:null,fields:[]},
-  flyer:{label:'Flyer',main:null,fields:[]}
+  flyer:{label:'Flyer',main:null,fields:[]},
+  clases:{label:'Clases',main:null,fields:[]}
 };
 const REAL_P1=[['Ferro','Gimnasia y Tiro'],['Atlanta','Estudiantes de Buenos Aires'],['Deportivo Morón','Colegiales'],['Temperley','Ciudad de Bolívar'],['Deportivo Madryn','Deportivo Maipú'],['Gimnasia de Jujuy','Almirante Brown'],['Colón','Midland']];
 const P1_WHEN=[['Dom 15/11','20:00'],['Sáb 14/11','15:00'],['Dom 15/11','15:00'],['Sáb 14/11','16:00'],['Sáb 14/11','19:00'],['Sáb 14/11','20:00'],['Sáb 14/11','18:00']];
@@ -1375,8 +1376,8 @@ function drawArbitros(c,W,H,F){
   });
 }
 /* ================= CUENTAS DE NEGOCIOS: lista de precios, aviso, agenda, evento ================= */
-const BIZ_T=['precios','aviso','agenda','evento','flyer'];
-const ACC_TPLS={tz:['precios','aviso'],se:['precios','aviso'],fb:['flyer','precios','aviso'],mz:['precios','aviso'],lg:['evento','agenda','precios','aviso']};
+const BIZ_T=['precios','aviso','agenda','evento','flyer','clases'];
+const ACC_TPLS={tz:['precios','aviso'],se:['precios','aviso'],fb:['flyer','precios','aviso'],mz:['precios','aviso'],lg:['clases','evento','agenda','precios','aviso']};
 function tplKeys(){
   const a=currentAccount(), base=Object.keys(TEMPLATES).filter(k=>k==='reducido'||!isRed(k)), fbk=base.filter(k=>!BIZ_T.includes(k)); const nopn=fbk.filter(k=>k!=='entradas'&&k!=='entranking'&&k!=='once');
   if(ACC_TPLS[a.id]) return ACC_TPLS[a.id]; if(a.id==='pn') return fbk; return [...nopn,'precios','aviso'];
@@ -1477,6 +1478,7 @@ const BZ_DEF={
     aviso:{lines:'ASÍ ESTABA LA PILETA',sub:'Sin mantenimiento del piso',sticker:'',pos:'low',box:'none',c1:'+54 9 11 6601-2377',c2:''},
     flyer:{t1:'CAMBIO DE',t2:'GRAVA',t3:'DE FILTROS',t4:'para piscinas',tag:'FILTROS',brand:'VULCANO',bsub:'Inspirados por el agua',desc:'Mantenimiento y renovación de filtros Vulcano',bens:'Mejora la filtración del agua\nMayor rendimiento del filtro\nAgua más limpia y cristalina',note:'Grava nueva, mejor filtrado',circ:'1',cta:'Consultanos',c1:'11 6601-2377',c2:''}},
   lg:{
+    clases:{tag:'ASÍ SON LAS CLASES',title:'CLASES DE POLO',sub:'',items:'Duración | 1 hora a 1 hora y media\nQué aprendés | Preparar el caballo, equitación básica y taqueo\nEquipamiento incluido | Botas, casco y taco\nSeguimiento personalizado | Según el conocimiento de cada uno',cta1:'FECHAS, VALORES Y PAQUETES',cta2:'Escribinos por WhatsApp',c1:'',c2:'@laguapeadapolo'},
     precios:{title:'PLANES Y VALORES',sub:'Clases de polo',items:'Clase de iniciación | 1 hora | $00.000\nPack de 4 clases | por mes | $00.000\nAlquiler de caballo | por hora | $00.000\nPupilaje | por mes | $00.000',c1:'',c2:'@laguapeadapolo'},
     aviso:{lines:'COMUNICADO\nEscribí acá el aviso',sub:'',sticker:'',pos:'mid',box:'none',c1:'',c2:'@laguapeadapolo'},
     agenda:{title:'CLASES DE POLO',sub:'Horarios de la semana',items:'Martes | Iniciación | 17:00 a 18:30\nJueves | Nivel intermedio | 17:00 a 18:30\nSábado | Práctica libre | 10:00 a 13:00\nDomingo | Partidos | 15:00',c1:'',c2:'@laguapeadapolo'},
@@ -1581,6 +1583,47 @@ function drawAviso(c,W,H,F){
   if(st.length){ const r=Math.min(140,W*.14)*(S.sz.bSticker||100)/100, sx=W-M-r, sy=Math.max(F.top+250+r,by-r*.5); c.save(); c.shadowColor='rgba(0,0,0,.3)'; c.shadowBlur=10*(S.qNow||1); c.fillStyle=boxOn&&d.box==='color'?TH.ink:TH.acc; c.beginPath(); c.arc(sx,sy,r,0,7); c.fill(); c.restore();
     const f2=fit(c,st.join('\n').toUpperCase(),TH.font,TH.hw,r*1.55,3,r*.5,14); c.fillStyle=boxOn&&d.box==='color'?TH.acc===TH.ink?'#000':'#111':TH.on; c.font=`${TH.hw} ${f2.size}px ${TH.font}`; c.textAlign='center'; const th2=f2.lines.length*f2.size; f2.lines.forEach((l,i)=>c.fillText(l,sx,sy-th2/2+f2.size*.82+i*f2.size));
     hitBox('f-bSticker','Sello',sx-r,sy-r,r*2,r*2,true,{ctrls:[{label:'Tamaño del sello',o:S.sz,k:'bSticker',min:50,max:170,step:5,unit:'%',def:100}]}); }
+}
+/* ===== La Guapeada: flyer de clases (info + equipamiento + WhatsApp) ===== */
+function clIcon(c,k,x,y,r,col){
+  c.save(); c.strokeStyle=col; c.fillStyle=col; c.lineWidth=Math.max(3,r*.16); c.lineCap='round'; c.lineJoin='round';
+  if(k==='clock'){ c.beginPath(); c.arc(x,y,r*.82,0,7); c.stroke(); c.beginPath(); c.moveTo(x,y-r*.5); c.lineTo(x,y); c.lineTo(x+r*.36,y+r*.22); c.stroke(); }
+  else if(k==='shoe'){ c.lineWidth=r*.26; c.beginPath(); c.arc(x,y+r*.05,r*.62,Math.PI*.62,Math.PI*2.38); c.stroke(); [[-.72,-.15],[-.62,-.55],[.72,-.15],[.62,-.55]].forEach(([dx,dy])=>{ c.beginPath(); c.arc(x+dx*r,y+dy*r*.9,r*.09,0,7); c.fill(); }); }
+  else if(k==='helmet'){ c.beginPath(); c.arc(x,y+r*.12,r*.78,Math.PI,0); c.lineTo(x+r*.78,y+r*.12); c.lineTo(x-r*.78,y+r*.12); c.closePath(); c.stroke(); c.beginPath(); c.moveTo(x+r*.2,y+r*.12); c.lineTo(x+r*1.0,y+r*.12); c.stroke(); c.beginPath(); c.moveTo(x-r*.5,y+r*.12); c.lineTo(x-r*.5,y+r*.68); c.stroke(); }
+  else if(k==='person'){ c.beginPath(); c.arc(x,y-r*.32,r*.3,0,7); c.stroke(); c.beginPath(); c.arc(x,y+r*.78,r*.66,Math.PI*1.12,Math.PI*1.88); c.stroke(); }
+  else { c.beginPath(); c.moveTo(x-r*.5,y+r*.02); c.lineTo(x-r*.12,y+r*.42); c.lineTo(x+r*.55,y-r*.4); c.stroke(); }
+  c.restore();
+}
+function clKind(t){ t=String(t||'').toLowerCase(); if(/dura|tiempo|hora|minut/.test(t)) return 'clock'; if(/apren|clase|equit|caball|taque/.test(t)) return 'shoe'; if(/equip|casco|bota|taco|incluye/.test(t)) return 'helmet'; if(/segui|person|alumn|nivel/.test(t)) return 'person'; return 'check'; }
+function drawClases(c,W,H,F){
+  const TH=bzTh(), d=bzData(), M=80; c.textBaseline='alphabetic';
+  const yEnd=bzContact(c,W,H,F,d,TH)-26; let y=Math.max(F.top+58*2+60,(S.logoBot||0)+50);
+  c.textAlign='center';
+  const tg=String(d.tag||'').trim().toUpperCase();
+  if(tg){ const ft=fit(c,tg,TH.font,TH.bw,W-300,1,36,20,'bSub'); c.font=`${TH.bw} ${ft.size}px ${TH.font}`; const tw=c.measureText(tg).width+70; bzLS(c,7); bzGlow(c,()=>{ c.fillStyle=TH.acc; c.fillText(tg,W/2+3.5,y+ft.size*1.0); }); bzLS(c,0); hitBox('f-cTag','Etiqueta',(W-tw)/2,y,tw,ft.size*1.5,false,{ctrls:[SZ('bSub')]}); y+=ft.size*1.5+22; }
+  { const t=String(d.title||'').toUpperCase(); if(t){ const ft=fit(c,t,TH.font,TH.hw,W-210,1,118,50,'bTitle'); c.font=`${TH.hw} ${ft.size}px ${TH.font}`; c.textAlign='center'; bzGlow(c,()=>{ c.fillStyle=TH.ink; c.fillText(ft.lines[0]||'',W/2,y+ft.size*.82); }); hitLines(c,'f-bTitle','Título',ft.lines,W/2,y+ft.size*.82,ft.size,ft.size,'center',false,{ctrls:[SZ('bTitle')]}); y+=ft.size*.82+30; } }
+  { const sb=String(d.sub||'').trim(); if(sb){ bzLS(c,4); const ft=fit(c,sb.toUpperCase(),TH.font,TH.bw,W-160,1,34,18,'bSub'); c.font=`${TH.bw} ${ft.size}px ${TH.font}`; c.textAlign='center'; c.fillStyle=TH.acc; c.fillText(ft.lines[0]||'',W/2+2,y+ft.size*.8); hitLines(c,'f-bSub','Subtítulo',ft.lines,W/2,y+ft.size*.8,ft.size,ft.size,'center',false,{ctrls:[SZ('bSub')]}); bzLS(c,0); y+=ft.size*1.1+14; } }
+  y+=6;
+  /* bloque de llamada a la acción (abajo) */
+  const cta1=String(d.cta1||'').trim().toUpperCase(), cta2=String(d.cta2||'').trim(), hasCta=!!(cta1||cta2), cH=hasCta?(cta1&&cta2?165:130):0, ctaY=yEnd-cH;
+  if(hasCta) E(c,'cta',cc=>{ cc.textBaseline='alphabetic'; cc.save(); cc.shadowColor='rgba(0,0,0,.25)'; cc.shadowBlur=14*(S.qNow||1); cc.fillStyle=TH.acc; rrect(cc,M,ctaY,W-2*M,cH,26); cc.fill(); cc.restore();
+    const iw=W-2*M-80; let ty=ctaY+(cH-((cta1?52:0)+(cta2?58:0)))/2;
+    if(cta1){ const f1=fit(cc,cta1,TH.font,TH.hw,iw,1,50,22,'bTitle2'); cc.fillStyle=TH.on; cc.textAlign='center'; cc.font=`${TH.hw} ${f1.size}px ${TH.font}`; cc.fillText(f1.lines[0]||'',W/2,ty+f1.size*.86); ty+=f1.size*1.12; }
+    if(cta2){ const f2=fit(cc,cta2,TH.font,TH.bw,iw,1,44,18,'bSub2'); cc.fillStyle=TH.on; cc.textAlign='center'; cc.font=`${TH.bw} ${f2.size}px ${TH.font}`; cc.fillText(f2.lines[0]||'',W/2,ty+f2.size*.9+6); }
+    hitBox('f-cCta','Llamada a escribir',M,ctaY,W-2*M,cH,false,{ctrls:[SZ('bSub')]}); });
+  /* tarjetas */
+  const list=String(d.items||'').split(/\r?\n/).map(l=>l.trim()).filter(Boolean).slice(0,6).map(l=>{ const p=l.split('|').map(s=>s.trim()); return p.length>1?{lb:p[0],v:p.slice(1).join(' ')}:{lb:'',v:p[0]}; });
+  const bot=(hasCta?ctaY-30:yEnd)-0, avail=bot-y, n=list.length; if(!n) return;
+  const gap=20, rs=(S.sz.bRows||100)/100, h=Math.min(230*Math.min(1.2,rs),(avail-gap*(n-1))/n), top0=y+Math.max(0,(avail-(h*n+gap*(n-1)))/2);
+  list.forEach((it,i)=>E(c,'row'+i,cc=>{ cc.textBaseline='alphabetic'; const yy=top0+i*(h+gap);
+    cc.save(); cc.fillStyle=S.bzFlat?bzA(TH,.10):'rgba(10,18,12,.58)'; rrect(cc,M,yy,W-2*M,h,22); cc.fill(); cc.lineWidth=2; cc.strokeStyle=S.bzFlat?bzA(TH,.22):'rgba(255,255,255,.22)'; cc.stroke(); cc.restore();
+    const r=h*.3, ix=M+h*.5+4; cc.fillStyle=TH.acc; cc.beginPath(); cc.arc(ix,yy+h/2,r,0,7); cc.fill(); clIcon(cc,clKind(it.lb+' '+it.v),ix,yy+h/2,r*.92,TH.on);
+    const tx=M+h+22, tw=W-M-tx-30; let lbH=0;
+    if(it.lb){ const fl=fit(cc,it.lb.toUpperCase(),TH.font,TH.bw,tw,1,Math.min(34*rs,h*.2),14); bzLS(cc,3); cc.font=`${TH.bw} ${fl.size}px ${TH.font}`; cc.fillStyle=TH.acc; cc.textAlign='left'; lbH=fl.size*1.35; }
+    const fv=fit(cc,it.v,TH.font,TH.hw,tw,2,Math.min(60*rs,h*.29),16), tot=lbH+fv.lines.length*fv.size*1.06; let ty=yy+(h-tot)/2;
+    if(it.lb){ const fl=fit(cc,it.lb.toUpperCase(),TH.font,TH.bw,tw,1,Math.min(32*rs,h*.2),14); cc.font=`${TH.bw} ${fl.size}px ${TH.font}`; cc.fillStyle=TH.acc; cc.textAlign='left'; cc.fillText(fl.lines[0]||'',tx,ty+fl.size*.9); bzLS(cc,0); ty+=lbH; }
+    cc.fillStyle=TH.ink; cc.textAlign='left'; cc.font=`${TH.hw} ${fv.size}px ${TH.font}`; fv.lines.forEach((l,q)=>cc.fillText(l,tx,ty+fv.size*.88+q*fv.size*1.06));
+    hitBox('f-cItems','Dato '+(i+1),M,yy,W-2*M,h,true,{ctrls:[{label:'Tamaño de las tarjetas',o:S.sz,k:'bRows',min:50,max:130,step:5,unit:'%',def:100}]}); }));
 }
 function drawEvento(c,W,H,F){
   const TH=bzTh(), d=bzData(); const yEnd=bzContact(c,W,H,F,d,TH)-26; let y=Math.max(F.top+58*2+70,(S.logoBot||0)+56);
@@ -1768,6 +1811,8 @@ function makeCopy(kind){
   } else if(t==='agenda'){
     body.push('🗓 '+(cap(d.title)||'Horarios')+(cap(d.sub)?' · '+cap(d.sub):''));
     const it=parseLista(d.items); it.slice(0,tw?3:12).forEach(x=>body.push('• '+[x.name,x.det&&x.det[0],x.right].filter(Boolean).join(' · ')));
+  } else if(t==='clases'){
+    body.push('🐴 '+(cap(d.title)?low(d.title):'Clases de polo')+(cap(d.sub)?' · '+cap(d.sub):'')); String(d.items||'').split(/\n/).map(cap).filter(Boolean).slice(0,tw?3:6).forEach(l=>{ const p=l.split('|').map(cap); body.push('✅ '+(p.length>1?p[0]+': '+p.slice(1).join(' '):p[0])); }); if(cap(d.cta2)) body.push(cap(d.cta1)?low(d.cta1)+'. '+cap(d.cta2)+' 👇':cap(d.cta2)+' 👇');
   } else if(t==='evento'){
     body.push('📣 '+low(d.tag||'Evento')+': '+cap(d.title));
     if(d.date) body.push('🗓 '+cap(d.date)); if(d.time) body.push('🕒 '+cap(d.time)); if(d.place) body.push('📍 '+cap(d.place)); if(d.text) body.push(cap(d.text));
@@ -1916,6 +1961,11 @@ function buildBizUI(box){
     F('fBens','Beneficios (uno por línea, hasta 4; el ícono se elige solo)','bens',true,110); F('fNote','Frase en cursiva de abajo a la izquierda','note'); F('fCtaT','Texto sobre el teléfono (ej: Consultanos)','cta');
     chk(w,'Mostrar círculo con foto de detalle',d,'circ'); { const lab=document.createElement('label'); lab.textContent='Foto del círculo (ej: la grava de cerca)'; const fi=document.createElement('input'); fi.type='file'; fi.accept='image/*'; fi.onchange=()=>{ const f=fi.files&&fi.files[0]; if(!f) return; const u=URL.createObjectURL(f), im=new Image(); im.onload=()=>{ S.flyIn=flyTrim(im); d.circ='1'; buildFields(); render(); }; im.src=u; }; lab.appendChild(fi); w.appendChild(lab); }
     ctl(w,'Tamaño de los beneficios',S.sz,'fBen',{min:60,max:130,step:5,unit:'%',def:100}); ctl(w,'Tamaño del círculo',S.sz,'fCirc',{min:50,max:150,step:5,unit:'%',def:100}); ctl(w,'Zoom de la foto dentro del círculo',S,'flyZ',{min:100,max:300,step:5,unit:'%',def:100});
+  } else if(t==='clases'){
+    F('cTag','Etiqueta (ej: ASÍ SON LAS CLASES)','tag'); F('bTitle','Título','title'); F('bSub','Subtítulo','sub');
+    F('cItems','Tarjetas (una por línea: Título | Texto; hasta 6)','items',true,150);
+    F('cCta1','Llamada: línea grande','cta1'); F('cCta2','Llamada: línea chica','cta2');
+    ctl(w,'Tamaño del título',S.sz,'bTitle',{min:30,max:200,step:5,unit:'%',def:100}); ctl(w,'Tamaño de las tarjetas',S.sz,'bRows',{min:50,max:130,step:5,unit:'%',def:100});
   } else if(t==='evento'){
     F('eTag','Etiqueta (ej: TORNEO)','tag'); F('eTitle','Título','title'); F('eDate','Fecha','date'); F('eTime','Hora','time'); F('ePlace','Lugar','place'); F('eText','Texto (opcional)','text',true,70);
     ctl(w,'Tamaño del título',S.sz,'bTitle',{min:30,max:200,step:5,unit:'%',def:100}); ctl(w,'Tamaño de los datos',S.sz,'bRows',{min:50,max:150,step:5,unit:'%',def:100});
@@ -2171,7 +2221,7 @@ function draw(){
   if(S.bzFlat){ if(scMode()) drawScene(c,W,H); else { c.fillStyle=S.bzFlat.bg; c.fillRect(0,0,W,H); S.bzFlat.deco(c,W,H,S.bzFlat); } drawHeader(c,W,F.top,currentAccount()); } else
   if(S.tpl==='partido'){ if(S.tr!==2) drawDark(c,W,H,S.ly.ov/100); } else {if(S.tr!==2&&S.tpl!=='flyer') drawOverlay(c,W,H,tint,S.tpl==='tabla'||isRed(S.tpl)||S.tpl==='resumen'||S.tpl==='equipos'||S.tpl==='arbitros'||S.tpl==='precios'||S.tpl==='agenda'); if(S.format!=='portada') drawHeader(c,W,F.top,currentAccount());}
   const _mo=moAny(); if(_mo) moSnapshot();
-  const _tf0=({noticia:drawNoticia,resultado:drawResultado,consigna:drawConsigna,vs:drawVs,entradas:drawEntradas,entranking:drawEnRanking,tabla:drawTabla,partido:drawPartido,reducido:drawReducido,red_qf:drawReducido,red_sf:drawReducido,red_fin:drawReducido,red_all:drawReducido,resumen:drawResumen,equipos:drawEquipos,arbitros:drawArbitros,precios:drawLista,agenda:drawLista,aviso:drawAviso,evento:drawEvento,flyer:drawFlyer,once:drawOnce})[S.tpl]; const _tfn=(BIZ_T.includes(S.tpl)&&scMode()&&S.scProds.length)?((c2,W2,H2,F2)=>{ drawSceneProducts(c2,W2,H2,F2); _tf0(c2,W2,H2,F2); }):_tf0; _tfn(c,W,H,F);
+  const _tf0=({noticia:drawNoticia,resultado:drawResultado,consigna:drawConsigna,vs:drawVs,entradas:drawEntradas,entranking:drawEnRanking,tabla:drawTabla,partido:drawPartido,reducido:drawReducido,red_qf:drawReducido,red_sf:drawReducido,red_fin:drawReducido,red_all:drawReducido,resumen:drawResumen,equipos:drawEquipos,arbitros:drawArbitros,precios:drawLista,agenda:drawLista,aviso:drawAviso,evento:drawEvento,flyer:drawFlyer,clases:drawClases,once:drawOnce})[S.tpl]; const _tfn=(BIZ_T.includes(S.tpl)&&scMode()&&S.scProds.length)?((c2,W2,H2,F2)=>{ drawSceneProducts(c2,W2,H2,F2); _tf0(c2,W2,H2,F2); }):_tf0; _tfn(c,W,H,F);
   if(_mo) moApply(c,_tfn,W,H,F);
   drawTexts(c,W,H);
   if(!S.exporting&&S.guide){c.save();c.strokeStyle='#ff2fd0';c.lineWidth=3;c.setLineDash([16,10]);
@@ -2187,7 +2237,7 @@ function buildAccounts(){
     box.appendChild(b)});
 }
 /* ---- celular: menú de diseños + botón volver ---- */
-const MOBI={noticia:['📰','Titular + escudo'],consigna:['❓','Pregunta A o B'],vs:['⚔️','Dos equipos'],partido:['⚽','Resultados del día'],tabla:['📊','Tabla de posiciones'],reducido:['🏆','Todas las instancias'],resumen:['📋','Resumen de la fecha'],equipos:['🧩','Equipos 2027'],arbitros:['🟨','Árbitros'],once:['⭐','Formación 4-4-2 y más'],precios:['🏷️','Lista de precios'],aviso:['📢','Aviso con texto'],agenda:['🗓️','Horarios de la semana'],evento:['🎉','Fecha, hora y lugar']};
+const MOBI={noticia:['📰','Titular + escudo'],consigna:['❓','Pregunta A o B'],vs:['⚔️','Dos equipos'],partido:['⚽','Resultados del día'],tabla:['📊','Tabla de posiciones'],reducido:['🏆','Todas las instancias'],resumen:['📋','Resumen de la fecha'],equipos:['🧩','Equipos 2027'],arbitros:['🟨','Árbitros'],once:['⭐','Formación 4-4-2 y más'],precios:['🏷️','Lista de precios'],aviso:['📢','Aviso con texto'],agenda:['🗓️','Horarios de la semana'],evento:['🎉','Fecha, hora y lugar'],clases:['🐴','Info de las clases']};
 const isMob=()=>matchMedia('(max-width:860px)').matches;
 function mobMenu(show){ const m=document.getElementById('menuM'); if(!m) return; m.hidden=!show; document.body.style.overflow=show?'hidden':''; if(show){ mobBuild(); m.scrollTop=0; } }
 function mobBuild(){

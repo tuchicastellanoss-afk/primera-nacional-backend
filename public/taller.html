@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 13/11 · 10:25</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 13/11 · 10:40</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -222,16 +222,20 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
           <p class="hint">El video se graba en tiempo real: al descargar, dejá esta pestaña abierta y a la vista hasta que termine. Con el video elegido, la foto de fondo se reemplaza.</p>
         </div>
         <p class="hint">Arrastrá la foto para moverla. Con dos dedos (pellizco) hacés zoom; en la compu, Ctrl + rueda.</p>
-        <div id="fxBox"></div>
-        <details id="colBox" open><summary id="colSum">Fotos y collage</summary><div class="grp" id="colBody"></div></details>
       </div>
 
       <div class="sec" id="tintSec">
         <h2>Color del degradé</h2>
         <div class="row" style="justify-content:flex-start">
           <input type="color" id="tint" aria-label="Color del degradé">
-          <label style="flex-direction:row;align-items:center;gap:8px;color:var(--fg);font-size:13px"><input type="checkbox" id="autoTint"> Tomarlo del escudo</label>
+          <label style="flex-direction:row;align-items:center;gap:8px;color:var(--fg);font-size:13px"><input type="checkbox" id="autoTint"> Tomar color del escudo</label>
+          <label style="flex-direction:row;align-items:center;gap:8px;color:var(--fg);font-size:13px"><input type="checkbox" id="logoTint"> Tomar color del logo</label>
         </div>
+      </div>
+
+      <div class="sec" id="fxSec">
+        <div id="fxBox"></div>
+        <details id="colBox" open><summary id="colSum">Fotos y collage</summary><div class="grp" id="colBody"></div></details>
       </div>
 
       <div class="sec">
@@ -360,7 +364,7 @@ function defRed(){return {v:2,eqTitle:'PRIMERA NACIONAL',eqSub:'Así viene la te
 const S = {
   account:'pn', format:'retrato', tpl:'partido',
   photo:null, zoom:1, ox:0, oy:0,
-  tint:'#1f8a3a', autoTint:true, exporting:false,
+  tint:'#1f8a3a', autoTint:true, logoTint:false, exporting:false,
   f:{
     crest:'Nueva Chicago', headline:'Descendió Nueva Chicago', sub:'El Torito jugará en la Primera B Metropolitana',
     home:'Local', hs:'2', away:'Visitante', as:'1', status:'Final', detail:'Fecha 31 · Primera Nacional',
@@ -585,8 +589,15 @@ function drawBox(c,img,x,y,w,h,anchor){ // contiene la imagen en la caja; anchor
 /* ---------- dibujo ---------- */
 const cv = $('#cv');
 function currentAccount(){return accounts.find(a=>a.id===S.account)||accounts[0]}
+const _ldom=new WeakMap();
+function logoDom(acc){ const im=acc&&acc.logoImg; if(!im) return null; if(_ldom.has(im)) return _ldom.get(im); let out=null;
+  try{ const c=document.createElement('canvas'); c.width=c.height=48; const x=c.getContext('2d',{willReadFrequently:true}); x.drawImage(im,0,0,48,48); const d=x.getImageData(0,0,48,48).data;
+    for(const minSat of [.35,.18,.08]){ let r=0,g=0,b=0,w=0; for(let i=0;i<d.length;i+=4){ if(d[i+3]<200) continue; const mx=Math.max(d[i],d[i+1],d[i+2]), mn=Math.min(d[i],d[i+1],d[i+2]); if(mx<50) continue; const sat=(mx-mn)/mx; if(sat<minSat) continue; const wt=sat*sat; r+=d[i]*wt; g+=d[i+1]*wt; b+=d[i+2]*wt; w+=wt; }
+      if(w>0){ r/=w; g/=w; b/=w; const mx=Math.max(r,g,b), k=Math.min(1,150/mx); out=rgbHex(r*k,g*k,b*k); break; } }
+  }catch(e){} _ldom.set(im,out); return out; }
 function mainTint(){
   const T=TEMPLATES[S.tpl];
+  if(S.logoTint){ const d=logoDom(currentAccount()); if(d) return d; }
   if(S.autoTint && T.main){const k=findKey(S.f[T.main]); const d=k&&dominant(k); if(d) return d;}
   return S.tint;
 }
@@ -1874,7 +1885,7 @@ function queueSave(){ if(!S.restored) return; clearTimeout(saveT); saveT=setTime
 function buildSnap(){
   const k=S.cards[S.cur]; if(S.tpl==='partido'&&k){k.photoBlob=S.photoBlob||null;k.photoBlob2=S.photoBlob2||null;k.xph=S.xph.map(p=>({...p}))}
   const phs={}; for(const [k,e] of Object.entries(S.phs||{})){ phs[k]={photoBlob:e.photoBlob||null,ox:e.ox,oy:e.oy,zoom:e.zoom,photoBlob2:e.photoBlob2||null,ox2:e.ox2,oy2:e.oy2,zoom2:e.zoom2,xph:(e.xph||[]).map(p=>({blob:p.blob,ox:p.ox,oy:p.oy,zoom:p.zoom}))}; }
-  const snap={v:1,phs,phKey:S.phKey,xph:S.xph.map(p=>({blob:p.blob,ox:p.ox,oy:p.oy,zoom:p.zoom})),tx:S.tx,mo:S.mo,account:S.account,format:S.format,tpl:S.tpl,tint:S.tint,autoTint:S.autoTint,f:S.f,tags:S.tags,cur:S.cur,ox:S.ox,oy:S.oy,zoom:S.zoom,photoBlob:S.photoBlob||null,red:S.red,photoBlob2:S.photoBlob2||null,ox2:S.ox2,oy2:S.oy2,zoom2:S.zoom2,
+  const snap={v:1,phs,phKey:S.phKey,xph:S.xph.map(p=>({blob:p.blob,ox:p.ox,oy:p.oy,zoom:p.zoom})),tx:S.tx,mo:S.mo,account:S.account,format:S.format,tpl:S.tpl,tint:S.tint,autoTint:S.autoTint,logoTint:!!S.logoTint,f:S.f,tags:S.tags,cur:S.cur,ox:S.ox,oy:S.oy,zoom:S.zoom,photoBlob:S.photoBlob||null,red:S.red,photoBlob2:S.photoBlob2||null,ox2:S.ox2,oy2:S.oy2,zoom2:S.zoom2,
     cards:S.cards.map(c=>{const o={...c};delete o.photo;delete o.photo2;o.xph=(c.xph||[]).map(p=>({blob:p.blob,ox:p.ox,oy:p.oy,zoom:p.zoom}));return o})};
   return snap;
 }
@@ -1891,7 +1902,7 @@ async function stApply(st){
   if(accounts.some(a=>a.id===st.account)) S.account=st.account;
   if(FORMATS[st.format]) S.format=st.format;
   S.tpl=TEMPLATES[st.tpl]?st.tpl:'partido'; let legacyMode=null; if(S.tpl!=='reducido'&&isRed(S.tpl)){ legacyMode=PHMAP[S.tpl]; S.tpl='reducido'; }
-  if(st.tint) S.tint=st.tint; S.autoTint=st.autoTint!==false;
+  if(st.tint) S.tint=st.tint; S.autoTint=st.autoTint!==false; S.logoTint=!!st.logoTint; if(S.logoTint) S.autoTint=false;
   Object.assign(S.f,st.f||{}); Object.assign(S.tags,st.tags||{});
   S.ox=st.ox||0; S.oy=st.oy||0; S.zoom=st.zoom||1; S.photoBlob=st.photoBlob||null; S.photo=await toBitmap(S.photoBlob); if(st.red){Object.assign(S.red,st.red); ['p1','qf','sf','fin'].forEach(ph=>(S.red[ph]||[]).forEach(m=>{if(m.d===undefined) m.d=PHDATE[ph]; if(m.h===undefined) m.h=''})); if(!S.red.subs) S.red.subs=defRed().subs; if(!S.red.v){S.red.v=2; S.red.p1=defRed().p1;}} S.photoBlob2=st.photoBlob2||null; S.photo2=await toBitmap(S.photoBlob2); S.ox2=st.ox2||0; S.oy2=st.oy2||0; S.zoom2=st.zoom2||1;
   if(legacyMode) S.red.mode=legacyMode;
@@ -1901,7 +1912,7 @@ async function stApply(st){
   if(S.cards.length<=1&&(!S.cards[0]||S.cards[0].example||(S.cards[0].home==='Acassuso'&&S.cards[0].away==='All Boys'))){ S.cards=defCards(); S.cur=0; if(S.tags.l==='Fecha 28'&&S.tags.r==='Zona A'){S.tags.l='Reducido';S.tags.r="Primera instancia"} }
   S.phs={}; for(const [k,e] of Object.entries(st.phs||{})){ const o={...e}; o.photo=await toBitmap(e.photoBlob); o.photo2=await toBitmap(e.photoBlob2); o.xph=[]; for(const p of (e.xph||[])){ const im=await toBitmap(p.blob); if(im) o.xph.push({img:im,blob:p.blob,ox:p.ox||0,oy:p.oy||0,zoom:p.zoom||1}); } S.phs[k]=o; }
   if(!S.red.flatV2){ S.red.bizFlat={}; S.red.logoLight={}; S.red.flatV2=1; }
-  fixTpl(); S.phKey=S.account+'|'+S.tpl; $('#autoTint').checked=S.autoTint; $('#tint').value=S.tint; $('#zoom').value=Math.round(S.zoom*100);
+  fixTpl(); S.phKey=S.account+'|'+S.tpl; $('#autoTint').checked=S.autoTint; $('#logoTint').checked=!!S.logoTint; $('#tint').value=S.tint; $('#zoom').value=Math.round(S.zoom*100);
   buildAccounts();buildFormats();buildQual();buildTpls();buildFields();buildCollageUI();render();
 }
 const hist={st:[],i:-1,sig:'',t:0,busy:false};
@@ -2103,7 +2114,7 @@ function draw(){
   navUpdate();
   if(S.tpl==='reducido'){ if(!['p1','qf','sf','fin','all','tab'].includes(S.red.mode)) S.red.mode='p1'; } else if(isRed(S.tpl)) S.red.mode=PHMAP[S.tpl];
   let tint=mainTint(); if(S.account==='pn'&&!S.photo&&PS.n()<2) tint='#3b5260';
-  if(S.autoTint){const ti=$('#tint'); if(ti.value!==tint) ti.value=tint;}
+  if(S.autoTint||S.logoTint){const ti=$('#tint'); if(ti.value!==tint) ti.value=tint;}
   if(S.tpl==='partido'&&!S.exporting) saveCard();
   if(!S.exporting&&!(window.VID&&VID.playing)){ queueSave(); histQueue(); }
   S.logoBot=0; S.bzFlat=(typeof bzFlatOn==='function')?bzFlatOn():null;
@@ -2154,7 +2165,7 @@ function buildFormats(){
 function buildTpls(){
   const box=$('#tpls'); box.innerHTML=''; if(typeof mobTitle==='function') mobTitle();
   fixTpl(); tplKeys().map(k=>[k,TEMPLATES[k]]).forEach(([k,v])=>{const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=v.label;
-    b.setAttribute('aria-pressed',k===S.tpl);b.onclick=()=>{S.tpl=k;if(k==='noticia'){S.autoTint=true;const ai=$('#autoTint'); if(ai) ai.checked=true;} if(k!=='equipos'&&S.format==='portada'){S.format='retrato';S.ox=S.oy=0} buildTpls();buildFormats();buildQual();buildFields();render()};box.appendChild(b)});
+    b.setAttribute('aria-pressed',k===S.tpl);b.onclick=()=>{S.tpl=k;if(k==='noticia'){S.autoTint=true; S.logoTint=false; const ai=$('#autoTint'); if(ai) ai.checked=true; const li=$('#logoTint'); if(li) li.checked=false;} if(k!=='equipos'&&S.format==='portada'){S.format='retrato';S.ox=S.oy=0} buildTpls();buildFormats();buildQual();buildFields();render()};box.appendChild(b)});
 }
 function ctl(parent,label,obj,key,o){
   const w=document.createElement('label'); w.className='ctl'; const t=document.createElement('span'); t.textContent=label;
@@ -2752,8 +2763,9 @@ async function exportVideo(){
 }
 $('#dlVid').onclick=exportVideo;
 
-$('#tint').addEventListener('input',e=>{S.tint=e.target.value;S.autoTint=false;$('#autoTint').checked=false;render()});
-$('#autoTint').addEventListener('change',e=>{S.autoTint=e.target.checked;render()});
+$('#tint').addEventListener('input',e=>{S.tint=e.target.value;S.autoTint=false;S.logoTint=false;$('#autoTint').checked=false;$('#logoTint').checked=false;render()});
+$('#autoTint').addEventListener('change',e=>{S.autoTint=e.target.checked; if(S.autoTint){ S.logoTint=false; $('#logoTint').checked=false; } persist(); render();});
+$('#logoTint').addEventListener('change',e=>{S.logoTint=e.target.checked; if(S.logoTint){ S.autoTint=false; $('#autoTint').checked=false; } persist(); render();});
 
 const qe=document.createElement('div'); qe.id='qe'; qe.hidden=true;
 qe.innerHTML='<div class="qeh"><b id="qeL"></b><button type="button" class="primary" id="qeOk">Listo</button></div><div id="qeBody"></div>'; document.body.appendChild(qe);
@@ -2897,7 +2909,7 @@ $('#accDel').onclick=()=>{
 /* arranque */
 (async()=>{
   buildAccounts(); buildFormats(); buildQual(); buildTpls(); buildFields(); buildLib();
-  $('#tint').value=S.tint; $('#autoTint').checked=true;
+  $('#tint').value=S.tint; $('#autoTint').checked=!S.logoTint; $('#logoTint').checked=!!S.logoTint;
   try{BUILTIN.logoImg=await loadImg(BUILTIN_LOGO)}catch(e){}
   for(const a of ACC_EXTRA){ try{a.logoImg=await loadImg(a.logo)}catch(e){} try{a.logoLightImg=await loadImg(a.logoLight)}catch(e){} if(a.id==='fb'){ try{ a.vecImg=bzVecLogo(FB_VEC,false); a.vecLightImg=bzVecLogo(FB_VEC,true); }catch(e){} } } buildAccounts();
   $('#crestInfo').textContent=BUNDLE.length+' escudos incluidos ('+[...new Set(BUNDLE.map(b=>({LPF:'Liga Profesional',PN:'Primera Nacional',B:'Primera B',FA:'Federal A'})[b.g]))].join(', ')+'). Si te falta alguno, sumalo abajo y queda guardado en este navegador.';

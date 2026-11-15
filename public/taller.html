@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 15/11 · 17:50</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 15/11 · 18:05</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -1253,11 +1253,10 @@ function buildOnceUI(box){
 function defAsc(){ return {club:'Godoy Cruz',name:'',crest:true,tag:'¡HISTÓRICO!',l1:'VUELVE A',l2:'PRIMERA',sub:'Primer ascenso de la Primera Nacional 2026',dato:'',foot:'PRIMERA NACIONAL · 2026'}; }
 function drawAscenso(c,W,H,F){
   const A=S.red.asc||(S.red.asc=defAsc()), acc=mainTint(), bottom=H-F.bottom+10; c.textBaseline='alphabetic'; c.textAlign='center';
-  E(c,'static',cc=>{ const g=cc.createLinearGradient(0,H*.3,0,H); g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(.55,'rgba(0,0,0,.62)'); g.addColorStop(1,'rgba(0,0,0,.9)'); cc.fillStyle=g; cc.fillRect(0,H*.3,W,H*.7); });
+  E(c,'static',cc=>{ const g=cc.createLinearGradient(0,H*.3,0,H); g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(.55,'rgba(0,0,0,.62)'); g.addColorStop(1,'rgba(0,0,0,.9)'); cc.fillStyle=g; cc.fillRect(0,H*.3,W,H*.7); cc.save(); cc.beginPath(); cc.rect(0,H*.42,W,H*.58); cc.clip(); cc.fillStyle=acc; cc.globalAlpha=.13; const sw=W/9; for(let i=-2;i<12;i+=2){ cc.beginPath(); cc.moveTo(i*sw+H*.12,H*.42); cc.lineTo((i+1)*sw+H*.12,H*.42); cc.lineTo((i+1)*sw-H*.1,H); cc.lineTo(i*sw-H*.1,H); cc.fill(); } cc.restore(); cc.fillStyle=acc; cc.fillRect(0,H-14,W,14); });
   /* escudo */
   const cs=Math.min(W*.34,H*.19)*((S.sz.ascC||100)/100), cy0=F.top+58*2+30;
-  if(A.crest!==false) E(c,'crest',cc=>{ const gl=cc.createRadialGradient(W/2,cy0+cs/2,cs*.2,W/2,cy0+cs/2,cs*.95); gl.addColorStop(0,'rgba(255,255,255,.34)'); gl.addColorStop(1,'rgba(255,255,255,0)'); cc.fillStyle=gl; cc.fillRect(W/2-cs,cy0-cs*.4,cs*2,cs*1.8);
-    const img=findCrest(A.club); if(img) drawBox(cc,img,W/2-cs/2,cy0,cs,cs); else if(!S.exporting){ cc.strokeStyle='rgba(255,255,255,.4)'; cc.lineWidth=4; cc.setLineDash([12,10]); cc.beginPath(); cc.arc(W/2,cy0+cs/2,cs*.4,0,7); cc.stroke(); cc.setLineDash([]); }
+  if(A.crest!==false) E(c,'crest',cc=>{ const img=findCrest(A.club); if(img){ cc.save(); cc.shadowColor='rgba(0,0,0,.45)'; cc.shadowBlur=22*(S.qNow||1); cc.shadowOffsetY=6*(S.qNow||1); drawBox(cc,img,W/2-cs/2,cy0,cs,cs); cc.restore(); } else if(!S.exporting){ cc.strokeStyle='rgba(255,255,255,.4)'; cc.lineWidth=4; cc.setLineDash([12,10]); cc.beginPath(); cc.arc(W/2,cy0+cs/2,cs*.4,0,7); cc.stroke(); cc.setLineDash([]); }
     hitBox('f-asClub','Escudo',W/2-cs/2,cy0,cs,cs,false,{ctrls:[{label:'Tamaño del escudo',o:S.sz,k:'ascC',min:50,max:180,step:5,unit:'%',def:100}]}); });
   /* bloques de texto, apoyados abajo */
   const MW=W-110, blocks=[], add=(key,txt,font,wt,start,min,col,opt)=>{ const t=String(txt||'').trim(); if(!t) return; const ft=fit(c,opt&&opt.up===false?t:t.toUpperCase(),font,wt,MW,opt&&opt.lines||1,start,min,key); blocks.push({key,ft,font,wt,col,gap:opt&&opt.gap||14,id:opt&&opt.id,label:opt&&opt.label,glow:opt&&opt.glow,ls:opt&&opt.ls}); };
@@ -1271,7 +1270,9 @@ function drawAscenso(c,W,H,F){
   let tot=0; blocks.forEach(b=>{ b.h=b.ft.lines.length*b.ft.size*1.02; tot+=b.h+b.gap; });
   let y=bottom-tot+((blocks[blocks.length-1]||{}).gap||0); const minY=cy0+(A.crest!==false?cs+16:0); if(y<minY) y=minY;
   blocks.forEach(b=>{ const first=y+b.ft.size*.84; E(c,b.key,cc=>{ cc.textBaseline='alphabetic'; cc.textAlign='center'; cc.font=`${b.wt} ${b.ft.size}px ${b.font}`; cc.fillStyle=b.col; if(b.ls) bzLS(cc,b.ls);
-      b.ft.lines.forEach((l,k)=>{ const ty=first+k*b.ft.size*1.02; if(b.glow) glowText(cc,l,W/2+(b.ls?b.ls/2:0),ty,b.col,28); else { cc.save(); cc.shadowColor='rgba(0,0,0,.55)'; cc.shadowBlur=14*(S.qNow||1); cc.fillText(l,W/2+(b.ls?b.ls/2:0),ty); cc.restore(); } });
+      if(b.key==='ascTag'){ const l0=b.ft.lines[0]||''; const tw=cc.measureText(l0).width+(b.ls||0)*l0.length+70, th=b.ft.size*1.5; cc.save(); cc.fillStyle=acc; cc.shadowColor='rgba(0,0,0,.4)'; cc.shadowBlur=16*(S.qNow||1); rrect(cc,W/2-tw/2,first-b.ft.size*1.11,tw,th,th/2); cc.fill(); cc.restore(); cc.fillStyle='#fff'; }
+      if(b.key==='ascFoot'){ const l0=b.ft.lines[0]||''; const tw=cc.measureText(l0).width+(b.ls||0)*l0.length, yy=first-b.ft.size*.32; cc.save(); cc.strokeStyle=acc; cc.lineWidth=4; cc.beginPath(); cc.moveTo(60,yy); cc.lineTo(W/2-tw/2-30,yy); cc.moveTo(W/2+tw/2+30,yy); cc.lineTo(W-60,yy); cc.stroke(); cc.restore(); }
+      b.ft.lines.forEach((l,k)=>{ const ty=first+k*b.ft.size*1.02; if(b.glow){ cc.save(); cc.fillStyle='#fff'; cc.shadowColor=acc; cc.shadowBlur=44*(S.qNow||1); cc.fillText(l,W/2,ty); cc.fillText(l,W/2,ty); cc.restore(); cc.save(); cc.strokeStyle=acc; cc.lineWidth=Math.max(3,b.ft.size*.025); cc.lineJoin='round'; cc.strokeText(l,W/2,ty); cc.restore(); } else if(0) glowText(cc,l,W/2+(b.ls?b.ls/2:0),ty,b.col,28); else { cc.save(); cc.shadowColor='rgba(0,0,0,.55)'; cc.shadowBlur=14*(S.qNow||1); cc.fillText(l,W/2+(b.ls?b.ls/2:0),ty); cc.restore(); } });
       if(b.ls) bzLS(cc,0); hitLines(cc,b.id,b.label,b.ft.lines,W/2,first,b.ft.size,b.ft.size*1.02,'center',false,{ctrls:[SZ(b.key)]}); }); y+=b.h+b.gap; });
 }
 function buildAscUI(box){

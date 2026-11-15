@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 14/11 · 17:40</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 15/11 · 11:25</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -1045,12 +1045,13 @@ function drawTabla(c,W,H,F){
     labels.forEach((z,i)=>{c.fillStyle=z.c; c.beginPath(); c.arc(lx+9,ly,9,0,7); c.fill(); c.fillStyle='rgba(240,240,240,.92)'; c.textAlign='left'; c.fillText(z.l,lx+26,ly+1); lx+=ws[i]+34;}); c.textBaseline='alphabetic'; }
 }
 const isNum=v=>String(v??'').trim()!==''&&!isNaN(+v);
-function winSide(m){ if(!isNum(m.as)||!isNum(m.bs)) return 0; return +m.as>+m.bs?1:(+m.bs>+m.as?2:0); }
+/* Reglamento 2026: en la primera fase (partido único) si empatan pasa el mejor posicionado (el 'a', que es el local). */
+function winSide(m,ph){ if(!isNum(m.as)||!isNum(m.bs)) return 0; return +m.as>+m.bs?1:(+m.bs>+m.as?2:(ph==='p1'?1:0)); }
 function redHeader(c,W,F,tk,sk,idT,idS,y0,k){
   k=k||1; const R=S.red; let y=y0!=null?y0:F.top+58*2+84; c.textAlign='center'; c.textBaseline='alphabetic';
   const t=(R[tk]||'').toUpperCase();
   if(t){const ft=fit(c,t,FD,700,W-120,2,92*k,48*k,'rTitle'); ft.lines.forEach((l,i)=>glowText(c,l,W/2,y+i*ft.size*1.02,'#fff',22)); hitLines(c,idT,'Título',ft.lines,W/2,y,ft.size,ft.size*1.02,'center',false,{ctrls:[SZ('rTitle')]}); y+=(ft.lines.length-1)*ft.size*1.02;}
-  if((R[sk]||'').trim()){y+=62*k; const ts=fit(c,R[sk].toUpperCase(),FD,600,W-140,1,48*k,22,'rSub'); c.fillStyle='rgba(226,226,226,.94)'; c.fillText(ts.lines[0]||'',W/2,y); hitLines(c,idS,'Subtítulo',ts.lines,W/2,y,ts.size,ts.size,'center',false,{ctrls:[SZ('rSub')]});}
+  if((R[sk]||'').trim()){y+=62*k; const ts=fit(c,R[sk].toUpperCase(),FD,600,W-140,1,60*k,26,'rSub'); c.fillStyle='rgba(226,226,226,.94)'; c.fillText(ts.lines[0]||'',W/2,y); hitLines(c,idS,'Subtítulo',ts.lines,W/2,y,ts.size,ts.size,'center',false,{ctrls:[SZ('rSub')]});}
   return y+54*k;
 }
 
@@ -1103,8 +1104,8 @@ function buildRedTabUI(w){
     RED_P1.forEach(([a,b],i)=>mk(short(a)+' vs '+short(b),R.tabW[i],[[0,'Pasa '+short(a)],[1,'Pasa '+short(b)],[-1,'Sin jugar']],v=>{ R.tabW[i]=v; }));
     mk('Perdedor de la final por el 1.º ascenso (entra en cuartos como 1.º)',R.tabL==null?-1:R.tabL,[[0,'Godoy Cruz'],[1,'Tristán Suárez'],[-1,'Sin jugar']],v=>{ R.tabL=v<0?null:v; });
     const bt=document.createElement('button'); bt.type='button'; bt.className='ghost'; bt.id='tabFromRes'; bt.textContent='Tomar los resultados cargados en Primera fase';
-    bt.onclick=()=>{ const num=v=>{ const n=parseInt(String(v==null?'':v).replace(/[^\d-]/g,''),10); return isNaN(n)?null:n; }; const P=S.red.p1||[]; RED_P1.forEach(([a,b],i)=>{ const m=P.find(x=>x.a===a&&x.b===b); if(!m) return; const x=num(m.as), y=num(m.bs); if(x==null||y==null) return; if(x>y) R.tabW[i]=0; else if(y>x) R.tabW[i]=1; else { const pa=num(m.pa), pb=num(m.pb); R.tabW[i]=(pa!=null&&pb!=null&&pb>pa)?1:0; } });
-      const f=(S.red.f1||[])[0]; if(f){ const x=num(f.as), y=num(f.bs); const A=f.a==='Godoy Cruz'?0:1; if(x!=null&&y!=null){ let w=x>y?0:y>x?1:((num(f.pa)||0)>=(num(f.pb)||0)?0:1); const loser=w===0?f.b:f.a; R.tabL=loser==='Godoy Cruz'?0:loser==='Tristán Suárez'?1:null; } }
+    bt.onclick=()=>{ const num=v=>{ const n=parseInt(String(v==null?'':v).replace(/[^\d-]/g,''),10); return isNaN(n)?null:n; }; const P=S.red.p1||[]; RED_P1.forEach(([a,b],i)=>{ const m=P.find(x=>x.a===a&&x.b===b); if(!m) return; const x=num(m.as), y=num(m.bs); if(x==null||y==null) return; if(x>y) R.tabW[i]=0; else if(y>x) R.tabW[i]=1; else R.tabW[i]=0; });
+      const f=(S.red.f1||[])[0]; if(f){ const x=num(f.as), y=num(f.bs); const A=f.a==='Godoy Cruz'?0:1; if(x!=null&&y!=null&&x!==y){ let w=x>y?0:1; const loser=w===0?f.b:f.a; R.tabL=loser==='Godoy Cruz'?0:loser==='Tristán Suárez'?1:null; } }
       redTabAuto(); buildFields(); render(); };
     box.appendChild(bt); const hh=document.createElement('p'); hh.className='hint'; hh.textContent='Aparecen todos los que siguen en carrera: ✓ los que ya pasaron y • los que todavía juegan (los dos de cada cruce sin definir). Los cruces y la numeración se muestran recién cuando están los 8 clasificados.'; box.appendChild(hh); w.appendChild(box); }
   const lab=document.createElement('label'); lab.textContent='Equipos (uno por línea): Club, posición en su zona, puntos, DG, GF'; const ta=document.createElement('textarea'); ta.id='f-tabRows'; ta.rows=9; ta.style.cssText='width:100%;box-sizing:border-box'; ta.placeholder='Ej:\nTristán Suárez, 1B, 70, 22, 55\nFerro, 2A, 64, 15, 48\nTemperley, 3B, 60, 10, 44'; ta.value=R.tabRows||''; ta.addEventListener('input',()=>{R.tabRows=ta.value; render()}); lab.appendChild(ta); w.appendChild(lab);
@@ -1122,10 +1123,10 @@ function drawReducido(c,W,H,F){
   } else y=redHeader(c,W,F,'title','sub','f-rTitle','f-rSub');
   const avail=bottom-y;
   if(R.mode==='all') return drawBracket(c,W,y,bottom);
-  const ph=R.mode, srt=R[ph].map((m,ix)=>{const dm=String(m.d||'').match(/(\d{1,2})\/(\d{1,2})/), tm=String(m.h||'').match(/(\d{1,2})[:.hH](\d{2})?/); return {m,ix,k:(dm?(+dm[2])*10000+(+dm[1])*100:99999999)+(tm?(+tm[1])+(+(tm[2]||0))/100:99)}}).sort((a,b)=>a.k-b.k||a.ix-b.ix), list=hasF?[{m:R.f1[0],ix:-1},...srt]:srt, n=srt.length, big=ph==='fin', rh=Math.min(big?440:150,avail/n), gp=Math.min(12,rh*.08), ch=rh-gp;
+  const ph=R.mode, srt=R[ph].map((m,ix)=>{const dm=String(m.d||'').match(/(\d{1,2})\/(\d{1,2})/), tm=String(m.h||'').match(/(\d{1,2})[:.hH](\d{2})?/); return {m,ix,k:(dm?(+dm[2])*10000+(+dm[1])*100:99999999)+(tm?(+tm[1])+(+(tm[2]||0))/100:99)}}).sort((a,b)=>a.k-b.k||a.ix-b.ix), list=hasF?[{m:R.f1[0],ix:-1},...srt]:srt, n=srt.length, big=ph==='fin', rh=Math.min(big?440:200,avail/n), gp=Math.min(12,rh*.08), ch=rh-gp;
   const nameKey='rnames', nmS=(S.sz[nameKey]||100)/100;
   list.forEach(({m,ix},i)=>{
-    const isF=ix<0, ch0=isF?chF:ch, pid=isF?'r-f1-0':`r-${ph}-${ix}`, ry=isF?yF:y+(big?(avail-rh)/2:(i-(hasF?1:0))*rh), mid=ry+ch0/2, cs=Math.min(ch0*.72,big?230:110), cw=Math.min(big?260:200,(W-80)*.22), ws=winSide(m);
+    const isF=ix<0, ch0=isF?chF:ch, pid=isF?'r-f1-0':`r-${ph}-${ix}`, ry=isF?yF:y+(big?(avail-rh)/2:(i-(hasF?1:0))*rh), mid=ry+ch0/2, cs=Math.min(ch0*.72,big?230:110), cw=Math.min(big?260:200,(W-80)*.22), ws=winSide(m,isF?'f1':ph);
     c.fillStyle='rgba(0,0,0,.42)'; rr(c,40,ry,W-80,ch0,14); c.fill();
     [[m.a,m.ra,m.pa,1,m.ca],[m.b,m.rb,m.pb,2,m.cb]].forEach(([name,rank,pts,sd,cr])=>{
       const left=sd===1, cx0=left?56:W-56-cs, img=slotCrest(m,sd===1?'a':'b',sd===1?'ca':'cb'); if(img) drawBox(c,img,cx0,mid-cs/2,cs,cs);
@@ -1133,8 +1134,8 @@ function drawReducido(c,W,H,F){
       const tx=left?cx0+cs+18:cx0-18, maxW=(left?(W/2-cw/2-10):(W-40-(W/2+cw/2+10)))-cs-40, al=left?'left':'right';
       const dim=ws&&ws!==sd, label=[rank,(pts?pts+' PTS':'')].filter(Boolean).join(' · ');
       const txt=String(name||'').trim()?(String(cr||'').trim()?String(name).trim():nm(name)).toUpperCase():(rank?String(rank).toUpperCase()+(ph==='p1'?' DE LA ZONA':''):'');
-      const start=Math.min(ch0*.3,big?64:40);
-      const ft=fit(c,txt||' ',FD,700,maxW,big?2:2,start*nmS,start*.5,nameKey), nf=ft.size, lh=nf*1.04, ls=Math.max(14,nf*.52);
+      const start=Math.min(ch0*.36,big?72:54);
+      const ft=fit(c,txt||' ',FD,700,maxW,big?2:2,start*nmS,start*.5,nameKey), nf=ft.size, lh=nf*1.04, ls=Math.max(22,nf*.6);
       const bl=ft.lines.length*lh+(label&&String(name||'').trim()?ls*1.5:0), first=mid-bl/2+nf*.85;
       c.globalAlpha=dim?.5:1; c.textAlign=al; c.textBaseline='alphabetic'; c.fillStyle=String(name||'').trim()?'#fff':'rgba(226,226,226,.55)';
       c.font=`700 ${nf}px ${FD}`; ft.lines.forEach((l,k)=>c.fillText(l,tx,first+k*lh));
@@ -1142,10 +1143,10 @@ function drawReducido(c,W,H,F){
       if(label&&String(name||'').trim()){c.font=`600 ${ls}px ${FN}`; c.fillStyle='rgba(226,226,226,.8)'; c.fillText(label,tx,first+(ft.lines.length-1)*lh+ls*1.35);}
       c.globalAlpha=1;
     });
-    const sa=String(m.as??'').trim(), sb=String(m.bs??'').trim(), dt=[m.d,m.h].map(x=>String(x||'').trim()).filter(Boolean).join(' · '), off=dt?ch0*.1:0;
-    if(dt){const dfs=Math.min(ch0*.17,big?40:22), dmax=cw+40; let fz=dfs; c.font=`600 ${fz}px ${FN}`; const lines=wrapTxt(c,dt,dmax); c.textAlign='center'; c.fillStyle='rgba(235,235,235,.9)'; lines.slice(0,2).forEach((l,k)=>c.fillText(l,W/2,mid+ch0*.3+k*fz*1.15)); hitBox(`${pid}-d`,'Fecha y hora',W/2-dmax/2,mid+ch0*.3-fz,dmax,fz*2.4,false);}
+    const sa=String(m.as??'').trim(), sb=String(m.bs??'').trim(), dt=[m.d,m.h].map(x=>String(x||'').trim()).filter(Boolean).join(' · '), off=dt?ch0*.16:0;
+    if(dt){const dfs=Math.min(ch0*.2,big?46:30), dmax=cw+90; let fz=dfs; c.font=`600 ${fz}px ${FN}`; const lines=wrapTxt(c,dt,dmax); c.textAlign='center'; c.fillStyle='rgba(235,235,235,.9)'; lines.slice(0,2).forEach((l,k)=>c.fillText(l,W/2,mid+ch0*.36+k*fz*1.15)); hitBox(`${pid}-d`,'Fecha y hora',W/2-dmax/2,mid+ch0*.36-fz,dmax,fz*2.4,false);}
     c.textAlign='center'; c.fillStyle='#fff';
-    if(sa!==''||sb!==''){const fs=Math.min(ch0*.6,big?150:72); c.font=`700 ${fs}px ${FN}`; const tx=`${sa||'0'} - ${sb||'0'}`; c.fillText(tx,W/2,mid-off+fs*.34); const w=c.measureText(tx).width;
+    if(sa!==''||sb!==''){const fs=Math.min(ch0*.5,big?150:66); c.font=`700 ${fs}px ${FN}`; const tx=`${sa||'0'} - ${sb||'0'}`; c.fillText(tx,W/2,mid-off+fs*.34); const w=c.measureText(tx).width;
       hitBox(`${pid}-as`,'Goles del primero',W/2-w/2,mid-off-fs*.6,w/2,fs,false); hitBox(`${pid}-bs`,'Goles del segundo',W/2,mid-fs*.6,w/2,fs,false);}
     else {const fs=Math.min(ch0*.4,big?110:48); c.font=`italic 700 ${fs}px ${FN}`; c.fillStyle='rgba(226,226,226,.7)'; c.fillText('VS',W/2,mid-off+fs*.34); hitBox(`${pid}-as`,'Goles del primero',W/2-fs,mid-fs*.7,fs,fs*1.2,false); hitBox(`${pid}-bs`,'Goles del segundo',W/2,mid-fs*.7,fs,fs*1.2,false);}
   });
@@ -1160,7 +1161,7 @@ function drawBracket(c,W,y,bottom){
     list.forEach((m,i)=>{
       const by=y+44+i*slot+(slot-bh)/2; c.fillStyle='rgba(0,0,0,.45)'; rr(c,x,by,cw,bh,10); c.fill();
       c.strokeStyle='rgba(255,255,255,.12)'; c.lineWidth=2; c.beginPath(); c.moveTo(x+8,by+bh/2); c.lineTo(x+cw-8,by+bh/2); c.stroke();
-      const ws=winSide(m), lh=bh/2;
+      const ws=winSide(m,ph), lh=bh/2;
       [[m.a,m.ra,m.as,1,m.ca],[m.b,m.rb,m.bs,2,m.cb]].forEach(([name,rank,sc,sd,cr],k)=>{
         const my=by+lh*k+lh/2, csz=Math.min(lh*.7,38), img=slotCrest(m,sd===1?'a':'b',sd===1?'ca':'cb'), has=String(name||'').trim();
         if(img) drawBox(c,img,x+8,my-csz/2,csz,csz);
@@ -2469,7 +2470,7 @@ function buildReducidoUI(box){
   const NEXT={p1:'qf',qf:'sf',sf:'fin'}, seedN=r=>parseInt(String(r||'').replace(/\D/g,''),10)||99;
   const bN=document.createElement('button'); bN.type='button'; bN.className='ghost'; bN.textContent='Cargar ganadores en la siguiente instancia (opcional)';
   bN.onclick=()=>{ const ph=R.mode; if(!NEXT[ph]){msg.textContent='Esto sirve desde la 1.ª, 2.ª o 3.ª instancia.';return}
-    const win=R[ph].map(m=>{const sd=winSide(m); if(sd===1) return {n:m.a,r:m.ra}; if(sd===2) return {n:m.b,r:m.rb}; if(ph==='p1'&&isNum(m.as)&&isNum(m.bs)) return {n:m.a,r:m.ra}; return null}).filter(x=>x&&String(x.n).trim()).sort((x,y)=>seedN(x.r)-seedN(y.r)||String(x.r).localeCompare(String(y.r)));
+    const win=R[ph].map(m=>{const sd=winSide(m,ph); if(sd===1) return {n:m.a,r:m.ra}; if(sd===2) return {n:m.b,r:m.rb}; if(ph==='p1'&&isNum(m.as)&&isNum(m.bs)) return {n:m.a,r:m.ra}; return null}).filter(x=>x&&String(x.n).trim()).sort((x,y)=>seedN(x.r)-seedN(y.r)||String(x.r).localeCompare(String(y.r)));
     const pool=ph==='p1'?[...(String(R.f1loser||'').trim()?[{n:R.f1loser,r:'1º'}]:[]),...win]:win, nx=NEXT[ph];
     if(!win.length){msg.textContent='Primero cargá los resultados de esta fase (si hay empate en la primera instancia avanza el mejor ubicado).';return}
     const N=nx==='qf'?8:(nx==='sf'?4:2), P=pool.map(x=>x.n); while(P.length<N) P.push('');

@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 15/11 · 18:05</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 15/11 · 18:25</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -1252,28 +1252,37 @@ function buildOnceUI(box){
 /* ===== Ascenso: flyer para anunciar que un club ascendió (va sobre fotos del plantel, hinchada y DT) ===== */
 function defAsc(){ return {club:'Godoy Cruz',name:'',crest:true,tag:'¡HISTÓRICO!',l1:'VUELVE A',l2:'PRIMERA',sub:'Primer ascenso de la Primera Nacional 2026',dato:'',foot:'PRIMERA NACIONAL · 2026'}; }
 function drawAscenso(c,W,H,F){
-  const A=S.red.asc||(S.red.asc=defAsc()), acc=mainTint(), bottom=H-F.bottom+10; c.textBaseline='alphabetic'; c.textAlign='center';
-  E(c,'static',cc=>{ const g=cc.createLinearGradient(0,H*.3,0,H); g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(.55,'rgba(0,0,0,.62)'); g.addColorStop(1,'rgba(0,0,0,.9)'); cc.fillStyle=g; cc.fillRect(0,H*.3,W,H*.7); cc.save(); cc.beginPath(); cc.rect(0,H*.42,W,H*.58); cc.clip(); cc.fillStyle=acc; cc.globalAlpha=.13; const sw=W/9; for(let i=-2;i<12;i+=2){ cc.beginPath(); cc.moveTo(i*sw+H*.12,H*.42); cc.lineTo((i+1)*sw+H*.12,H*.42); cc.lineTo((i+1)*sw-H*.1,H); cc.lineTo(i*sw-H*.1,H); cc.fill(); } cc.restore(); cc.fillStyle=acc; cc.fillRect(0,H-14,W,14); });
+  const A=S.red.asc||(S.red.asc=defAsc()), acc=mainTint(), M=64, MW=W-2*M, q=(S.qNow||1), FH='"Archivo","Arial Black",sans-serif', IT='italic 800';
+  const hasFoot=!!String(A.foot||'').trim(), barH=hasFoot?Math.round(H*.056):0, bottom=H-barH-(hasFoot?34:F.bottom*.4+10);
+  c.textBaseline='alphabetic'; c.textAlign='left';
+  E(c,'static',cc=>{ const g=cc.createLinearGradient(0,H*.26,0,H); g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(.5,'rgba(0,0,0,.66)'); g.addColorStop(1,'rgba(0,0,0,.94)'); cc.fillStyle=g; cc.fillRect(0,H*.26,W,H*.74);
+    cc.save(); cc.beginPath(); cc.rect(0,H*.45,W,H*.55); cc.clip(); cc.fillStyle=acc; cc.globalAlpha=.16; const sw=W/7; for(let i=-1;i<9;i+=2){ cc.beginPath(); cc.moveTo(i*sw+H*.14,H*.45); cc.lineTo((i+1)*sw+H*.14,H*.45); cc.lineTo((i+1)*sw-H*.1,H); cc.lineTo(i*sw-H*.1,H); cc.fill(); } cc.restore(); });
   /* escudo */
-  const cs=Math.min(W*.34,H*.19)*((S.sz.ascC||100)/100), cy0=F.top+58*2+30;
-  if(A.crest!==false) E(c,'crest',cc=>{ const img=findCrest(A.club); if(img){ cc.save(); cc.shadowColor='rgba(0,0,0,.45)'; cc.shadowBlur=22*(S.qNow||1); cc.shadowOffsetY=6*(S.qNow||1); drawBox(cc,img,W/2-cs/2,cy0,cs,cs); cc.restore(); } else if(!S.exporting){ cc.strokeStyle='rgba(255,255,255,.4)'; cc.lineWidth=4; cc.setLineDash([12,10]); cc.beginPath(); cc.arc(W/2,cy0+cs/2,cs*.4,0,7); cc.stroke(); cc.setLineDash([]); }
-    hitBox('f-asClub','Escudo',W/2-cs/2,cy0,cs,cs,false,{ctrls:[{label:'Tamaño del escudo',o:S.sz,k:'ascC',min:50,max:180,step:5,unit:'%',def:100}]}); });
-  /* bloques de texto, apoyados abajo */
-  const MW=W-110, blocks=[], add=(key,txt,font,wt,start,min,col,opt)=>{ const t=String(txt||'').trim(); if(!t) return; const ft=fit(c,opt&&opt.up===false?t:t.toUpperCase(),font,wt,MW,opt&&opt.lines||1,start,min,key); blocks.push({key,ft,font,wt,col,gap:opt&&opt.gap||14,id:opt&&opt.id,label:opt&&opt.label,glow:opt&&opt.glow,ls:opt&&opt.ls}); };
-  add('ascTag',A.tag,FD,700,54,28,acc,{id:'f-asTag',label:'Etiqueta',gap:10,ls:6});
-  add('ascClub',String(A.name||'').trim()?A.name:A.club,FD,700,104,48,'#fff',{id:'f-asName',label:'Nombre del club',gap:6,lines:2});
-  add('ascL1',A.l1,FD,700,92,40,'#fff',{id:'f-asL1',label:'Titular (línea 1)',gap:0});
-  add('ascL2',A.l2,FD,700,230,90,acc,{id:'f-asL2',label:'Titular (línea 2)',glow:true,gap:20});
-  add('ascSub',A.sub,FN,600,46,24,'rgba(235,235,235,.95)',{id:'f-asSub',label:'Detalle',lines:2,gap:12,up:false});
-  add('ascDato',A.dato,FN,700,50,26,'#fff',{id:'f-asDato',label:'Dato',gap:12,up:false});
-  add('ascFoot',A.foot,FN,700,34,20,'rgba(226,226,226,.85)',{id:'f-asFoot',label:'Pie',gap:0,ls:5});
-  let tot=0; blocks.forEach(b=>{ b.h=b.ft.lines.length*b.ft.size*1.02; tot+=b.h+b.gap; });
-  let y=bottom-tot+((blocks[blocks.length-1]||{}).gap||0); const minY=cy0+(A.crest!==false?cs+16:0); if(y<minY) y=minY;
-  blocks.forEach(b=>{ const first=y+b.ft.size*.84; E(c,b.key,cc=>{ cc.textBaseline='alphabetic'; cc.textAlign='center'; cc.font=`${b.wt} ${b.ft.size}px ${b.font}`; cc.fillStyle=b.col; if(b.ls) bzLS(cc,b.ls);
-      if(b.key==='ascTag'){ const l0=b.ft.lines[0]||''; const tw=cc.measureText(l0).width+(b.ls||0)*l0.length+70, th=b.ft.size*1.5; cc.save(); cc.fillStyle=acc; cc.shadowColor='rgba(0,0,0,.4)'; cc.shadowBlur=16*(S.qNow||1); rrect(cc,W/2-tw/2,first-b.ft.size*1.11,tw,th,th/2); cc.fill(); cc.restore(); cc.fillStyle='#fff'; }
-      if(b.key==='ascFoot'){ const l0=b.ft.lines[0]||''; const tw=cc.measureText(l0).width+(b.ls||0)*l0.length, yy=first-b.ft.size*.32; cc.save(); cc.strokeStyle=acc; cc.lineWidth=4; cc.beginPath(); cc.moveTo(60,yy); cc.lineTo(W/2-tw/2-30,yy); cc.moveTo(W/2+tw/2+30,yy); cc.lineTo(W-60,yy); cc.stroke(); cc.restore(); }
-      b.ft.lines.forEach((l,k)=>{ const ty=first+k*b.ft.size*1.02; if(b.glow){ cc.save(); cc.fillStyle='#fff'; cc.shadowColor=acc; cc.shadowBlur=44*(S.qNow||1); cc.fillText(l,W/2,ty); cc.fillText(l,W/2,ty); cc.restore(); cc.save(); cc.strokeStyle=acc; cc.lineWidth=Math.max(3,b.ft.size*.025); cc.lineJoin='round'; cc.strokeText(l,W/2,ty); cc.restore(); } else if(0) glowText(cc,l,W/2+(b.ls?b.ls/2:0),ty,b.col,28); else { cc.save(); cc.shadowColor='rgba(0,0,0,.55)'; cc.shadowBlur=14*(S.qNow||1); cc.fillText(l,W/2+(b.ls?b.ls/2:0),ty); cc.restore(); } });
-      if(b.ls) bzLS(cc,0); hitLines(cc,b.id,b.label,b.ft.lines,W/2,first,b.ft.size,b.ft.size*1.02,'center',false,{ctrls:[SZ(b.key)]}); }); y+=b.h+b.gap; });
+  const cs=Math.min(W*.34,H*.19)*((S.sz.ascC||100)/100), cy0=F.top+58*2+22;
+  if(A.crest!==false) E(c,'crest',cc=>{ const img=findCrest(A.club); if(img){ cc.save(); cc.shadowColor='rgba(0,0,0,.5)'; cc.shadowBlur=26*q; cc.shadowOffsetY=8*q; drawBox(cc,img,M,cy0,cs,cs); cc.restore(); } else if(!S.exporting){ cc.strokeStyle='rgba(255,255,255,.4)'; cc.lineWidth=4; cc.setLineDash([12,10]); cc.beginPath(); cc.arc(M+cs/2,cy0+cs/2,cs*.4,0,7); cc.stroke(); cc.setLineDash([]); }
+    hitBox('f-asClub','Escudo',M,cy0,cs,cs,false,{ctrls:[{label:'Tamaño del escudo',o:S.sz,k:'ascC',min:50,max:180,step:5,unit:'%',def:100}]}); });
+  const blocks=[], add=(key,txt,font,wt,start,min,col,opt)=>{ opt=opt||{}; const t=String(txt||'').trim(); if(!t) return; const tt=opt.up===false?t:t.toUpperCase(); let ft=fit(c,tt,font,wt,opt.mw||MW,1,start,opt.lines>1?Math.round(start*.55):min,key); c.font=`${wt} ${ft.size}px ${font}`; if(opt.lines>1&&(ft.lines.length>1||ft.lines.some(l=>c.measureText(l).width>(opt.mw||MW)))) ft=fit(c,tt,font,wt,opt.mw||MW,opt.lines,start,min,key); blocks.push(Object.assign({key,ft,font,wt,col,gap:14},opt)); };
+  add('ascTag',A.tag,FH,IT,50,26,'#fff',{id:'f-asTag',label:'Etiqueta',gap:26,kind:'tag',mw:MW-90});
+  add('ascClub',String(A.name||'').trim()?A.name:A.club,FH,IT,150,56,'#fff',{id:'f-asName',label:'Nombre del club',gap:2,lines:2,kind:'club'});
+  add('ascL1',A.l1,FN,'700',84,36,'#fff',{id:'f-asL1',label:'Titular (línea 1)',gap:0,kind:'l1',ls:8,mw:MW*.62});
+  add('ascL2',A.l2,FH,IT,300,100,'#fff',{id:'f-asL2',label:'Titular (línea 2)',gap:26,kind:'l2'});
+  add('ascSub',A.sub,FN,'700',60,28,'rgba(245,245,245,.96)',{id:'f-asSub',label:'Detalle',lines:2,gap:14,up:false,kind:'bar',mw:MW-30});
+  add('ascDato',A.dato,FN,'700',60,28,'#fff',{id:'f-asDato',label:'Dato',gap:14,up:false,kind:'bar',mw:MW-30});
+  let tot=0; blocks.forEach(b=>{ b.h=b.ft.lines.length*b.ft.size*(b.kind==='l2'?.86:1.02); tot+=b.h+b.gap; });
+  let y=bottom-tot+((blocks[blocks.length-1]||{}).gap||0); const minY=cy0+(A.crest!==false?cs+18:0); if(y<minY) y=minY;
+  blocks.forEach(b=>{ const sz=b.ft.size, lh=sz*(b.kind==='l2'?.86:1.02), first=y+sz*.84, tx=b.kind==='bar'?M+30:b.kind==='tag'?M+sz*.55+26:M;
+    E(c,b.key,cc=>{ cc.textBaseline='alphabetic'; cc.textAlign='left'; cc.font=`${b.wt} ${sz}px ${b.font}`; cc.fillStyle=b.col; if(b.ls) bzLS(cc,b.ls); else if(b.kind==='tag') bzLS(cc,3);
+      if(b.kind==='tag'){ const l0=b.ft.lines[0]||'', tw=cc.measureText(l0).width+34*0+ sz*.55+52, th=sz*1.5, ty0=first-sz*1.1, sk=sz*.38; cc.save(); cc.fillStyle=acc; cc.shadowColor='rgba(0,0,0,.45)'; cc.shadowBlur=18*q; cc.beginPath(); cc.moveTo(M+sk,ty0); cc.lineTo(M+tw+sk,ty0); cc.lineTo(M+tw,ty0+th); cc.lineTo(M,ty0+th); cc.closePath(); cc.fill(); cc.restore(); cc.fillStyle='#fff'; }
+      if(b.kind==='bar'){ cc.save(); cc.fillStyle=acc; cc.fillRect(M,first-sz*.8,9,b.ft.lines.length*lh-sz*.05); cc.restore(); }
+      b.ft.lines.forEach((l,k)=>{ const ty=first+k*lh;
+        if(b.kind==='l2'){ const d=Math.max(5,sz*.032); cc.save(); cc.fillStyle=acc; for(let i=d;i>0;i-=1){ cc.fillText(l,M+i,ty+i); } cc.shadowColor='rgba(0,0,0,.55)'; cc.shadowBlur=24*q; cc.shadowOffsetY=8*q; cc.fillStyle=acc; cc.fillText(l,M+d,ty+d); cc.restore(); cc.fillStyle='#fff'; cc.fillText(l,M,ty); }
+        else { cc.save(); cc.shadowColor='rgba(0,0,0,.6)'; cc.shadowBlur=14*q; cc.fillStyle=b.col; cc.fillText(l,tx,ty); cc.restore(); }
+        if(b.kind==='l1'&&k===b.ft.lines.length-1){ const w1=cc.measureText(l).width+8; cc.save(); cc.fillStyle=acc; cc.fillRect(M+w1+26,ty-sz*.33,Math.max(0,W-M-(M+w1+26)),6); cc.restore(); } });
+      if(b.ls||b.kind==='tag') bzLS(cc,0); hitLines(cc,b.id,b.label,b.ft.lines,tx,first,sz,lh,'left',false,{ctrls:[SZ(b.key)]}); });
+    y+=b.h+b.gap; });
+  /* pie: barra de color */
+  const ft=String(A.foot||'').trim(); if(ft){ const fs=fit(c,ft.toUpperCase(),FN,'700',MW,1,Math.round(barH*.5),18,'ascFoot'); const fy=H-barH+barH/2+fs.size*.33;
+    E(c,'ascFoot',cc=>{ cc.textBaseline='alphabetic'; cc.textAlign='center'; cc.fillStyle=acc; cc.fillRect(0,H-barH,W,barH); cc.font=`700 ${fs.size}px ${FN}`; cc.fillStyle='#fff'; bzLS(cc,7); fs.lines.forEach((l,k)=>cc.fillText(l,W/2+3.5,fy+k*fs.size)); bzLS(cc,0); hitLines(cc,'f-asFoot','Pie',fs.lines,W/2,fy,fs.size,fs.size,'center',false,{ctrls:[SZ('ascFoot')]}); }); }
 }
 function buildAscUI(box){
   const R=S.red, A=R.asc||(R.asc=defAsc()), w=document.createElement('div'); w.style.cssText='display:flex;flex-direction:column;gap:12px'; box.appendChild(w);

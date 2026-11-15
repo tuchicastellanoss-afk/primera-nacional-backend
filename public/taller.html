@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 15/11 · 11:35</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 15/11 · 12:05</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -1960,6 +1960,16 @@ function makeCopyPN(kind){
   else if(t==='entranking'){ hook='🎟 '+nz(F.enrT); if(nz(F.enrS)) ctx.push(sent(F.enrS)+'.'); ctx.push(''); enrParse(F.enrRows).forEach((r,i)=>{ ctx.push((i+1)+'. '+r.club+(r.det?' ('+r.det+')':'')+' – '+fmtN(r.n)); addC(r.club); }); cta=pick(['¿Qué final recordás con más color? 👇','Guardá el posteo y compartilo con un hincha 📲']); }
   else if(t==='once'){ const O=S.red.once||{}, pl=(O.p||[]).filter(x=>x&&String(x.n||'').trim()); hook=pick(['⭐ El Once Ideal de la fecha','⭐ Este es el Once Ideal','⭐ Armamos el Once Ideal']); ctx.push((S.red.onS?sent(S.red.onS)+'. ':'')+'Formación '+(O.form||'4-4-2')+'.'); ctx.push(''); pl.forEach(x=>{ ctx.push('• '+String(x.n).trim()+(String(x.c||'').trim()?' ('+nm(x.c)+')':'')); if(String(x.c||'').trim()) addC(x.c); }); if(String(O.dt||'').trim()) ctx.push('DT: '+String(O.dt).trim()+(String(O.dtc||'').trim()?' ('+nm(O.dtc)+')':'')); cta=pick(['¿Qué cambiarías? Comentá 👇','¿Quién no puede faltar en tu once? 👇']); }
   else if(t==='reducido'&&S.red.mode==='tab'){ hook=pick(['📊 Así queda la tabla del Reducido','🔁 Se vuelve a armar la tabla del Reducido']); ctx.push(sent(S.red.tabS||'')+'.'); ctx.push(''); const rr=redTabSort(redTabParse(S.red.tabRows),S.red.tabAuto!==false); rr.forEach((r,i)=>{ ctx.push((i+1)+'. '+nm(r.club)+(r.pts!=null?' – '+r.pts+' pts':'')); addC(r.club); }); const pr=(S.red.tabStage==='sf'?[[0,3],[1,2]]:S.red.tabStage==='fin'?[[0,1]]:[[0,7],[1,6],[2,5],[3,4]]).filter(([i,j])=>i<rr.length&&j<rr.length); if(pr.length){ ctx.push(''); ctx.push('Los cruces:'); pr.forEach(([i,j])=>ctx.push('• '+nm(rr[i].club)+' vs '+nm(rr[j].club))); } cta=pick(['¿Quién llega mejor? Contanos 👇','¿Con qué cruce te quedás? 👇']); }
+  else if(t==='reducido'){ const R=S.red, md=R.mode||'p1', PH={p1:'la primera instancia',qf:'los cuartos de final',sf:'las semifinales',fin:'la final'}, phs=md==='all'?['p1','qf','sf','fin']:[md];
+    const line=(m,ph)=>{ const A=String(m.a||'').trim(), B=String(m.b||'').trim(); if(!A||!B) return null; addC(A); addC(B); const sa=String(m.as??'').trim(), sb=String(m.bs??'').trim(), dt=[m.d,m.h].map(x=>String(x||'').trim()).filter(Boolean).join(' · ');
+      if(sa!==''&&sb!==''){ const w=winSide(m,ph); return '• '+nm(A)+' '+sa+'-'+sb+' '+nm(B)+(w===1?' (pasa '+nm(A)+(sa===sb?' por mejor posición':'')+')':w===2?' (pasa '+nm(B)+')':''); }
+      return '• '+nm(A)+' vs '+nm(B)+(dt?' – '+dt:''); };
+    let any=false, played=false; const rows=[];
+    phs.forEach(ph=>{ const L=[]; if(ph==='p1'&&R.f1show!==false) (R.f1||[]).forEach(m=>{ const l=line(m,'f1'); if(l){ L.push(l.replace('• ','• Final por el 1.º ascenso: ')); if(String(m.as??'').trim()!=='') played=true; } }); (R[ph]||[]).map((m,ix)=>{ const dm=String(m.d||'').match(/(\d{1,2})\/(\d{1,2})/), tm=String(m.h||'').match(/(\d{1,2})[:.hH](\d{2})?/); return {m,ix,k:(dm?(+dm[2])*10000+(+dm[1])*100:99999999)+(tm?(+tm[1])+(+(tm[2]||0))/100:99)}; }).sort((x,y)=>x.k-y.k||x.ix-y.ix).map(o=>o.m).forEach(m=>{ const l=line(m,ph); if(l){ L.push(l); if(String(m.as??'').trim()!=='') played=true; } }); if(L.length){ any=true; if(md==='all') rows.push('',({p1:'Primera instancia',qf:'Cuartos',sf:'Semifinales',fin:'Final'})[ph]+':'); rows.push(...L); } });
+    const nm0=PH[md]||'el cuadro'; hook=played?pick(['🔥 Así viene el Reducido: '+nm0,'🏁 Resultados del Reducido: '+nm0]):pick(['🔁 Arranca el Reducido: '+nm0,'📅 Reducido: así son los cruces de '+nm0]);
+    if(any){ ctx.push(md==='all'?'El camino al segundo ascenso:':(played?'Resultados y partidos de '+nm0+':':'Los partidos de '+nm0+':')); ctx.push(''); rows.filter((x,i)=>!(x===''&&i===0)).forEach(x=>ctx.push(x)); }
+    else ctx.push('Reducido por el segundo ascenso.');
+    cta=pick(['¿Quién llega mejor? Contanos 👇','¿Quién pasa? Te leemos 👇','¿A quién le ves más chances? 👇']); }
   else if(t==='arbitros'){ hook=pick(['🟨 Estos son los árbitros designados','🟨 Designaciones: así se arbitra el reducido']); ctx.push(sent(S.red.arSub||'Reducido · Primera instancia')+'.'); cta=pick(['¿Qué opinás de las designaciones? 👇','¿Quién creés que va a tener el partido más caliente? 👇']); }
   else { hook='📊 '+((TEMPLATES[t]&&TEMPLATES[t].label)||'Primera Nacional')+' de la Primera Nacional'; cta='Seguinos para no perderte nada 📲'; }
   const base=['#PrimeraNacional','#AscensoArgentino','#FutbolArgentino'], tags=[...new Set([...clubs.map(tagify).filter(Boolean),...base,'#LigaProfesional'])].slice(0,a.id==='pn'?9:6), cc=ctx.filter((x,i,arr)=>x!==''||arr[i-1]!=='');

@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 15/11 · 18:25</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 15/11 · 17:55</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -1253,36 +1253,33 @@ function buildOnceUI(box){
 function defAsc(){ return {club:'Godoy Cruz',name:'',crest:true,tag:'¡HISTÓRICO!',l1:'VUELVE A',l2:'PRIMERA',sub:'Primer ascenso de la Primera Nacional 2026',dato:'',foot:'PRIMERA NACIONAL · 2026'}; }
 function drawAscenso(c,W,H,F){
   const A=S.red.asc||(S.red.asc=defAsc()), acc=mainTint(), M=64, MW=W-2*M, q=(S.qNow||1), FH='"Archivo","Arial Black",sans-serif', IT='italic 800';
-  const hasFoot=!!String(A.foot||'').trim(), barH=hasFoot?Math.round(H*.056):0, bottom=H-barH-(hasFoot?34:F.bottom*.4+10);
-  c.textBaseline='alphabetic'; c.textAlign='left';
-  E(c,'static',cc=>{ const g=cc.createLinearGradient(0,H*.26,0,H); g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(.5,'rgba(0,0,0,.66)'); g.addColorStop(1,'rgba(0,0,0,.94)'); cc.fillStyle=g; cc.fillRect(0,H*.26,W,H*.74);
-    cc.save(); cc.beginPath(); cc.rect(0,H*.45,W,H*.55); cc.clip(); cc.fillStyle=acc; cc.globalAlpha=.16; const sw=W/7; for(let i=-1;i<9;i+=2){ cc.beginPath(); cc.moveTo(i*sw+H*.14,H*.45); cc.lineTo((i+1)*sw+H*.14,H*.45); cc.lineTo((i+1)*sw-H*.1,H); cc.lineTo(i*sw-H*.1,H); cc.fill(); } cc.restore(); });
-  /* escudo */
-  const cs=Math.min(W*.34,H*.19)*((S.sz.ascC||100)/100), cy0=F.top+58*2+22;
-  if(A.crest!==false) E(c,'crest',cc=>{ const img=findCrest(A.club); if(img){ cc.save(); cc.shadowColor='rgba(0,0,0,.5)'; cc.shadowBlur=26*q; cc.shadowOffsetY=8*q; drawBox(cc,img,M,cy0,cs,cs); cc.restore(); } else if(!S.exporting){ cc.strokeStyle='rgba(255,255,255,.4)'; cc.lineWidth=4; cc.setLineDash([12,10]); cc.beginPath(); cc.arc(M+cs/2,cy0+cs/2,cs*.4,0,7); cc.stroke(); cc.setLineDash([]); }
-    hitBox('f-asClub','Escudo',M,cy0,cs,cs,false,{ctrls:[{label:'Tamaño del escudo',o:S.sz,k:'ascC',min:50,max:180,step:5,unit:'%',def:100}]}); });
-  const blocks=[], add=(key,txt,font,wt,start,min,col,opt)=>{ opt=opt||{}; const t=String(txt||'').trim(); if(!t) return; const tt=opt.up===false?t:t.toUpperCase(); let ft=fit(c,tt,font,wt,opt.mw||MW,1,start,opt.lines>1?Math.round(start*.55):min,key); c.font=`${wt} ${ft.size}px ${font}`; if(opt.lines>1&&(ft.lines.length>1||ft.lines.some(l=>c.measureText(l).width>(opt.mw||MW)))) ft=fit(c,tt,font,wt,opt.mw||MW,opt.lines,start,min,key); blocks.push(Object.assign({key,ft,font,wt,col,gap:14},opt)); };
-  add('ascTag',A.tag,FH,IT,50,26,'#fff',{id:'f-asTag',label:'Etiqueta',gap:26,kind:'tag',mw:MW-90});
-  add('ascClub',String(A.name||'').trim()?A.name:A.club,FH,IT,150,56,'#fff',{id:'f-asName',label:'Nombre del club',gap:2,lines:2,kind:'club'});
-  add('ascL1',A.l1,FN,'700',84,36,'#fff',{id:'f-asL1',label:'Titular (línea 1)',gap:0,kind:'l1',ls:8,mw:MW*.62});
-  add('ascL2',A.l2,FH,IT,300,100,'#fff',{id:'f-asL2',label:'Titular (línea 2)',gap:26,kind:'l2'});
-  add('ascSub',A.sub,FN,'700',60,28,'rgba(245,245,245,.96)',{id:'f-asSub',label:'Detalle',lines:2,gap:14,up:false,kind:'bar',mw:MW-30});
-  add('ascDato',A.dato,FN,'700',60,28,'#fff',{id:'f-asDato',label:'Dato',gap:14,up:false,kind:'bar',mw:MW-30});
-  let tot=0; blocks.forEach(b=>{ b.h=b.ft.lines.length*b.ft.size*(b.kind==='l2'?.86:1.02); tot+=b.h+b.gap; });
-  let y=bottom-tot+((blocks[blocks.length-1]||{}).gap||0); const minY=cy0+(A.crest!==false?cs+18:0); if(y<minY) y=minY;
-  blocks.forEach(b=>{ const sz=b.ft.size, lh=sz*(b.kind==='l2'?.86:1.02), first=y+sz*.84, tx=b.kind==='bar'?M+30:b.kind==='tag'?M+sz*.55+26:M;
-    E(c,b.key,cc=>{ cc.textBaseline='alphabetic'; cc.textAlign='left'; cc.font=`${b.wt} ${sz}px ${b.font}`; cc.fillStyle=b.col; if(b.ls) bzLS(cc,b.ls); else if(b.kind==='tag') bzLS(cc,3);
-      if(b.kind==='tag'){ const l0=b.ft.lines[0]||'', tw=cc.measureText(l0).width+34*0+ sz*.55+52, th=sz*1.5, ty0=first-sz*1.1, sk=sz*.38; cc.save(); cc.fillStyle=acc; cc.shadowColor='rgba(0,0,0,.45)'; cc.shadowBlur=18*q; cc.beginPath(); cc.moveTo(M+sk,ty0); cc.lineTo(M+tw+sk,ty0); cc.lineTo(M+tw,ty0+th); cc.lineTo(M,ty0+th); cc.closePath(); cc.fill(); cc.restore(); cc.fillStyle='#fff'; }
-      if(b.kind==='bar'){ cc.save(); cc.fillStyle=acc; cc.fillRect(M,first-sz*.8,9,b.ft.lines.length*lh-sz*.05); cc.restore(); }
-      b.ft.lines.forEach((l,k)=>{ const ty=first+k*lh;
-        if(b.kind==='l2'){ const d=Math.max(5,sz*.032); cc.save(); cc.fillStyle=acc; for(let i=d;i>0;i-=1){ cc.fillText(l,M+i,ty+i); } cc.shadowColor='rgba(0,0,0,.55)'; cc.shadowBlur=24*q; cc.shadowOffsetY=8*q; cc.fillStyle=acc; cc.fillText(l,M+d,ty+d); cc.restore(); cc.fillStyle='#fff'; cc.fillText(l,M,ty); }
-        else { cc.save(); cc.shadowColor='rgba(0,0,0,.6)'; cc.shadowBlur=14*q; cc.fillStyle=b.col; cc.fillText(l,tx,ty); cc.restore(); }
-        if(b.kind==='l1'&&k===b.ft.lines.length-1){ const w1=cc.measureText(l).width+8; cc.save(); cc.fillStyle=acc; cc.fillRect(M+w1+26,ty-sz*.33,Math.max(0,W-M-(M+w1+26)),6); cc.restore(); } });
-      if(b.ls||b.kind==='tag') bzLS(cc,0); hitLines(cc,b.id,b.label,b.ft.lines,tx,first,sz,lh,'left',false,{ctrls:[SZ(b.key)]}); });
-    y+=b.h+b.gap; });
-  /* pie: barra de color */
-  const ft=String(A.foot||'').trim(); if(ft){ const fs=fit(c,ft.toUpperCase(),FN,'700',MW,1,Math.round(barH*.5),18,'ascFoot'); const fy=H-barH+barH/2+fs.size*.33;
-    E(c,'ascFoot',cc=>{ cc.textBaseline='alphabetic'; cc.textAlign='center'; cc.fillStyle=acc; cc.fillRect(0,H-barH,W,barH); cc.font=`700 ${fs.size}px ${FN}`; cc.fillStyle='#fff'; bzLS(cc,7); fs.lines.forEach((l,k)=>cc.fillText(l,W/2+3.5,fy+k*fs.size)); bzLS(cc,0); hitLines(cc,'f-asFoot','Pie',fs.lines,W/2,fy,fs.size,fs.size,'center',false,{ctrls:[SZ('ascFoot')]}); }); }
+  const bottom=H-(F.bottom*.4+18), top0=F.top+58*2+20;
+  c.textBaseline='alphabetic'; c.textAlign='center';
+  const mk=(key,txt,font,wt,start,min,kind,id,label,o)=>{ o=o||{}; const t=String(txt||'').trim(); if(!t) return null; const ls={head:3,rules:6,small:8,club:0,banner:2}[kind]||0; const tt=o.up===false?t:t.toUpperCase();
+    const ft=fit(c,tt,font,wt,MW-(kind==='banner'?90:0)-ls*Math.min(tt.length,22),o.lines||1,start,min,key); const sz=ft.size, lh=sz*(kind==='club'?.98:1.02), n=ft.lines.length; let h,fo;
+    if(kind==='rules'){ h=n*lh+sz*1.0; fo=sz*.5+sz*.84; } else if(kind==='banner'){ h=n*lh+sz*.5; fo=sz*.25+sz*.84; } else { h=n*lh; fo=sz*.84; }
+    return {key,ft,font,wt,kind,id,label,ls,sz,lh,h,fo,gap:o.gap==null?14:o.gap}; };
+  const top=[mk('ascTag',A.tag,FH,IT,104,50,'head','f-asTag','Etiqueta',{gap:12,lines:1}), mk('ascSub',A.sub,FN,'700',36,20,'rules','f-asSub','Detalle',{gap:0,lines:2,up:true})].filter(Boolean);
+  const bot=[mk('ascL1',A.l1,FN,'700',46,26,'small','f-asL1','Titular (línea 1)',{gap:8}), mk('ascClub',String(A.name||'').trim()?A.name:A.club,FH,IT,124,56,'club','f-asName','Nombre del club',{gap:18}), mk('ascL2',A.l2,FH,IT,118,56,'banner','f-asL2','Titular (línea 2)',{gap:22}), mk('ascDato',A.dato,FN,'700',36,20,'rules','f-asDato','Dato',{gap:6,up:true}), mk('ascFoot',A.foot,FN,'700',28,16,'small','f-asFoot','Pie',{gap:0})].filter(Boolean);
+  const sum=a=>a.reduce((t,b)=>t+b.h+b.gap,0); const topEnd=top0+sum(top); let by=bottom-sum(bot)+((bot[bot.length-1]||{}).gap||0); if(by<topEnd+40) by=topEnd+40;
+  /* fondo: oscurece arriba y abajo, deja ver las fotos al medio */
+  E(c,'static',cc=>{ let g=cc.createLinearGradient(0,0,0,H*.36); g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(.45,'rgba(0,0,0,.5)'); g.addColorStop(.75,'rgba(0,0,0,.55)'); g.addColorStop(1,'rgba(0,0,0,0)'); cc.fillStyle=g; cc.fillRect(0,0,W,H*.36);
+    const y1=Math.max(H*.3,by-H*.12); g=cc.createLinearGradient(0,y1,0,H); g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(.35,'rgba(0,0,0,.78)'); g.addColorStop(1,'rgba(0,0,0,.95)'); cc.fillStyle=g; cc.fillRect(0,y1,W,H-y1); });
+  /* escudo grande entre los dos bloques */
+  const gap=by-topEnd, cs=Math.min(W*.4,gap*.9)*((S.sz.ascC||100)/100), cy=topEnd+(gap-cs)/2;
+  if(A.crest!==false) E(c,'crest',cc=>{ const img=findCrest(A.club); if(img){ cc.save(); cc.shadowColor='rgba(0,0,0,.55)'; cc.shadowBlur=28*q; cc.shadowOffsetY=8*q; drawBox(cc,img,W/2-cs/2,cy,cs,cs); cc.restore(); } else if(!S.exporting){ cc.strokeStyle='rgba(255,255,255,.4)'; cc.lineWidth=4; cc.setLineDash([12,10]); cc.beginPath(); cc.arc(W/2,cy+cs/2,cs*.4,0,7); cc.stroke(); cc.setLineDash([]); }
+    hitBox('f-asClub','Escudo',W/2-cs/2,cy,cs,cs,false,{ctrls:[{label:'Tamaño del escudo',o:S.sz,k:'ascC',min:50,max:180,step:5,unit:'%',def:100}]}); });
+  const draw=(b,y)=>{ const first=y+b.fo, cx=W/2+b.ls/2;
+    E(c,b.key,cc=>{ cc.textBaseline='alphabetic'; cc.textAlign='center'; cc.font=`${b.wt} ${b.sz}px ${b.font}`; if(b.ls) bzLS(cc,b.ls);
+      if(b.kind==='banner'){ const bw=MW, by0=y; cc.save(); cc.fillStyle=acc; cc.shadowColor='rgba(0,0,0,.45)'; cc.shadowBlur=20*q; cc.shadowOffsetY=6*q; cc.fillRect(M,by0,bw,b.h); cc.restore(); }
+      if(b.kind==='rules'){ cc.save(); cc.fillStyle=acc; cc.fillRect(M,y+b.sz*.12,MW,4); cc.fillRect(M,y+b.h-b.sz*.12-4,MW,4); cc.restore(); }
+      b.ft.lines.forEach((l,k)=>{ const ty=first+k*b.lh; cc.save();
+        if(b.kind==='head'){ const gr=cc.createLinearGradient(0,ty-b.sz*.8,0,ty); gr.addColorStop(0,'#ffffff'); gr.addColorStop(1,'#aeb6bf'); cc.shadowColor='rgba(0,0,0,.6)'; cc.shadowBlur=22*q; cc.shadowOffsetY=6*q; cc.fillStyle=gr; }
+        else { cc.shadowColor='rgba(0,0,0,.55)'; cc.shadowBlur=12*q; cc.fillStyle='#fff'; }
+        cc.fillText(l,cx,ty); cc.restore(); });
+      if(b.ls) bzLS(cc,0); hitLines(cc,b.id,b.label,b.ft.lines,W/2,first,b.sz,b.lh,'center',false,{ctrls:[SZ(b.key)]}); }); };
+  let y=top0; top.forEach(b=>{ draw(b,y); y+=b.h+b.gap; });
+  y=by; bot.forEach(b=>{ draw(b,y); y+=b.h+b.gap; });
 }
 function buildAscUI(box){
   const R=S.red, A=R.asc||(R.asc=defAsc()), w=document.createElement('div'); w.style.cssText='display:flex;flex-direction:column;gap:12px'; box.appendChild(w);

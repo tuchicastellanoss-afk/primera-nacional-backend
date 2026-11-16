@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 15/11 · 23:20</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 15/11 · 23:45</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -327,8 +327,8 @@ const TEMPLATES = {
     {k:'czTag',l:'Etiqueta de arriba',t:'text'},
     {k:'czA',l:'Equipo 1 (escudo)',t:'crest'},{k:'czAn',l:'Nombre a mostrar del equipo 1 (vacío = el del escudo)',t:'text'},{k:'czAp',l:'Posición / dato equipo 1 (ej. 1º)',t:'text'},
     {k:'czB',l:'Equipo 2 (escudo)',t:'crest'},{k:'czBn',l:'Nombre a mostrar del equipo 2 (vacío = el del escudo)',t:'text'},{k:'czBp',l:'Posición / dato equipo 2 (ej. 8º)',t:'text'},
-    {k:'czL1',l:'Partido 1: título (ej. IDA)',t:'text'},{k:'czW1',l:'Partido 1: día y hora',t:'text'},{k:'czA1',l:'Partido 1: goles equipo 1',t:'num'},{k:'czB1',l:'Partido 1: goles equipo 2',t:'num'},
-    {k:'czL2',l:'Partido 2: título (ej. VUELTA)',t:'text'},{k:'czW2',l:'Partido 2: día y hora',t:'text'},{k:'czA2',l:'Partido 2: goles equipo 1',t:'num'},{k:'czB2',l:'Partido 2: goles equipo 2',t:'num'},
+    {k:'czL1',l:'Partido 1: título (ej. IDA)',t:'text'},{k:'czW1',l:'Partido 1: día y hora',t:'text'},{k:'czV1l',l:'Partido 1: equipo de la izquierda (local)',t:'text'},{k:'czV1r',l:'Partido 1: equipo de la derecha (visitante)',t:'text'},{k:'czA1',l:'Partido 1: goles de la izquierda',t:'num'},{k:'czB1',l:'Partido 1: goles de la derecha',t:'num'},
+    {k:'czL2',l:'Partido 2: título (ej. VUELTA)',t:'text'},{k:'czW2',l:'Partido 2: día y hora',t:'text'},{k:'czV2l',l:'Partido 2: equipo de la izquierda (local)',t:'text'},{k:'czV2r',l:'Partido 2: equipo de la derecha (visitante)',t:'text'},{k:'czA2',l:'Partido 2: goles de la izquierda',t:'num'},{k:'czB2',l:'Partido 2: goles de la derecha',t:'num'},
     {k:'czBan',l:'Cartel destacado (ej. PASA TRISTÁN · GLOBAL 3-1)',t:'text'},
     {k:'czWhere',l:'Estadio / ciudad',t:'text'},{k:'czTv',l:'Transmite',t:'text'}]},
   entradas:{label:'Entradas',main:'enA',fields:[
@@ -390,7 +390,7 @@ const S = {
     q:'¿Quién es más grande?', a:'', b:'', cta:'Respondé en los comentarios', spon:'',
     tTitle:'Así va la tabla', tSub:'Zona A · Fecha 31', startPos:'1',
     vsTag:'REDUCIDO · PRIMERA INSTANCIA', vsA:'Ferro', vsAn:'', vsB:'Gimnasia y Tiro', vsBn:'', vsSa:'', vsSb:'', vsWhen:'Domingo 15/11 · 20:00', vsWhere:'', vsTv:'',
-    czTag:'REDUCIDO · CUARTOS DE FINAL', czA:'Tristán Suárez', czAn:'', czAp:'1º', czB:'Gimnasia y Tiro', czBn:'', czBp:'8º', czL1:'IDA', czW1:'Sábado 21/11', czA1:'', czB1:'', czL2:'VUELTA', czW2:'Sábado 28/11', czA2:'', czB2:'', czBan:'', czWhere:'', czTv:'',
+    czTag:'REDUCIDO · CUARTOS DE FINAL', czA:'Tristán Suárez', czAn:'', czAp:'1º', czB:'Gimnasia y Tiro', czBn:'', czBp:'8º', czL1:'IDA', czW1:'Sábado 21/11', czV1l:'Gimnasia y Tiro', czV1r:'Tristán Suárez', czA1:'', czB1:'', czL2:'VUELTA', czW2:'Sábado 28/11', czV2l:'Tristán Suárez', czV2r:'Gimnasia y Tiro', czA2:'', czB2:'', czBan:'', czWhere:'', czTv:'',
     enrT:'Las finales con más entradas vendidas', enrS:'Final por el primer ascenso · Primera Nacional', enrRows:'Godoy Cruz, Final 2026, 14500\nSan Martín (T), Final 2024, 19000', enrNote:'',
     enTag:'ENTRADAS VENDIDAS', enA:'Godoy Cruz', enAn:'', enB:'Tristán Suárez', enBn:'', enNa:'14500', enNb:'1080', enUnit:'entradas', enWhen:'Sábado 14/11 · 17:00', enWhere:'',
     rows:'Club A, 31, 60\nClub B, 31, 58\nClub C, 31, 55\nClub D, 31, 54'
@@ -855,10 +855,36 @@ function drawConsigna(c,W,H,F){
   const last=crestTop-70, first=last-(hf.lines.length-1)*lh;
   c.font=`700 ${hf.size}px ${FD}`; hf.lines.forEach((l,i)=>glowText(c,l,W/2,first+i*lh,'#fff',22)); hitLines(c,'f-q','Consigna',hf.lines,W/2,first,hf.size,lh,'center',true,{ctrls:[SZ('q')]});
 }
+
+const CZ_TAG={p1:'REDUCIDO · PRIMERA INSTANCIA',qf:'REDUCIDO · CUARTOS DE FINAL',sf:'REDUCIDO · SEMIFINALES',fin:'REDUCIDO · FINAL'};
+function czList(){ const R=S.red, out=[]; ['p1','qf','sf','fin'].forEach(ph=>(R[ph]||[]).forEach((m,ix)=>{ if(String(m.a||'').trim()&&String(m.b||'').trim()) out.push({ph,ix,m}); })); return out; }
+function czLoad(o){ const F=S.f, m=o.m, ph=o.ph, A=String(m.a||'').trim(), B=String(m.b||'').trim(), two=ph!=='p1', d=String(m.d||'').trim(), h=String(m.h||'').trim(); const pos=(r,p)=>[String(r||'').trim(),String(p||'').trim()?String(p).trim()+' PTS':''].filter(Boolean).join(' · ');
+  Object.assign(F,{czTag:CZ_TAG[ph]||'REDUCIDO',czA:A,czAn:'',czAp:pos(m.ra,m.pa),czB:B,czBn:'',czBp:pos(m.rb,m.pb),czA1:'',czB1:'',czA2:'',czB2:'',czBan:'',czWhere:F.czWhere||'',czTv:F.czTv||''});
+  if(two){ const mm=d.match(/ida\s*:?\s*([^·]+?)\s*·\s*vuelta\s*:?\s*(.+)$/i), d1=mm?mm[1].trim():d, d2=mm?mm[2].trim():''; Object.assign(F,{czL1:'IDA',czW1:d1,czV1l:nm(B),czV1r:nm(A),czL2:'VUELTA',czW2:d2,czV2l:nm(A),czV2r:nm(B)}); }
+  else { Object.assign(F,{czL1:'PARTIDO ÚNICO',czW1:[d,h].filter(Boolean).join(' · '),czV1l:nm(A),czV1r:nm(B),czL2:'',czW2:'',czV2l:'',czV2r:''}); const sa=String(m.as??'').trim(), sb=String(m.bs??'').trim(); if(sa!==''&&sb!==''){ F.czA1=sa; F.czB1=sb; const w=winSide(m,'p1'); if(w) F.czBan='PASA '+nm(w===1?A:B).toUpperCase()+(sa===sb?' · POR MEJOR UBICACIÓN':''); } }
+  S.red.czIdx=czList().findIndex(x=>x.ph===ph&&x.ix===o.ix); }
+function czEnsure(){ const L=czList(); if(!L.length||S.red.czInit) return; S.red.czInit=true; const i=Math.max(0,L.findIndex(x=>x.ph==='qf')); czLoad(L[i]); }
+async function czExportAll(){ const msg=$('#dlmsg'), L=czList(); if(!L.length){ msg.textContent='No hay partidos cargados en el Reducido.'; return; } msg.textContent='Preparando los cruces…'; const keep=JSON.stringify(S.f), prevIdx=S.red.czIdx, d=new Date(), ymd=`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`, files=[];
+  S.q=qFor(FORMATS[S.format].w,FORMATS[S.format].h); S.exporting=true;
+  for(let i=0;i<L.length;i++){ czLoad(L[i]); draw(); const blob=await new Promise(r=>cv.toBlob(r,'image/png')); if(blob) files.push(new File([blob],`${String(i+1).padStart(2,'0')}-${L[i].ph}-${norm(L[i].m.a)}-vs-${norm(L[i].m.b)}-${S.format}-${ymd}.png`,{type:'image/png'})); }
+  S.exporting=false; Object.assign(S.f,JSON.parse(keep)); S.red.czIdx=prevIdx; render();
+  const save=(blob,name)=>{const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove()};
+  const touch=window.matchMedia&&matchMedia('(pointer:coarse)').matches; if(touch&&navigator.canShare&&navigator.canShare({files})){ try{ await navigator.share({files}); msg.textContent=`Listo. Elegí "Guardar ${files.length} imágenes" para que queden en la galería.`; return; }catch(err){ if(err&&err.name==='AbortError'){ msg.textContent='Cancelaste.'; return; } } }
+  if(window.JSZip){ const z=new window.JSZip(); files.forEach(f=>z.file(f.name,f)); save(await z.generateAsync({type:'blob'}),`cruces-reducido-${ymd}.zip`); msg.textContent=`Descargué un ZIP con ${files.length} cruces.`; } else { for(const f of files){ save(f,f.name); await new Promise(r=>setTimeout(r,250)); } msg.textContent=`Descargué ${files.length} imágenes.`; } }
+function czLoadBox(){ const box=document.createElement('div'); box.className='sec'; const L=czList(); const h=document.createElement('h2'); h.textContent='Partidos del Reducido'; box.appendChild(h);
+  if(!L.length){ const p=document.createElement('p'); p.className='hint'; p.textContent='Todavía no hay cruces cargados en la solapa Reducido. Cargalos ahí y volvé.'; box.appendChild(p); return box; }
+  const sel=document.createElement('select'); sel.style.width='100%'; L.forEach((o,i)=>{ const op=document.createElement('option'); op.value=i; op.textContent=({p1:'1ª instancia',qf:'Cuartos',sf:'Semis',fin:'Final'})[o.ph]+' · '+nm(o.m.a)+' vs '+nm(o.m.b); sel.appendChild(op); }); sel.value=Math.max(0,S.red.czIdx==null?0:S.red.czIdx);
+  const go=i=>{ i=(i+L.length)%L.length; czLoad(L[i]); persist(); buildFields(); render(); };
+  sel.onchange=()=>go(+sel.value);
+  const row=document.createElement('div'); row.className='row'; row.style.justifyContent='flex-start';
+  const pv=document.createElement('button'); pv.type='button'; pv.className='ghost'; pv.textContent='← Anterior'; pv.onclick=()=>go((S.red.czIdx||0)-1);
+  const nx=document.createElement('button'); nx.type='button'; nx.className='ghost'; nx.textContent='Siguiente →'; nx.onclick=()=>go((S.red.czIdx||0)+1);
+  const all=document.createElement('button'); all.type='button'; all.className='primary'; all.textContent='Descargar todos ('+L.length+')'; all.onclick=czExportAll;
+  row.append(pv,nx,all); const p=document.createElement('p'); p.className='hint'; p.textContent='Carga el cruce elegido con sus escudos, posiciones y fechas del Reducido. En ida y vuelta, el mejor ubicado juega de local la vuelta. Todo se puede editar abajo (por ejemplo intercambiar quién es local).'; box.append(sel,row,p); return box; }
 function drawCruce(c,W,H,F){
   const f=S.f, acc=mainTint(), lt=(()=>{ const [r,g,b]=hexRgb(acc), m=.62; return `rgb(${Math.round(r+(255-r)*m)},${Math.round(g+(255-g)*m)},${Math.round(b+(255-b)*m)})`; })(), M=64, MW=W-2*M, q=(S.qNow||1), gs=k=>String(f[k]==null?'':f[k]).trim();
   c.textAlign='center'; c.textBaseline='alphabetic';
-  const txt=(key,t,font,wt,start,min,col,y,o)=>{ o=o||{}; t=String(t||'').trim(); if(!t) return 0; const ls=o.ls||0, x=(o.x==null?W/2:o.x); const ft=fit(c,o.up===false?t:t.toUpperCase(),font,wt,(o.mw||MW)-ls*Math.min(t.length,20),o.lines||1,start,min,key); const lh=ft.size*(o.lh||1.04), first=y+ft.size*.84;
+  const txt=(key,t,font,wt,start,min,col,y,o)=>{ o=o||{}; t=String(t||'').trim(); if(!t) return 0; const ls=o.ls||0, x=(o.x==null?W/2:o.x); const ft=fit(c,o.up===false?t:t.toUpperCase(),font,wt,(o.mw||MW)-ls*Math.min(t.length,20),o.lines||1,start,min,key); const lh=ft.size*(o.lh||1.04), first=(o.mid!=null?o.mid-ft.lines.length*lh/2:y)+ft.size*.84;
     E(c,key,cc=>{ cc.textAlign='center'; cc.textBaseline='alphabetic'; cc.font=`${wt} ${ft.size}px ${font}`; cc.fillStyle=col; if(ls) bzLS(cc,ls); cc.save(); cc.shadowColor='rgba(0,0,0,.55)'; cc.shadowBlur=12*q; ft.lines.forEach((l,k)=>cc.fillText(l,x+ls/2,first+k*lh)); cc.restore(); if(ls) bzLS(cc,0); hitLines(cc,'f-'+key,o.label||'Texto',ft.lines,x,first,ft.size,lh,'center',false,{ctrls:[SZ(key)]}); });
     return ft.lines.length*lh; };
   /* etiqueta de arriba */
@@ -871,12 +897,14 @@ function drawCruce(c,W,H,F){
   /* VS o global al centro */
   E(c,'czVs',cc=>{ cc.textAlign='center'; cc.save(); cc.shadowColor='rgba(0,0,0,.5)'; cc.shadowBlur=14*q; cc.fillStyle='#fff'; cc.font=`italic 800 ${Math.min(cs*.46,130)}px "Archivo","Arial Black",sans-serif`; cc.fillText('VS',W/2,cy+cs*.15); cc.restore(); });
   /* ida y vuelta */
-  const ch=Math.round(H*.085); let ly=Math.max(nb+30,H*.5); const legs=[['czL1','czW1','czA1','czB1'],['czL2','czW2','czA2','czB2']].filter(L=>gs(L[0])||gs(L[1])||gs(L[2])||gs(L[3]));
-  legs.forEach(L=>{ const [kl,kw,ka,kb]=L; const sa=gs(ka), sb=gs(kb), has=sa!==''||sb!==''; const y0=ly;
+  const ch=Math.round(H*.085); let ly=Math.max(nb+30,H*.5); const legs=[['czL1','czW1','czA1','czB1','czV1l','czV1r'],['czL2','czW2','czA2','czB2','czV2l','czV2r']].filter(L=>gs(L[0])||gs(L[1])||gs(L[2])||gs(L[3]));
+  legs.forEach(L=>{ const [kl,kw,ka,kb,kvl,kvr]=L; const sa=gs(ka), sb=gs(kb), has=sa!==''||sb!==''; const y0=ly;
     E(c,'czCard_'+kl,cc=>{ cc.save(); cc.fillStyle='rgba(8,14,24,.62)'; rrect(cc,M,y0,MW,ch,18); cc.fill(); cc.fillStyle=lt; cc.fillRect(M,y0+14,7,ch-28); cc.restore(); });
     txt(kl,gs(kl),FN,'700',Math.round(ch*.2),14,lt,y0+ch*(has?.06:.14),{x:W/2,ls:6,mw:MW*.4,label:'Instancia'});
     if(has) E(c,'czSc_'+kl,cc=>{ cc.textAlign='center'; cc.save(); cc.shadowColor='rgba(0,0,0,.5)'; cc.shadowBlur=10*q; cc.fillStyle='#fff'; const fs=Math.round(ch*.36); cc.font=`800 ${fs}px "Archivo","Arial Black",sans-serif`; cc.fillText(`${sa||'0'}  -  ${sb||'0'}`,W/2,y0+ch*.66); cc.restore(); hitBox('f-'+ka,'Resultado',W/2-MW*.2,y0+ch*.28,MW*.4,ch*.42,false,{}); });
     txt(kw,gs(kw),FN,'700',Math.round(ch*.19),12,'rgba(235,235,235,.95)',y0+ch*(has?.74:.5),{x:W/2,ls:2,mw:MW*.8,label:'Día y hora'});
+    txt(kvl,gs(kvl),FN,'700',Math.round(ch*.3),16,'#fff',0,{x:M+MW*.2,mw:MW*.3,lines:2,mid:y0+ch*.52,label:'Equipo local',lh:1});
+    txt(kvr,gs(kvr),FN,'700',Math.round(ch*.3),16,'#fff',0,{x:M+MW*.8,mw:MW*.3,lines:2,mid:y0+ch*.52,label:'Equipo visitante',lh:1});
     ly+=ch+14; });
   /* cartel destacado */
   const bt=gs('czBan'); if(bt){ const ft=fit(c,bt.toUpperCase(),'"Archivo","Arial Black",sans-serif','italic 800',MW-70,1,Math.round(ch*.5),22,'czBan'), bh=ft.size*1.5; E(c,'czBan',cc=>{ cc.textAlign='center'; cc.save(); cc.fillStyle=acc; cc.shadowColor='rgba(0,0,0,.45)'; cc.shadowBlur=18*q; cc.shadowOffsetY=6*q; cc.fillRect(M,ly+4,MW,bh); cc.restore(); cc.font=`italic 800 ${ft.size}px "Archivo","Arial Black",sans-serif`; cc.fillStyle='#fff'; cc.fillText(ft.lines[0],W/2,ly+4+bh/2+ft.size*.36); hitLines(cc,'f-czBan','Cartel',ft.lines,W/2,ly+4+bh/2+ft.size*.36,ft.size,ft.size,'center',false,{ctrls:[SZ('czBan')]}); }); ly+=bh+22; }
@@ -2035,7 +2063,7 @@ function makeCopyPN(kind){
   if(t==='noticia'){ const H=nz(F.headline); hook=pick(['🚨 '+H,'📰 ÚLTIMO MOMENTO | '+H,'‼️ '+H]); if(nz(F.sub)) ctx.push(sent(F.sub)+'.'); addC(F.crest); addC(F.crest2);
     cta=pick(['¿Qué te parece? Te leemos en los comentarios 👇','Contanos qué opinás 👇 y compartilo con un hincha del club','Seguinos para enterarte de todo lo que pasa en el ascenso 📲']); }
   else if(t==='consigna'){ const q=nz(F.q); hook=pick(['❓ '+q,'🗳 VOTÁ: '+q,'🔥 '+q]); ctx=['🅰️ '+nz(F.a),'🅱️ '+nz(F.b)]; addC(F.a); addC(F.b); cta=nz(F.cta)||pick(['Comentá A o B 👇 ¿Con cuál te quedás?','Votá en los comentarios y etiquetá a un amigo que piense distinto 😏']); }
-  else if(t==='cruce'){ const A=nz(F.czAn||F.czA), B=nz(F.czBn||F.czB); hook='🏆 '+A+' vs '+B+(nz(F.czTag)?' · '+nz(F.czTag).toLowerCase().replace(/^reducido · /,'Reducido, '):''); [[F.czL1,F.czW1,F.czA1,F.czB1],[F.czL2,F.czW2,F.czA2,F.czB2]].forEach(([l,w,a,b])=>{ if(nz(l)||nz(w)){ const sc=(nz(a)!==''||nz(b)!=='')?(' '+A+' '+(nz(a)||0)+'-'+(nz(b)||0)+' '+B):''; ctx.push('🗓 '+[nz(l),nz(w)].filter(Boolean).join(': ')+sc); } }); if(nz(F.czBan)) ctx.push('✅ '+nz(F.czBan)); if(nz(F.czWhere)) ctx.push('📍 '+nz(F.czWhere)); if(nz(F.czTv)) ctx.push('📺 '+nz(F.czTv)); addC(F.czA); addC(F.czB);
+  else if(t==='cruce'){ const A=nz(F.czAn||F.czA), B=nz(F.czBn||F.czB); hook='🏆 '+A+' vs '+B+(nz(F.czTag)?' · '+nz(F.czTag).toLowerCase().replace(/^reducido · /,'Reducido, '):''); [[F.czL1,F.czW1,F.czA1,F.czB1,F.czV1l,F.czV1r],[F.czL2,F.czW2,F.czA2,F.czB2,F.czV2l,F.czV2r]].forEach(([l,w,a,b,vl,vr])=>{ if(nz(l)||nz(w)){ const sc=(nz(a)!==''||nz(b)!=='')?(' '+nz(vl)+' '+(nz(a)||0)+'-'+(nz(b)||0)+' '+nz(vr)):''; ctx.push('🗓 '+[nz(l),nz(w)].filter(Boolean).join(': ')+sc); } }); if(nz(F.czBan)) ctx.push('✅ '+nz(F.czBan)); if(nz(F.czWhere)) ctx.push('📍 '+nz(F.czWhere)); if(nz(F.czTv)) ctx.push('📺 '+nz(F.czTv)); addC(F.czA); addC(F.czB);
     cta=pick(['¿Quién pasa? Dejá tu pronóstico 👇','Contanos cómo lo ves en los comentarios 👇']); }
   else if(t==='vs'){ const A=nz(F.vsAn||F.vsA), B=nz(F.vsBn||F.vsB); hook=pick(['🔥 '+A+' vs '+B+': se viene un partidazo','⚔️ '+A+' vs '+B+': ya hay fecha y hora']); if(nz(F.vsWhen)) ctx.push('🗓 '+nz(F.vsWhen)); if(nz(F.vsWhere)) ctx.push('📍 '+nz(F.vsWhere)); if(nz(F.vsTv)) ctx.push('📺 '+nz(F.vsTv)); addC(F.vsA); addC(F.vsB);
     cta=pick(['¿Cómo lo ves? Dejá tu pronóstico 👇','Pronóstico en los comentarios: ¿quién gana? 👇']); }
@@ -2431,7 +2459,7 @@ function group(parent,title,open){
   const d=document.createElement('details'); if(open) d.open=true; const sm=document.createElement('summary'); sm.textContent=title;
   const b=document.createElement('div'); b.className='grp'; d.append(sm,b); parent.appendChild(d); return b;
 }
-const SIZED=new Set(['czTag','czAn','czBn','czAp','czBp','czL1','czW1','czL2','czW2','czBan','czWhere','czTv','fT1','fT2','fT3','fT4','fTag','fBrand','fDesc','fBen','fNote','fCta','fPhone','fCirc','tabNote','enrT','enrS','enrNote','enTag','enAn','enBn','enNa','enNb','enUnit','enWhen','enWhere','vsTag','vsAn','vsBn','vsWhen','vsWhere','vsTv','headline','sub','home','away','status','detail','q','a','b','cta','spon','tTitle','tSub','rows']);
+const SIZED=new Set(['czV1l','czV1r','czV2l','czV2r','czTag','czAn','czBn','czAp','czBp','czL1','czW1','czL2','czW2','czBan','czWhere','czTv','fT1','fT2','fT3','fT4','fTag','fBrand','fDesc','fBen','fNote','fCta','fPhone','fCirc','tabNote','enrT','enrS','enrNote','enTag','enAn','enBn','enNa','enNb','enUnit','enWhen','enWhere','vsTag','vsAn','vsBn','vsWhen','vsWhere','vsTv','headline','sub','home','away','status','detail','q','a','b','cta','spon','tTitle','tSub','rows']);
 const CRESTSZ=new Set(['czA','czB','enA','enB','vsA','vsB','crest','home','away','a','b']);
 function say(el,text,cls){const s=document.createElement('span');s.textContent=text;if(cls)s.className=cls;el.appendChild(s);return s}
 function pngLink(el,c){ if(!c.file) return; const a=document.createElement('a');a.href=PN_URL+c.file;a.target='_blank';a.rel='noopener';a.textContent='Bajarlo de la Escudoteca';el.appendChild(document.createTextNode(' '));el.appendChild(a)}
@@ -2654,7 +2682,7 @@ function buildTextsUI(){
   const p=document.createElement('p'); p.className='hint'; p.textContent='Tocá un texto en la vista previa para editarlo y arrastralo para moverlo (hay guías de centro). En Resultados, cada partido tiene sus propios textos.'; box.appendChild(p);
 }
 function buildFields(){ buildFields0(); buildTextsUI(); }
-function buildFields0(){ buildFields00(); const box=$('#fields'); box.insertBefore(ideaBox(),box.firstChild); box.appendChild(copyBox()); }
+function buildFields0(){ if(S.tpl==='cruce') czEnsure(); buildFields00(); const box=$('#fields'); if(S.tpl==='cruce') box.insertBefore(czLoadBox(),box.firstChild); box.insertBefore(ideaBox(),box.firstChild); box.appendChild(copyBox()); }
 function wireTsh(){ const T=S.red.tsh||(S.red.tsh={on:true,k:100}), a=$('#txSh'), k=$('#txShK'); if(!a||!k) return; a.checked=T.on!==false; k.value=T.k||100; k.disabled=!a.checked; a.onchange=()=>{ T.on=a.checked; k.disabled=!a.checked; persist(); render(); }; k.oninput=()=>{ T.k=+k.value; persist(); render(); }; }
 function buildFields00(){
   const box=$('#fields'); box.innerHTML=''; wireTsh();

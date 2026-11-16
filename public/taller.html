@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 16/11 · 09:06</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 16/11 · 09:14</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -770,8 +770,8 @@ function drawPhoto0(c,W,H,tint){
   P.fillText=function(t,x,y,mw){ const T=(typeof S!=='undefined'&&S.red&&S.red.tsh)||{on:true,k:100}; if(T.on!==false&&!this.shadowBlur&&!this.shadowOffsetY&&lightCol(this.fillStyle)){ const k=((typeof S!=='undefined'&&S.qNow)||1), m=(T.k||100)/100; this.save(); this.shadowColor='rgba(0,0,0,'+Math.min(.95,.62*m*1.2)+')'; this.shadowBlur=16*k*m; this.shadowOffsetY=3*k; ft.call(this,t,x,y,mw); this.restore(); } else ft.call(this,t,x,y,mw); }; })();
 function drawOverlay(c,W,H,tint,strong){
   let [r,g,b]=hexRgb(tint); { const L=(.299*r+.587*g+.114*b)/255, f=1-.62*Math.max(0,Math.min(1,(L-.28)/.4)); r=r*f|0; g=g*f|0; b=b*f|0; }
-  let g1=c.createLinearGradient(0,0,0,H*.24); g1.addColorStop(0,'rgba(0,0,0,.5)'); g1.addColorStop(1,'rgba(0,0,0,0)');
-  c.fillStyle=g1; c.fillRect(0,0,W,H*.24);
+  if(S.tpl!=='cover'){ let g1=c.createLinearGradient(0,0,0,H*.24); g1.addColorStop(0,'rgba(0,0,0,.5)'); g1.addColorStop(1,'rgba(0,0,0,0)');
+  c.fillStyle=g1; c.fillRect(0,0,W,H*.24); }
   const g2=c.createLinearGradient(0,H*.5,0,H);
   g2.addColorStop(0,`rgba(${r},${g},${b},0)`); g2.addColorStop(.45,`rgba(${r},${g},${b},.6)`); g2.addColorStop(1,`rgba(${r},${g},${b},.96)`);
   c.fillStyle=g2; c.fillRect(0,H*.5,W,H*.5);
@@ -1604,7 +1604,7 @@ const BZ_DEF={
   tz:{
     precios:{title:'LISTA DE PRECIOS',sub:'Herramientas',items:'Amoladora angular 115 mm - $00.000\nTaladro percutor 13 mm - $00.000\nJuego de llaves combinadas - $00.000\nCaja de herramientas 19" - $00.000\nEscalera de aluminio - $00.000',c1:'',c2:''},
     aviso:{lines:'NUEVOS HORARIOS\nLUNES A VIERNES DE 9 A 18\nSÁBADOS DE 9 A 13',sub:'',sticker:'',pos:'low',box:'color',c1:'',c2:''},
-    cover:{l1:'EL ANDAMIO MÁS',l2:'REFORZADO',circ:true,sw:true,sp:true,c1:'',c2:''}},
+    cover:{l1:'EL ANDAMIO MÁS',l2:'REFORZADO',pic:false,sw:true,sp:true,c1:'',c2:''}},
   se:{
     precios:{title:'OFERTAS COMBINADAS',sub:'',items:'300 gr jamón cocido natural + 200 gr queso de máquina - $8.600\n100 gr salame milán + 150 gr cocido 4 Condes + 200 gr queso máquina - $7.600\n300 gr cocido 4 Condes + 200 gr queso máquina - $6.900',c1:'',c2:'Avenida Constituyentes 3148, General Pacheco'},
     aviso:{lines:'TE ESPERAMOS DE\nLUNES A SÁBADO - 8 A 13 // 16:30 A 20:30\nDOMINGOS Y FERIADOS DE 9 A 13',sub:'',sticker:'',pos:'low',box:'color',c1:'',c2:'Avenida Constituyentes 3148, General Pacheco'}},
@@ -1619,7 +1619,7 @@ const BZ_DEF={
     agenda:{title:'CLASES DE POLO',sub:'Horarios de la semana',items:'Martes | Iniciación | 17:00 a 18:30\nJueves | Nivel intermedio | 17:00 a 18:30\nSábado | Práctica libre | 10:00 a 13:00\nDomingo | Partidos | 15:00',c1:'',c2:'@laguapeadapolo'},
     evento:{tag:'TORNEO',title:'COPA LA GUAPEADA',date:'Sábado 5 de diciembre',time:'15:00 hs',place:'Pilar, Buenos Aires',text:'Inscripción abierta. Cupos limitados.',c1:'',c2:'@laguapeadapolo'}}
 };
-const BZ_GENERIC={cover:{l1:'TÍTULO DE LA',l2:'PORTADA',circ:true,sw:true,sp:true,c1:'',c2:''},precios:{title:'LISTA DE PRECIOS',sub:'',items:'Producto 1 - $0.000\nProducto 2 - $0.000\nProducto 3 - $0.000',c1:'',c2:''},aviso:{lines:'ESCRIBÍ ACÁ EL AVISO',sub:'',sticker:'',pos:'low',box:'color',c1:'',c2:''},agenda:{title:'HORARIOS',sub:'',items:'Lunes | Actividad | 10:00',c1:'',c2:''},evento:{tag:'EVENTO',title:'NOMBRE DEL EVENTO',date:'',time:'',place:'',text:'',c1:'',c2:''}};
+const BZ_GENERIC={cover:{l1:'TÍTULO DE LA',l2:'PORTADA',pic:false,sw:true,sp:true,c1:'',c2:''},precios:{title:'LISTA DE PRECIOS',sub:'',items:'Producto 1 - $0.000\nProducto 2 - $0.000\nProducto 3 - $0.000',c1:'',c2:''},aviso:{lines:'ESCRIBÍ ACÁ EL AVISO',sub:'',sticker:'',pos:'low',box:'color',c1:'',c2:''},agenda:{title:'HORARIOS',sub:'',items:'Lunes | Actividad | 10:00',c1:'',c2:''},evento:{tag:'EVENTO',title:'NOMBRE DEL EVENTO',date:'',time:'',place:'',text:'',c1:'',c2:''}};
 function bzData(){
   const R=S.red; R.biz=R.biz||{}; const k=currentAccount().id+':'+S.tpl; const def=((BZ_DEF[currentAccount().id]||{})[S.tpl])||BZ_GENERIC[S.tpl]||{};
   const o=R.biz[k]=R.biz[k]||{}; Object.keys(def).forEach(f=>{ if(o[f]===undefined) o[f]=def[f]; }); return o;
@@ -1724,7 +1724,6 @@ let CV_IMG=null;
 function drawPortada(c,W,H,F){
   const TH=bzTh(), d=bzData(), M=60, q=(S.qNow||1), FH='"Archivo","Arial Black",sans-serif', IT='italic 800'; c.textBaseline='alphabetic'; c.textAlign='center';
   const l1=String(d.l1||'').trim().toUpperCase(), l2=String(d.l2||'').trim().toUpperCase(); let y=Math.max(F.top+58*2+24,(S.logoBot||0)+30);
-  E(c,'static',cc=>{ const g=cc.createLinearGradient(0,0,0,H*.45); g.addColorStop(0,'rgba(0,0,0,.5)'); g.addColorStop(1,'rgba(0,0,0,0)'); cc.fillStyle=g; cc.fillRect(0,0,W,H*.45); });
   if(l1){ const ft=fit(c,l1,FH,IT,W-2*M,1,118,44,'cvL1'), sz=ft.size, base=y+sz*.86;
     E(c,'cvL1',cc=>{ cc.textAlign='center'; cc.textBaseline='alphabetic'; cc.font=`${IT} ${sz}px ${FH}`; cc.save(); cc.shadowColor='rgba(0,0,0,.6)'; cc.shadowBlur=22*q; cc.shadowOffsetY=8*q; cc.fillStyle='#fff'; cc.fillText(ft.lines[0],W/2,base); cc.restore(); hitLines(cc,'f-cvL1','Primera línea',ft.lines,W/2,base,sz,sz,'center',false,{ctrls:[SZ('cvL1')]}); }); y+=sz*1.02+8; }
   let ye=y;
@@ -1732,9 +1731,9 @@ function drawPortada(c,W,H,F){
     E(c,'cvL2',cc=>{ cc.textAlign='center'; cc.textBaseline='alphabetic'; cc.save(); cc.translate(cx,cy); cc.rotate(rot); cc.fillStyle=TH.acc; cc.shadowColor='rgba(0,0,0,.5)'; cc.shadowBlur=22*q; cc.shadowOffsetY=8*q; cc.beginPath(); cc.moveTo(-bw/2+sk,-bh/2); cc.lineTo(bw/2+sk,-bh/2); cc.lineTo(bw/2-sk*.2,bh/2); cc.lineTo(-bw/2-sk*.2,bh/2); cc.closePath(); cc.fill(); cc.shadowColor='transparent'; cc.font=`${IT} ${sz}px ${FH}`; cc.fillStyle=TH.on; cc.fillText(ft.lines[0],sk*.4,sz*.35); cc.restore(); hitLines(cc,'f-cvL2','Segunda línea',ft.lines,cx,cy+sz*.35,sz,sz,'center',false,{ctrls:[SZ('cvL2')]}); });
     if(d.sw!==false){ const sw=bw*.62, sy=y+bh+sz*.16; E(c,'cvSw',cc=>{ cc.save(); cc.fillStyle=TH.acc; cc.shadowColor='rgba(0,0,0,.4)'; cc.shadowBlur=10*q; cc.beginPath(); cc.moveTo(W/2-sw/2,sy); cc.quadraticCurveTo(W/2-sw*.05,sy+sz*.3,W/2+sw/2,sy-sz*.04); cc.quadraticCurveTo(W/2,sy+sz*.15,W/2-sw/2,sy); cc.closePath(); cc.fill(); cc.restore(); }); }
     ye=y+bh+sz*.3; }
-  if(d.circ!==false){ const r=W*.2*((S.sz.cvC||100)/100), ccx=W*.72, ccy=ye+r+W*.08;
+  if(d.pic===true){ const r=W*.2*((S.sz.cvC||100)/100), ccx=W*.72, ccy=ye+r+W*.08;
     E(c,'cvCirc',cc=>{ cc.save(); cc.shadowColor='rgba(0,0,0,.45)'; cc.shadowBlur=26*q; cc.shadowOffsetY=8*q; cc.fillStyle='#fff'; cc.beginPath(); cc.arc(ccx,ccy,r,0,7); cc.fill(); cc.restore();
-      cc.save(); cc.beginPath(); cc.arc(ccx,ccy,r,0,7); cc.clip(); if(CV_IMG) drawCover(cc,CV_IMG,ccx-r,ccy-r,2*r,2*r,1,0,0); else if(!S.exporting){ cc.fillStyle='#eee'; cc.fillRect(ccx-r,ccy-r,2*r,2*r); cc.fillStyle='#999'; cc.textAlign='center'; cc.font=`700 ${r*.2}px ${FN}`; cc.fillText('FOTO DEL',ccx,ccy-r*.02); cc.fillText('PRODUCTO',ccx,ccy+r*.24); } cc.restore();
+      cc.save(); cc.beginPath(); cc.arc(ccx,ccy,r,0,7); cc.clip(); if(CV_IMG) drawCover(cc,CV_IMG,ccx-r,ccy-r,2*r,2*r,1,0,0); else if(!S.exporting){ cc.fillStyle='#eee'; cc.fillRect(ccx-r,ccy-r,2*r,2*r); cc.fillStyle='#999'; cc.textAlign='center'; cc.font=`700 ${r*.2}px ${FN}`; cc.fillText('TOCÁ PARA',ccx,ccy-r*.02); cc.fillText('AGREGAR FOTO',ccx,ccy+r*.24); } cc.restore();
       cc.strokeStyle=TH.acc; cc.lineWidth=Math.max(8,r*.06); cc.beginPath(); cc.arc(ccx,ccy,r,0,7); cc.stroke();
       hitBox('f-cvImg','Foto del producto',ccx-r,ccy-r,2*r,2*r,false,{ctrls:[{label:'Tamaño del círculo',o:S.sz,k:'cvC',min:50,max:200,step:5,unit:'%',def:100}]}); });
     if(d.sp!==false) E(c,'cvSp',cc=>{ cc.save(); cc.strokeStyle='#fff'; cc.lineCap='round'; cc.lineWidth=Math.max(5,r*.04); cc.shadowColor='rgba(0,0,0,.5)'; cc.shadowBlur=8*q; [[-2.55,.0],[-2.25,.0],[-1.95,.0]].forEach(([a])=>{ const x0=ccx+Math.cos(a)*(r*1.12), y0=ccy+Math.sin(a)*(r*1.12), x1=ccx+Math.cos(a)*(r*1.3), y1=ccy+Math.sin(a)*(r*1.3); cc.beginPath(); cc.moveTo(x0,y0); cc.lineTo(x1,y1); cc.stroke(); }); cc.restore(); });
@@ -2152,10 +2151,13 @@ function buildBizUI(box){
     ctl(w,'Tamaño de los beneficios',S.sz,'fBen',{min:60,max:130,step:5,unit:'%',def:100}); ctl(w,'Tamaño del círculo',S.sz,'fCirc',{min:50,max:150,step:5,unit:'%',def:100}); ctl(w,'Zoom de la foto dentro del círculo',S,'flyZ',{min:100,max:300,step:5,unit:'%',def:100});
   } else if(t==='cover'){
     F('cvL1','Primera línea (blanca)','l1'); F('cvL2','Segunda línea (en el cartel de color)','l2');
-    { const lb=document.createElement('label'); lb.textContent='Foto del producto (va en el círculo)'; const fi=document.createElement('input'); fi.type='file'; fi.accept='image/*'; fi.id='f-cvImg'; fi.onchange=()=>{ const f=fi.files&&fi.files[0]; if(!f) return; const u=URL.createObjectURL(f), im=new Image(); im.onload=()=>{ CV_IMG=im; render(); }; im.src=u; }; lb.appendChild(fi); w.appendChild(lb);
-      const b=document.createElement('button'); b.type='button'; b.className='ghost'; b.textContent='Quitar la foto del producto'; b.onclick=()=>{ CV_IMG=null; render(); }; w.appendChild(b); }
-    chk(w,'Mostrar el círculo con el producto',d,'circ'); chk(w,'Mostrar el subrayado',d,'sw'); chk(w,'Mostrar las chispas',d,'sp');
-    { const p=document.createElement('p'); p.className='hint'; p.textContent='Poné la foto de la persona en "Foto de fondo" (formato Story 9:16). Tocá cualquier texto o el círculo para editarlo; con "Mover elementos arrastrándolos" movés cada uno. El color del cartel sale de los colores de la marca (abajo en "Colores de este diseño"). La foto del producto no se guarda: si recargás, volvé a subirla.'; w.appendChild(p); }
+    { const lw=chk(w,'Agregar una foto de producto en un círculo (opcional)',d,'pic'), ci=lw.querySelector('input'); ci.addEventListener('change',()=>buildFields()); }
+    if(d.pic===true){ const fi=document.createElement('input'); fi.type='file'; fi.accept='image/*'; fi.id='cvFile'; fi.style.display='none'; fi.onchange=()=>{ const f=fi.files&&fi.files[0]; if(!f) return; const im=new Image(); im.onload=()=>{ CV_IMG=im; render(); }; im.src=URL.createObjectURL(f); fi.value=''; };
+      const b1=document.createElement('button'); b1.type='button'; b1.className='primary'; b1.id='f-cvImg'; b1.textContent=CV_IMG?'Cambiar la foto del producto':'Elegir foto del producto'; b1.onclick=()=>fi.click(); b1.onfocus=()=>{ try{ fi.click(); }catch(e){} };
+      const b2=document.createElement('button'); b2.type='button'; b2.className='ghost'; b2.textContent='Quitar la foto'; b2.onclick=()=>{ CV_IMG=null; b1.textContent='Elegir foto del producto'; render(); };
+      w.append(fi,b1,b2); }
+    chk(w,'Mostrar el subrayado',d,'sw'); chk(w,'Mostrar las chispas (solo con la foto del producto)',d,'sp');
+    { const p=document.createElement('p'); p.className='hint'; p.textContent='La foto de la persona o del local va en "Foto de fondo" (formato Story 9:16). La foto del producto es opcional: tildá la opción de arriba, tocá "Elegir foto del producto" (o tocá el círculo en la imagen) y elegí una imagen de tu galería, mejor con fondo blanco. Tocá cualquier texto para editarlo y usá "Mover elementos arrastrándolos" para moverlos. El color del cartel sale de "Colores de este diseño". La foto del producto no se guarda: si recargás, hay que volver a subirla.'; w.appendChild(p); }
   } else if(t==='clases'){
     { const en=S.clLang==='en', D=en?(d.en=d.en||{}):d, FF=(id,l,k,m,r)=>bzField(w,'f-'+id,l,D[k],v=>{D[k]=v;},m,r);
       { const lb=document.createElement('label'); lb.textContent='Idioma que se ve y se edita'; const sl=document.createElement('select'); [['es','Español'],['en','English']].forEach(([v,n])=>{ const o=document.createElement('option'); o.value=v; o.textContent=n; sl.appendChild(o); }); sl.value=en?'en':'es'; sl.onchange=()=>{ S.clLang=sl.value; buildFields(); render(); }; lb.appendChild(sl); w.appendChild(lb); }

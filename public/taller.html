@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 15/11 · 23:45</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 15/11 · 23:55</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -857,13 +857,13 @@ function drawConsigna(c,W,H,F){
 }
 
 const CZ_TAG={p1:'REDUCIDO · PRIMERA INSTANCIA',qf:'REDUCIDO · CUARTOS DE FINAL',sf:'REDUCIDO · SEMIFINALES',fin:'REDUCIDO · FINAL'};
-function czList(){ const R=S.red, out=[]; ['p1','qf','sf','fin'].forEach(ph=>(R[ph]||[]).forEach((m,ix)=>{ if(String(m.a||'').trim()&&String(m.b||'').trim()) out.push({ph,ix,m}); })); return out; }
+function czList(){ const R=S.red, out=[]; ['qf','sf','fin'].forEach(ph=>(R[ph]||[]).forEach((m,ix)=>{ if(String(m.a||'').trim()&&String(m.b||'').trim()) out.push({ph,ix,m}); })); return out; }
 function czLoad(o){ const F=S.f, m=o.m, ph=o.ph, A=String(m.a||'').trim(), B=String(m.b||'').trim(), two=ph!=='p1', d=String(m.d||'').trim(), h=String(m.h||'').trim(); const pos=(r,p)=>[String(r||'').trim(),String(p||'').trim()?String(p).trim()+' PTS':''].filter(Boolean).join(' · ');
   Object.assign(F,{czTag:CZ_TAG[ph]||'REDUCIDO',czA:A,czAn:'',czAp:pos(m.ra,m.pa),czB:B,czBn:'',czBp:pos(m.rb,m.pb),czA1:'',czB1:'',czA2:'',czB2:'',czBan:'',czWhere:F.czWhere||'',czTv:F.czTv||''});
   if(two){ const mm=d.match(/ida\s*:?\s*([^·]+?)\s*·\s*vuelta\s*:?\s*(.+)$/i), d1=mm?mm[1].trim():d, d2=mm?mm[2].trim():''; Object.assign(F,{czL1:'IDA',czW1:d1,czV1l:nm(B),czV1r:nm(A),czL2:'VUELTA',czW2:d2,czV2l:nm(A),czV2r:nm(B)}); }
   else { Object.assign(F,{czL1:'PARTIDO ÚNICO',czW1:[d,h].filter(Boolean).join(' · '),czV1l:nm(A),czV1r:nm(B),czL2:'',czW2:'',czV2l:'',czV2r:''}); const sa=String(m.as??'').trim(), sb=String(m.bs??'').trim(); if(sa!==''&&sb!==''){ F.czA1=sa; F.czB1=sb; const w=winSide(m,'p1'); if(w) F.czBan='PASA '+nm(w===1?A:B).toUpperCase()+(sa===sb?' · POR MEJOR UBICACIÓN':''); } }
   S.red.czIdx=czList().findIndex(x=>x.ph===ph&&x.ix===o.ix); }
-function czEnsure(){ const L=czList(); if(!L.length||S.red.czInit) return; S.red.czInit=true; const i=Math.max(0,L.findIndex(x=>x.ph==='qf')); czLoad(L[i]); }
+function czEnsure(){ const L=czList(); if(!L.length||S.red.czInit) return; S.red.czInit=true; czLoad(L[0]); }
 async function czExportAll(){ const msg=$('#dlmsg'), L=czList(); if(!L.length){ msg.textContent='No hay partidos cargados en el Reducido.'; return; } msg.textContent='Preparando los cruces…'; const keep=JSON.stringify(S.f), prevIdx=S.red.czIdx, d=new Date(), ymd=`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`, files=[];
   S.q=qFor(FORMATS[S.format].w,FORMATS[S.format].h); S.exporting=true;
   for(let i=0;i<L.length;i++){ czLoad(L[i]); draw(); const blob=await new Promise(r=>cv.toBlob(r,'image/png')); if(blob) files.push(new File([blob],`${String(i+1).padStart(2,'0')}-${L[i].ph}-${norm(L[i].m.a)}-vs-${norm(L[i].m.b)}-${S.format}-${ymd}.png`,{type:'image/png'})); }

@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 18/11 · 10:45</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 18/11 · 11:31</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -752,7 +752,7 @@ function fxImg(p,dw){
 function drawPhoto(c,W,H,tint){ const fx=fxGet(); CUR_FX=fx; drawPhoto0(c,W,H,tint);
   if(S.photo||PS.n()>=2){ if(fx.ca>0){ c.save(); c.globalAlpha=fx.ca/100; c.fillStyle=fx.col; c.fillRect(0,0,W,H); c.restore(); } if(fx.vig>0){ const vg=c.createRadialGradient(W/2,H/2,Math.min(W,H)*.25,W/2,H/2,Math.max(W,H)*.75); vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,`rgba(0,0,0,${fx.vig/100*.9})`); c.fillStyle=vg; c.fillRect(0,0,W,H); } } }
 function drawPhoto0(c,W,H,tint){
-  const bg=()=>{ if(S.account==='pn'){ pnBg(c,W,H,tint); return; } const [r,g,b]=hexRgb(tint), gr=c.createLinearGradient(0,0,0,H); gr.addColorStop(0,'#0c110e'); gr.addColorStop(1,`rgb(${r*.5|0},${g*.5|0},${b*.5|0})`); c.fillStyle=gr; c.fillRect(0,0,W,H);};
+  const bg=()=>{ if(S.account==='pn'){ pnBg(c,W,H,tint); return; } if(bzUnder(c,W,H)) return; const [r,g,b]=hexRgb(tint), gr=c.createLinearGradient(0,0,0,H); gr.addColorStop(0,'#0c110e'); gr.addColorStop(1,`rgb(${r*.5|0},${g*.5|0},${b*.5|0})`); c.fillStyle=gr; c.fillRect(0,0,W,H);};
   const C=S.ly.col; PS.compact(); const n=PS.n();
   if(n>=2){
     bg(); const R=regionsN(W,H,n);
@@ -1643,7 +1643,10 @@ function bzRgb(h){ h=String(h||'#000000').replace('#',''); if(h.length===3) h=h.
 function bzMix(a,b,t){ const x=bzRgb(a), y=bzRgb(b); return 'rgb('+x.map((v,i)=>Math.round(v+(y[i]-v)*t)).join(',')+')'; }
 function bzLum(h){ const [r,g,b]=bzRgb(h); return (.299*r+.587*g+.114*b)/255; }
 function bzOv(){ const R=S.red; R.bizCol=R.bizCol||{}; return R.bizCol[currentAccount().id]=R.bizCol[currentAccount().id]||{}; }
-function bzFlatOn(){ if(!BIZ_T.includes(S.tpl)||S.photo) return null; const a=currentAccount(); if(((S.red.bizFlat||{})[a.id])==='off') return null; const base=FLAT[a.id]||FLAT._, ov=bzOv(); const f=Object.assign({},base,{bg:ov.bg||base.bg,ink:ov.ink||base.ink,acc:ov.acc||base.acc,on:ov.on||base.on}); f.dark=bzLum(f.bg)<.5; return f; }
+function bzFlatCalc(){ if(!BIZ_T.includes(S.tpl)) return null; const a=currentAccount(); if(((S.red.bizFlat||{})[a.id])==='off') return null; const base=FLAT[a.id]||FLAT._, ov=bzOv(); const f=Object.assign({},base,{bg:ov.bg||base.bg,ink:ov.ink||base.ink,acc:ov.acc||base.acc,on:ov.on||base.on}); f.dark=bzLum(f.bg)<.5; return f; }
+/* con foto: si la foto está muy transparente (<60%) manda el diseño de la marca y la foto queda encima; si no, se ve como siempre (foto + degradé) */
+function bzFlatOn(){ if(S.photo){ let op=100; try{ op=fxGet().op; }catch(e){} if(op>=60) return null; } return bzFlatCalc(); }
+function bzUnder(c,W,H){ if(S.account==='pn') return false; const f=bzFlatCalc(); if(!f) return false; if(scMode()) drawScene(c,W,H); else { c.fillStyle=f.bg; c.fillRect(0,0,W,H); f.deco(c,W,H,f); } return true; }
 const bzTh=()=>{
   const a=currentAccount(), t=Object.assign({hw:800,bw:700,ink:'#ffffff',bg:'#111'},BZ_TH[a.id]||BZ_TH._), cf=((S.red.bizFont||{})[a.id]);
   if(S.bzFlat){ const f=S.bzFlat; t.ink=f.ink; t.acc=f.acc; t.on=f.on; t.bg=f.bg; t.cInk=f.cInk; t.cAcc=f.cAcc; delete t.stroke; } else { const ov=(S.red.bizCol||{})[a.id]||{}; if(ov.ink) t.ink=ov.ink; if(ov.acc) t.acc=ov.acc; if(ov.on) t.on=ov.on; }
@@ -2522,7 +2525,7 @@ function draw(){
   if(!S.exporting&&!(window.VID&&VID.playing)){ queueSave(); histQueue(); }
   S.logoBot=0; S.bzFlat=(typeof bzFlatOn==='function')?bzFlatOn():null;
   if(S.tr) S.bzFlat=null; else drawPhoto(c,W,H,tint);
-  if(S.bzFlat){ if(scMode()) drawScene(c,W,H); else { c.fillStyle=S.bzFlat.bg; c.fillRect(0,0,W,H); S.bzFlat.deco(c,W,H,S.bzFlat); } drawHeader(c,W,F.top,currentAccount()); } else
+  if(S.bzFlat){ if(!S.photo){ if(scMode()) drawScene(c,W,H); else { c.fillStyle=S.bzFlat.bg; c.fillRect(0,0,W,H); S.bzFlat.deco(c,W,H,S.bzFlat); } } drawHeader(c,W,F.top,currentAccount()); } else
   if(S.tpl==='partido'){ if(S.tr!==2) drawDark(c,W,H,S.ly.ov/100); } else {if(S.tr!==2&&S.tpl!=='flyer') drawOverlay(c,W,H,tint,S.tpl==='tabla'||isRed(S.tpl)||S.tpl==='resumen'||S.tpl==='equipos'||S.tpl==='arbitros'||S.tpl==='precios'||S.tpl==='agenda'); if(S.format!=='portada') drawHeader(c,W,F.top,currentAccount());}
   const _mo=moAny(); if(_mo) moSnapshot();
   const _tf0=({noticia:drawNoticia,resultado:drawResultado,consigna:drawConsigna,vs:drawVs,cruce:drawCruce,cita:drawCita,entradas:drawEntradas,entranking:drawEnRanking,tabla:drawTabla,partido:drawPartido,reducido:drawReducido,red_qf:drawReducido,red_sf:drawReducido,red_fin:drawReducido,red_all:drawReducido,resumen:drawResumen,equipos:drawEquipos,arbitros:drawArbitros,precios:drawLista,combos:drawCombos,agenda:drawLista,aviso:drawAviso,evento:drawEvento,flyer:drawFlyer,clases:drawClases,cover:drawPortada,once:drawOnce,ascenso:drawAscenso})[S.tpl]; const _tfn=(BIZ_T.includes(S.tpl)&&scMode()&&S.scProds.length)?((c2,W2,H2,F2)=>{ drawSceneProducts(c2,W2,H2,F2); _tf0(c2,W2,H2,F2); }):_tf0; _tfn(c,W,H,F);

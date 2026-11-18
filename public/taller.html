@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 18/11 · 13:46</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 18/11 · 13:49</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -1676,14 +1676,14 @@ const BZ_DEF={
     aviso:{lines:'ASÍ ESTABA LA PILETA',sub:'Sin mantenimiento del piso',sticker:'',pos:'low',box:'none',c1:'+54 9 11 6601-2377',c2:''},
     flyer:{t1:'CAMBIO DE',t2:'GRAVA',t3:'DE FILTROS',t4:'para piscinas',tag:'FILTROS',brand:'VULCANO',bsub:'Inspirados por el agua',desc:'Mantenimiento y renovación de filtros Vulcano',bens:'Mejora la filtración del agua\nMayor rendimiento del filtro\nAgua más limpia y cristalina',note:'Grava nueva, mejor filtrado',circ:'1',cta:'Consultanos',c1:'11 6601-2377',c2:''}},
   lg:{
-    subt:{es:'DÍA DE PELUQUERÍA 🐎',en:'HAIR DAY 🐴',bo:58,dim:12},
+    subt:{es:'DÍA DE PELUQUERÍA 🐎',en:'HAIR DAY 🐴',bo:58,dim:12,auto:true},
     clases:{tag:'ASÍ SON LAS CLASES',title:'CLASES DE POLO',sub:'',items:'Duración | 1 hora a 1 hora y media\nQué aprendés | Preparar el caballo, equitación básica y taqueo\nEquipamiento incluido | Botas, casco y taco\nSeguimiento personalizado | Según el conocimiento de cada uno',cta1:'FECHAS, VALORES Y PAQUETES',cta2:'Escribinos por WhatsApp',c1:'',c2:'@laguapeadapolo'},
     precios:{title:'PLANES Y VALORES',sub:'Clases de polo',items:'Clase de iniciación | 1 hora | $00.000\nPack de 4 clases | por mes | $00.000\nAlquiler de caballo | por hora | $00.000\nPupilaje | por mes | $00.000',c1:'',c2:'@laguapeadapolo'},
     aviso:{lines:'COMUNICADO\nEscribí acá el aviso',sub:'',sticker:'',pos:'mid',box:'none',c1:'',c2:'@laguapeadapolo'},
     agenda:{title:'CLASES DE POLO',sub:'Horarios de la semana',items:'Martes | Iniciación | 17:00 a 18:30\nJueves | Nivel intermedio | 17:00 a 18:30\nSábado | Práctica libre | 10:00 a 13:00\nDomingo | Partidos | 15:00',c1:'',c2:'@laguapeadapolo'},
     evento:{tag:'TORNEO',title:'COPA LA GUAPEADA',date:'Sábado 5 de diciembre',time:'15:00 hs',place:'Pilar, Buenos Aires',text:'Inscripción abierta. Cupos limitados.',c1:'',c2:'@laguapeadapolo'}}
 };
-const BZ_GENERIC={subt:{es:'TEXTO EN ESPAÑOL',en:'TEXT IN ENGLISH',bo:58,dim:12},combos:{title:'COMBOS',sub:'',items:'#1\n2 Producto uno\n1 Producto dos\n$0.000\n\n#2\n3 Producto uno\n2 Producto tres\n$0.000',foot:'',c1:'',c2:''},cover:{l1:'TÍTULO DE LA',l2:'PORTADA',pic:false,guide:true,sw:true,sp:true,c1:'',c2:''},precios:{title:'LISTA DE PRECIOS',sub:'',items:'Producto 1 - $0.000\nProducto 2 - $0.000\nProducto 3 - $0.000',c1:'',c2:''},aviso:{lines:'ESCRIBÍ ACÁ EL AVISO',sub:'',sticker:'',pos:'low',box:'color',c1:'',c2:''},agenda:{title:'HORARIOS',sub:'',items:'Lunes | Actividad | 10:00',c1:'',c2:''},evento:{tag:'EVENTO',title:'NOMBRE DEL EVENTO',date:'',time:'',place:'',text:'',c1:'',c2:''}};
+const BZ_GENERIC={subt:{es:'TEXTO EN ESPAÑOL',en:'TEXT IN ENGLISH',bo:58,dim:12,auto:true},combos:{title:'COMBOS',sub:'',items:'#1\n2 Producto uno\n1 Producto dos\n$0.000\n\n#2\n3 Producto uno\n2 Producto tres\n$0.000',foot:'',c1:'',c2:''},cover:{l1:'TÍTULO DE LA',l2:'PORTADA',pic:false,guide:true,sw:true,sp:true,c1:'',c2:''},precios:{title:'LISTA DE PRECIOS',sub:'',items:'Producto 1 - $0.000\nProducto 2 - $0.000\nProducto 3 - $0.000',c1:'',c2:''},aviso:{lines:'ESCRIBÍ ACÁ EL AVISO',sub:'',sticker:'',pos:'low',box:'color',c1:'',c2:''},agenda:{title:'HORARIOS',sub:'',items:'Lunes | Actividad | 10:00',c1:'',c2:''},evento:{tag:'EVENTO',title:'NOMBRE DEL EVENTO',date:'',time:'',place:'',text:'',c1:'',c2:''}};
 function bzData(){
   const R=S.red; R.biz=R.biz||{}; const k=currentAccount().id+':'+S.tpl+(S.inst?'#'+S.inst:''); const def=((BZ_DEF[currentAccount().id]||{})[S.tpl])||BZ_GENERIC[S.tpl]||{};
   const o=R.biz[k]=R.biz[k]||{}; Object.keys(def).forEach(f=>{ if(o[f]===undefined) o[f]=def[f]; }); return o;
@@ -1766,16 +1766,25 @@ function drawCombos(c,W,H,F){
     yy+=h+L.g; });
   if(foot){ E(c,'cmbFoot',cc=>{ const ft=fit(cc,foot,TH.font,600,W-2*M,1,30,16,'bFoot'), by=yEnd-footH+ft.size+8; cc.textAlign='center'; cc.font=`600 ${ft.size}px ${TH.font}`; cc.fillStyle=bzA(TH,.7); cc.fillText(ft.lines[0]||'',W/2,by); hitLines(cc,'f-bFoot','Aclaración',ft.lines,W/2,by,ft.size,ft.size,'center',false,{ctrls:[SZ('bFoot')]}); }); }
 }
+/* traducción automática español → inglés (servicios gratuitos que se consultan desde el navegador) */
+const TR_CACHE={}; let TR_TOK=0;
+async function trEsEn(text){
+  const emo=(String(text).match(/\p{Extended_Pictographic}/gu)||[]).join(''), clean=String(text).replace(/\p{Extended_Pictographic}\uFE0F?/gu,'').replace(/[ \t]+/g,' ').trim();
+  if(!clean) return emo; if(TR_CACHE[clean]) return TR_CACHE[clean]+(emo?' '+emo:'');
+  let out='';
+  try{ const r=await fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(clean)+'&langpair=es|en'); const j=await r.json(); const t=j&&j.responseData&&j.responseData.translatedText; if(j&&+j.responseStatus===200&&t&&!/MYMEMORY WARNING|INVALID/i.test(t)) out=t; }catch(e){}
+  if(!out){ try{ const r=await fetch('https://translate.googleapis.com/translate_a/single?client=gtx&sl=es&tl=en&dt=t&q='+encodeURIComponent(clean)); const j=await r.json(); out=(j[0]||[]).map(x=>x[0]).join(''); }catch(e){} }
+  if(!out) throw new Error('sin traducción'); TR_CACHE[clean]=out; return out+(emo?' '+emo:'');
+}
 function drawSubt(c,W,H,F){
   const TH=bzTh(), d=bzData(), q=(S.qNow||1), M=70, bw=W-2*M, pad=34, barW=12, tx=M+barW+pad, mw=bw-barW-2*pad;
   const es=String(d.es||'').trim(), en=String(d.en||'').trim(); if(!es&&!en) return;
   const fE=es?fit(c,es.toUpperCase(),TH.font,TH.hw,mw,2,60,26,'bEs'):null, fN=en?fit(c,en.toUpperCase(),TH.font,TH.hw,mw,2,60,26,'bEn'):null;
   const lE=fE?fE.size*1.1:0, lN=fN?fN.size*1.1:0, hE=fE?fE.lines.length*lE:0, hN=fN?fN.lines.length*lN:0, gap=fE&&fN?8:0, bh=pad*2+hE+gap+hN, y0=Math.round(H*.56-bh/2), bo=(d.bo==null?58:d.bo)/100;
-  E(c,'subtCap',cc=>{ cc.textBaseline='alphabetic'; cc.textAlign='left';
-    cc.save(); cc.fillStyle=`rgba(26,22,16,${bo})`; rrect(cc,M,y0,bw,bh,8); cc.fill(); cc.fillStyle=TH.acc; cc.fillRect(M,y0,barW,bh); cc.restore();
-    let y=y0+pad; cc.fillStyle='#ffffff';
-    if(fE){ cc.font=`${TH.hw} ${fE.size}px ${TH.font}`; fE.lines.forEach((l,i)=>cc.fillText(l,tx,y+fE.size*.86+i*lE)); hitLines(cc,'f-bEs','Texto en español',fE.lines,tx,y+fE.size*.86,fE.size,lE,'left',true,{ctrls:[SZ('bEs')]}); y+=hE+gap; }
-    if(fN){ cc.font=`${TH.hw} ${fN.size}px ${TH.font}`; fN.lines.forEach((l,i)=>cc.fillText(l,tx,y+fN.size*.86+i*lN)); hitLines(cc,'f-bEn','Texto en inglés',fN.lines,tx,y+fN.size*.86,fN.size,lN,'left',true,{ctrls:[SZ('bEn')]}); } });
+  E(c,'subtBox',cc=>{ cc.save(); cc.fillStyle=`rgba(26,22,16,${bo})`; rrect(cc,M,y0,bw,bh,8); cc.fill(); cc.fillStyle=TH.acc; cc.fillRect(M,y0,barW,bh); cc.restore(); hitBox('f-bEs','Caja del texto',M,y0,bw,bh,false); });
+  let y=y0+pad;
+  if(fE){ E(c,'subtEs',cc=>{ cc.textBaseline='alphabetic'; cc.textAlign='left'; cc.fillStyle='#ffffff'; cc.font=`${TH.hw} ${fE.size}px ${TH.font}`; fE.lines.forEach((l,i)=>cc.fillText(l,tx,y+fE.size*.86+i*lE)); hitLines(cc,'f-bEs','Texto en español',fE.lines,tx,y+fE.size*.86,fE.size,lE,'left',true,{ctrls:[SZ('bEs')]}); }); y+=hE+gap; }
+  if(fN){ E(c,'subtEn',cc=>{ cc.textBaseline='alphabetic'; cc.textAlign='left'; cc.fillStyle='#ffffff'; cc.font=`${TH.hw} ${fN.size}px ${TH.font}`; fN.lines.forEach((l,i)=>cc.fillText(l,tx,y+fN.size*.86+i*lN)); hitLines(cc,'f-bEn','Texto en inglés',fN.lines,tx,y+fN.size*.86,fN.size,lN,'left',true,{ctrls:[SZ('bEn')]}); }); }
 }
 function subtDim(c,W,H){ const d=bzData(), k=(d.dim==null?12:d.dim)/100; if(k>0){ c.save(); c.fillStyle=`rgba(0,0,0,${k})`; c.fillRect(0,0,W,H); c.restore(); } }
 function drawLista(c,W,H,F){
@@ -2269,6 +2278,12 @@ function buildBizUI(box){
     ctl(w,'Tamaño del título',S.sz,'bTitle',{min:30,max:200,step:5,unit:'%',def:100}); ctl(w,'Tamaño de los combos',S.sz,'bRows',{min:50,max:170,step:5,unit:'%',def:100});
   } else if(t==='subt'){
     F('bEs','Texto en español','es',true,100); F('bEn','Texto en inglés (opcional)','en',true,100);
+    { const st=document.createElement('p'); st.className='hint'; st.style.minHeight='1.2em'; const es=w.querySelector('#f-bEs'), en=w.querySelector('#f-bEn'); let tm=0;
+      const run=async()=>{ if(d.auto===false||!es) return; const my=++TR_TOK, src=es.value; if(!String(src).trim()){ d.en=''; if(en) en.value=''; persist(); render(); st.textContent=''; return; } st.textContent='Traduciendo…';
+        try{ const t=await trEsEn(src); if(my!==TR_TOK||d.auto===false) return; d.en=t; if(en) en.value=t; persist(); render(); st.textContent='Traducido automáticamente. Si lo escribís vos en inglés, queda como lo pusiste.'; }catch(e){ if(my===TR_TOK) st.textContent='No pude traducir (revisá la conexión). Escribí el inglés a mano.'; } };
+      if(es) es.addEventListener('input',()=>{ clearTimeout(tm); tm=setTimeout(run,700); });
+      if(en) en.addEventListener('input',()=>{ if(d.auto!==false){ d.auto=false; persist(); const ci=w.querySelector('#autoEnChk'); if(ci) ci.checked=false; st.textContent='Inglés manual (traducción automática apagada).'; } });
+      const ck=chk(w,'Traducir al inglés automáticamente',d,'auto'); const ci=ck.querySelector('input'); ci.id='autoEnChk'; ci.checked=d.auto!==false; ci.addEventListener('change',()=>{ if(ci.checked) run(); }); w.appendChild(st); }
     const h=document.createElement('p'); h.className='hint'; h.textContent='Subí la foto o el video de fondo (arriba). El texto se mueve tocándolo y arrastrándolo. Podés cambiar el color del texto tocándolo.'; w.appendChild(h);
     ctl(w,'Tamaño del texto en español',S.sz,'bEs',{min:50,max:160,step:5,unit:'%',def:100}); ctl(w,'Tamaño del texto en inglés',S.sz,'bEn',{min:50,max:160,step:5,unit:'%',def:100}); ctl(w,'Opacidad de la caja',d,'bo',{min:0,max:100,step:5,unit:'%',def:58}); ctl(w,'Oscurecer la foto',d,'dim',{min:0,max:70,step:5,unit:'%',def:12});
   } else if(t==='aviso'){

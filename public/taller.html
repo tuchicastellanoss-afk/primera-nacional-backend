@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 18/11 · 14:05</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 18/11 · 16:48</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -583,11 +583,11 @@ function tcHex(v){ if(typeof v!=='string') return '#ffffff'; let m; if((m=v.matc
 function moObj(key){ return { get dx(){return (S.mo[key]||{}).dx||0}, set dx(v){ (S.mo[key]=S.mo[key]||{}).dx=v; }, get dy(){return (S.mo[key]||{}).dy||0}, set dy(v){ (S.mo[key]=S.mo[key]||{}).dy=v; }, get lk_dx(){return (S.mo[key]||{}).lk}, set lk_dx(v){ (S.mo[key]=S.mo[key]||{}).lk=v; } }; }
 function moAny(){ const pre=txKey()+'|'; return Object.keys(S.mo).some(k=>k.startsWith(pre)&&((S.mo[k].dx||0)||(S.mo[k].dy||0))); }
 function hitBox(id,label,x,y,w,h,multi,mv){
-  if(_mp) return;
+  const _sg=S.segN++; if(_mp) return;
   let m=mv;
   if(!(mv&&mv.x)){ const base=txKey()+'|'+(id||label); _hcnt[base]=(_hcnt[base]||0)+1; const key=base+'#'+_hcnt[base], o=moObj(key), dx=o.dx, dy=o.dy;
     m=Object.assign({},mv||{},{o,x:'dx',y:'dy',tb:S.tpl!=='partido',rng:1200,gen:true,key,ctr:{x:x+w/2+dx,y:y+h/2+dy}});
-    S.hitsAll.push({key,x,y,w,h,o,el:S.curEl}); x+=dx; y+=dy;
+    S.hitsAll.push({key,x,y,w,h,o,el:S.curEl,seg:_sg}); x+=dx; y+=dy;
     try{ const runs=_truns.slice(_tclaim); let sel=[]; if(_hlines){ const set=new Set(_hlines.map(z=>String(z).trim())); sel=runs.filter(r=>set.has(r.t)); } else if(S.curEl){ sel=runs.filter(r=>r.el===S.curEl); } if(sel.length){ TCCLAIM[key]=sel[0].col; sel.forEach(r=>{ TCM_cur[r.sg]=key; }); } }catch(e){} _tclaim=_truns.length; }
   if(S.exporting) return; S.hits.push({id,label,x:x-10,y:y-10,w:w+20,h:h+20,multi:!!multi,mv:m});
 }
@@ -595,6 +595,9 @@ let _bd=null;
 function moSnapshot(){ if(!_bd){ _bd=document.createElement('canvas'); } if(_bd.width!==cv.width||_bd.height!==cv.height){ _bd.width=cv.width; _bd.height=cv.height; } const x=_bd.getContext('2d'); x.setTransform(1,0,0,1,0,0); x.clearRect(0,0,_bd.width,_bd.height); x.drawImage(cv,0,0); }
 /* mueve los elementos: se dibuja la escena sobre negro y sobre blanco para sacar cada elemento con su transparencia exacta (sin bordes duros), se restaura el fondo y se pega en el lugar nuevo */
 let _mp=false;
+S.segN=0; S.segMode=null;
+const SEG_PAINT=new Set(['fill','stroke','fillText','strokeText','fillRect','strokeRect','drawImage','clearRect','putImageData']);
+function segGate(x){ return new Proxy(x,{ get(t,p){ const v=t[p]; if(typeof v!=='function') return v; if(SEG_PAINT.has(p)) return (...a)=>{ const m=S.segMode; if(!m||(m.solo!=null?S.segN===m.solo:!m.skip.has(S.segN))) return v.apply(t,a); }; return v.bind(t); }, set(t,p,v){ t[p]=v; return true; } }); }
 function moApply(c,tfn,W,H,F){
   if(!_bd) return; const Q=S.qNow||1, bx=_bd.getContext('2d');
   const mk=col=>{ const o=document.createElement('canvas'); o.width=cv.width; o.height=cv.height; const x=o.getContext('2d'); x.setTransform(1,0,0,1,0,0); x.fillStyle=col; x.fillRect(0,0,o.width,o.height); x.setTransform(Q,0,0,Q,0,0); return x; };
@@ -607,13 +610,17 @@ function moApply(c,tfn,W,H,F){
         for(let i=0;i<B.length;i+=4){ let al=1-((Wd[i]-B[i])+(Wd[i+1]-B[i+1])+(Wd[i+2]-B[i+2]))/765; if(al<.004) continue; if(al>1) al=1; o[i]=Math.min(255,B[i]/al); o[i+1]=Math.min(255,B[i+1]/al); o[i+2]=Math.min(255,B[i+2]/al); o[i+3]=Math.round(al*255); }
         const t=document.createElement('canvas'); t.width=w; t.height=h; t.getContext('2d').putImageData(out,0,0); c.save(); c.setTransform(1,0,0,1,0,0); c.drawImage(t,x0+Math.round(dx*Q),y0+Math.round(dy*Q)); c.restore(); }catch(e){} }); }
   if(!_mv.some(h=>!h.el)) return;
-  const xb=mk('#000'), xw=mk('#fff'); _mp=true; try{ _hcnt={}; tfn(xb,W,H,F); _hcnt={}; tfn(xw,W,H,F); }catch(e){ _mp=false; return; } _mp=false;
-  for(const hh of S.hitsAll){ if(hh.el) continue; const dx=hh.o.dx||0, dy=hh.o.dy||0; if(!dx&&!dy) continue; const pad=24;
-    const x0=Math.max(0,Math.floor((hh.x-pad)*Q)), y0=Math.max(0,Math.floor((hh.y-pad)*Q)), x1=Math.min(cv.width,Math.ceil((hh.x+hh.w+pad)*Q)), y1=Math.min(cv.height,Math.ceil((hh.y+hh.h+pad)*Q)), w=x1-x0, h=y1-y0; if(w<=0||h<=0) continue;
-    try{ const back=bx.getImageData(x0,y0,w,h), B=xb.getImageData(x0,y0,w,h).data, Wd=xw.getImageData(x0,y0,w,h).data, out=new ImageData(w,h), o=out.data;
-      for(let i=0;i<B.length;i+=4){ let al=1-((Wd[i]-B[i])+(Wd[i+1]-B[i+1])+(Wd[i+2]-B[i+2]))/765; if(al<.004) continue; if(al>1) al=1; o[i]=Math.min(255,B[i]/al); o[i+1]=Math.min(255,B[i+1]/al); o[i+2]=Math.min(255,B[i+2]/al); o[i+3]=Math.round(al*255); }
-      c.putImageData(back,x0,y0); const t=document.createElement('canvas'); t.width=w; t.height=h; t.getContext('2d').putImageData(out,0,0);
-      c.save(); c.setTransform(1,0,0,1,0,0); c.drawImage(t,x0+Math.round(dx*Q),y0+Math.round(dy*Q)); c.restore(); }catch(e){} }
+  const _sm=_mv.filter(h=>!h.el); const segs=new Set(_sm.map(h=>h.seg)), skipEl=new Set(_fly.map(h=>h.el)), pad=200;
+  const pass=(x,solo)=>{ S.segMode={solo,skip:segs}; S.segN=0; S.skip=solo==null?skipEl:null; _mp=true; _hcnt={}; _tcnt={}; try{ tfn(segGate(x),W,H,F); }catch(e){} _mp=false; S.segMode=null; S.skip=null; };
+  const mk3=base=>{ const o=document.createElement('canvas'); o.width=cv.width; o.height=cv.height; const x=o.getContext('2d'); x.setTransform(1,0,0,1,0,0); if(base==='bg') x.drawImage(_bd,0,0); else { x.fillStyle=base; x.fillRect(0,0,o.width,o.height); } x.setTransform(Q,0,0,Q,0,0); return x; };
+  const xr=mk3('bg'); pass(xr,null);
+  const bx2=hh=>{ const x0=Math.max(0,Math.floor((hh.x-pad)*Q)), y0=Math.max(0,Math.floor((hh.y-pad)*Q)), x1=Math.min(cv.width,Math.ceil((hh.x+hh.w+pad)*Q)), y1=Math.min(cv.height,Math.ceil((hh.y+hh.h+pad)*Q)); return [x0,y0,x1-x0,y1-y0]; };
+  _sm.forEach(hh=>{ const [x0,y0,w,h]=bx2(hh); if(w>0&&h>0) c.putImageData(xr.getImageData(x0,y0,w,h),x0,y0); });
+  _sm.forEach(hh=>{ const [x0,y0,w,h]=bx2(hh); if(w<=0||h<=0) return; const dx=hh.o.dx||0, dy=hh.o.dy||0; try{
+    const X=mk3('#000'), Y=mk3('#fff'); pass(X,hh.seg); pass(Y,hh.seg);
+    const GW=w, GH=h, B=X.getImageData(x0,y0,w,h).data, Wd=Y.getImageData(x0,y0,w,h).data, out=new ImageData(w,h), o=out.data;
+    for(let i=0;i<B.length;i+=4){ let al=1-((Wd[i]-B[i])+(Wd[i+1]-B[i+1])+(Wd[i+2]-B[i+2]))/765; if(al<.004) continue; if(al>1) al=1; o[i]=Math.min(255,B[i]/al); o[i+1]=Math.min(255,B[i+1]/al); o[i+2]=Math.min(255,B[i+2]/al); o[i+3]=Math.round(al*255); }
+    const t=document.createElement('canvas'); t.width=GW; t.height=GH; t.getContext('2d').putImageData(out,0,0); c.save(); c.setTransform(1,0,0,1,0,0); c.drawImage(t,x0+Math.round(dx*Q),y0+Math.round(dy*Q)); c.restore(); }catch(e){} });
 }
 function hitLines(c,id,label,lines,x,first,size,lh,align,multi,mv){
   let mw=120; lines.forEach(l=>{mw=Math.max(mw,c.measureText(l).width)});
@@ -2565,7 +2572,7 @@ function draw(){
   const Q=S.exporting?S.q:1; S.qNow=Q;
   if(cv.width!==Math.round(W*Q)||cv.height!==Math.round(H*Q)){cv.width=Math.round(W*Q);cv.height=Math.round(H*Q)}
   const c=cv.getContext('2d'); c.setTransform(Q,0,0,Q,0,0); c.clearRect(0,0,W,H);
-  if(!S.exporting) S.hits=[]; S.hitsAll=[]; _hcnt={}; _tcnt={}; _truns=[]; _tclaim=0; TCM_prev=TCM_cur; TCM_cur={}; TCCLAIM={};
+  if(!S.exporting) S.hits=[]; S.hitsAll=[]; S.segN=0; _hcnt={}; _tcnt={}; _truns=[]; _tclaim=0; TCM_prev=TCM_cur; TCM_cur={}; TCCLAIM={};
   navUpdate();
   if(S.tpl==='reducido'){ if(!['p1','qf','sf','fin','all','tab'].includes(S.red.mode)) S.red.mode='p1'; } else if(isRed(S.tpl)) S.red.mode=PHMAP[S.tpl];
   let tint=mainTint(); if(S.account==='pn'&&!S.photo&&PS.n()<2) tint='#3b5260';

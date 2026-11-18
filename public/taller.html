@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 17/11 · 00:27</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 17/11 · 00:41</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -175,6 +175,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
       <div class="row" id="undoRow" style="justify-content:flex-start"><button class="ghost" id="undoBtn" type="button" disabled>↶ Deshacer</button><button class="ghost" id="redoBtn" type="button" disabled>↷ Rehacer</button><span class="hint">También Ctrl+Z / Ctrl+Y</span></div>
       <div class="row">
         <button class="primary" id="dl" type="button">Descargar PNG</button>
+        <button class="ghost" id="dlX" type="button" title="Copia el texto para X (máx. 280) y baja la imagen">Para X: texto + imagen</button>
         <button class="primary" id="dlVid" type="button" hidden>Descargar video</button>
         <button class="ghost" id="dlAll" type="button" hidden>Descargar toda la tanda</button>
         <label class="qual">Calidad <select id="qual"></select></label>
@@ -216,6 +217,9 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
         <div class="row" style="justify-content:flex-start;margin-top:8px">
           <label style="flex-direction:row;align-items:center;gap:8px;color:var(--fg);font-size:13px"><input type="checkbox" id="txSh"> Sombra en los textos</label>
           <label style="flex-direction:row;align-items:center;gap:8px;color:var(--fg);font-size:13px;flex:1;min-width:150px">Intensidad <input type="range" id="txShK" min="10" max="100" step="5" style="flex:1"></label>
+        </div>
+        <div class="row" style="justify-content:flex-start;margin-top:8px">
+          <label style="flex-direction:row;align-items:center;gap:8px;color:var(--fg);font-size:13px;flex:1;min-width:200px">Opacidad del degradé <input type="range" id="ovK" min="0" max="100" step="5" style="flex:1"> <span id="ovKv" style="min-width:38px;text-align:right">100%</span></label>
         </div>
       </div>
 
@@ -363,6 +367,7 @@ const TEMPLATES = {
   arbitros:{label:'Árbitros',main:null,fields:[]},
   once:{label:'Once ideal',main:null,fields:[]},
   ascenso:{label:'Ascenso',main:null,fields:[]},
+  combos:{label:'Combos',main:null,fields:[]},
   precios:{label:'Lista de precios',main:null,fields:[]},
   aviso:{label:'Aviso con texto',main:null,fields:[]},
   agenda:{label:'Agenda / horarios',main:null,fields:[]},
@@ -398,7 +403,7 @@ const S = {
     q:'¿Quién es más grande?', a:'', b:'', cta:'Respondé en los comentarios', spon:'',
     tTitle:'Así va la tabla', tSub:'Zona A · Fecha 31', startPos:'1',
     vsTag:'REDUCIDO · PRIMERA INSTANCIA', vsA:'Ferro', vsAn:'', vsB:'Gimnasia y Tiro', vsBn:'', vsSa:'', vsSb:'', vsWhen:'Domingo 15/11 · 20:00', vsWhere:'', vsTv:'',
-    cqTag:'DECLARACIONES', cqC1:'', cqC2:'', cqName:'NOMBRE APELLIDO', cqRole:'Cargo o medio', cqQuote:'La frase que *genera debate* va acá', cqAsk:'¿Estás de acuerdo?', cqY:'Sí', cqN:'No', cqSrc:'',
+    cqTag:'DECLARACIONES', cqC1:'', cqC2:'', cqName:'NOMBRE APELLIDO', cqRole:'Cargo o medio', cqQuote:'La frase que *genera debate* va acá', cqAsk:'¿Estás de acuerdo?', cqY:'', cqN:'', cqSrc:'',
     czTag:'REDUCIDO · CUARTOS DE FINAL', czA:'Tristán Suárez', czAn:'', czAp:'1º', czB:'Gimnasia y Tiro', czBn:'', czBp:'8º', czL1:'IDA', czW1:'Sábado 21/11', czV1l:'Gimnasia y Tiro', czV1r:'Tristán Suárez', czA1:'', czB1:'', czL2:'VUELTA', czW2:'Sábado 28/11', czV2l:'Tristán Suárez', czV2r:'Gimnasia y Tiro', czA2:'', czB2:'', czBan:'', czWhere:'', czTv:'',
     enrT:'Las finales con más entradas vendidas', enrS:'Final por el primer ascenso · Primera Nacional', enrRows:'Godoy Cruz, Final 2026, 14500\nSan Martín (T), Final 2024, 19000', enrNote:'',
     enTag:'ENTRADAS VENDIDAS', enA:'Godoy Cruz', enAn:'', enB:'Tristán Suárez', enBn:'', enNa:'14500', enNb:'1080', enUnit:'entradas', enWhen:'Sábado 14/11 · 17:00', enWhere:'',
@@ -777,13 +782,13 @@ function drawPhoto0(c,W,H,tint){
 (function(){ const P=CanvasRenderingContext2D.prototype, ft=P.fillText; function lightCol(v){ if(typeof v!=='string') return false; let r,g,b,a=1,m; if((m=v.match(/^#([0-9a-f]{6})$/i))){ r=parseInt(m[1].slice(0,2),16); g=parseInt(m[1].slice(2,4),16); b=parseInt(m[1].slice(4,6),16); } else if((m=v.match(/^rgba?\(([^)]+)\)/))){ const q=m[1].split(',').map(parseFloat); r=q[0]; g=q[1]; b=q[2]; a=q.length>3?q[3]:1; } else return false; return a>.3&&(.299*r+.587*g+.114*b)>170; }
   P.fillText=function(t,x,y,mw){ const T=(typeof S!=='undefined'&&S.red&&S.red.tsh)||{on:true,k:100}; if(T.on!==false&&!this.shadowBlur&&!this.shadowOffsetY&&lightCol(this.fillStyle)){ const k=((typeof S!=='undefined'&&S.qNow)||1), m=(T.k||100)/100; this.save(); this.shadowColor='rgba(0,0,0,'+Math.min(.95,.62*m*1.2)+')'; this.shadowBlur=16*k*m; this.shadowOffsetY=3*k; ft.call(this,t,x,y,mw); this.restore(); } else ft.call(this,t,x,y,mw); }; })();
 function drawOverlay(c,W,H,tint,strong){
-  let [r,g,b]=hexRgb(tint); { const L=(.299*r+.587*g+.114*b)/255, f=1-.62*Math.max(0,Math.min(1,(L-.28)/.4)); r=r*f|0; g=g*f|0; b=b*f|0; }
-  if(S.tpl!=='cover'){ let g1=c.createLinearGradient(0,0,0,H*.24); g1.addColorStop(0,'rgba(0,0,0,.5)'); g1.addColorStop(1,'rgba(0,0,0,0)');
+  const OK=(S.red&&S.red.ovk!=null?S.red.ovk:100)/100; let [r,g,b]=hexRgb(tint); { const L=(.299*r+.587*g+.114*b)/255, f=1-.62*Math.max(0,Math.min(1,(L-.28)/.4)); r=r*f|0; g=g*f|0; b=b*f|0; }
+  if(S.tpl!=='cover'){ let g1=c.createLinearGradient(0,0,0,H*.24); g1.addColorStop(0,`rgba(0,0,0,${.5*OK})`); g1.addColorStop(1,'rgba(0,0,0,0)');
   c.fillStyle=g1; c.fillRect(0,0,W,H*.24); }
   const g2=c.createLinearGradient(0,H*.5,0,H);
-  g2.addColorStop(0,`rgba(${r},${g},${b},0)`); g2.addColorStop(.45,`rgba(${r},${g},${b},.6)`); g2.addColorStop(1,`rgba(${r},${g},${b},.96)`);
+  g2.addColorStop(0,`rgba(${r},${g},${b},0)`); g2.addColorStop(.45,`rgba(${r},${g},${b},${.6*OK})`); g2.addColorStop(1,`rgba(${r},${g},${b},${.96*OK})`);
   c.fillStyle=g2; c.fillRect(0,H*.5,W,H*.5);
-  if(strong){c.fillStyle=`rgba(${r*.25|0},${g*.25|0},${b*.25|0},.62)`;c.fillRect(0,0,W,H);}
+  if(strong){c.fillStyle=`rgba(${r*.25|0},${g*.25|0},${b*.25|0},${.62*OK})`;c.fillRect(0,0,W,H);}
 }
 function drawHeader(c,W,top,acc){
   const R=58, cx=W-52-R, cy=top+R;
@@ -902,9 +907,9 @@ function drawCita(c,W,H,F){
   const raw=gs('cqQuote').toUpperCase(); const toks=[]; { let hl=false; raw.split('*').forEach(part=>{ part.split(/\s+/).filter(Boolean).forEach(w=>toks.push({w,hl})); hl=!hl; }); }
   const wrap=sz=>{ c.font=`${IT} ${sz}px ${FH}`; const sp=c.measureText(' ').width, lines=[]; let cur=[],cw=0; toks.forEach(t=>{ const w=c.measureText(t.w).width; if(cur.length&&cw+sp+w>MW){ lines.push({a:cur,w:cw}); cur=[]; cw=0; } cw+=(cur.length?sp:0)+w; cur.push({...t,tw:w}); }); if(cur.length) lines.push({a:cur,w:cw}); return {lines,sp}; };
   const sk=(S.sz.cqQuote||100)/100; let qs=Math.round(96*sk), qw=wrap(qs); while(qs>40&&(qw.lines.length>4||qw.lines.some(l=>l.w>MW+1))){ qs-=3; qw=wrap(qs); }
-  const qlh=qs*1.08, qh=qw.lines.length*qlh;
+  const qlh=qs*1.08, gp=0, qh=qw.lines.length*qlh;
   /* bloque de abajo: etiqueta, chapa del nombre, frase, pregunta */
-  const hasAsk=gs('cqAsk')||gs('cqY')||gs('cqN'), askH=hasAsk?(gs('cqAsk')?58:0)+82:0, srcH=gs('cqSrc')?40:0, tagH=gs('cqTag')?64:0, nmS=46, roleS=28, plateH=gs('cqName')?(nmS*1.5+(gs('cqRole')?roleS*1.2:0)+14):0;
+  const hasAsk=gs('cqAsk')||gs('cqY')||gs('cqN'), askH=hasAsk?(gs('cqAsk')?58:0)+((gs('cqY')||gs('cqN'))?82:0):0, srcH=gs('cqSrc')?40:0, tagH=gs('cqTag')?64:0, nmS=46, roleS=28, plateH=gs('cqName')?(nmS*1.5+(gs('cqRole')?roleS*1.2:0)+14):0;
   let yB=H-F.bottom-26, y=yB-srcH-askH-(askH?26:0)-qh-26-plateH-(tagH?tagH+12:0);
   /* etiqueta tipo pastilla */
   if(gs('cqTag')){ const ft=fit(c,gs('cqTag').toUpperCase(),FH,IT,34,1,40,20,'cqTag'); E(c,'cqTag',cc=>{ cc.textAlign='left'; cc.font=`${IT} ${ft.size}px ${FH}`; bzLS(cc,3); const tw=cc.measureText(ft.lines[0]).width+56, th=ft.size*1.7, sk2=th*.3; cc.save(); cc.fillStyle=lt; cc.shadowColor='rgba(0,0,0,.45)'; cc.shadowBlur=14*q; cc.beginPath(); cc.moveTo(M+sk2,y); cc.lineTo(M+tw+sk2,y); cc.lineTo(M+tw,y+th); cc.lineTo(M,y+th); cc.closePath(); cc.fill(); cc.restore(); cc.fillStyle='#0b1220'; cc.fillText(ft.lines[0],M+sk2/2+28,y+th*.67); bzLS(cc,0); hitBox('f-cqTag','Etiqueta',M,y,tw+sk2,th,false,{ctrls:[SZ('cqTag')]}); }); y+=tagH+12; }
@@ -917,7 +922,7 @@ function drawCita(c,W,H,F){
   /* la frase */
   if(toks.length){ const qy=y; E(c,'cqQuote',cc=>{ cc.textAlign='left'; cc.font=`${IT} ${qs}px ${FH}`;
       cc.save(); cc.globalAlpha=.3; cc.fillStyle=lt; cc.font=`${IT} ${qs*1.7}px ${FH}`; cc.fillText('“',M-6,qy+qs*1.35); cc.restore(); cc.font=`${IT} ${qs}px ${FH}`;
-      qw.lines.forEach((L,k)=>{ const base=qy+k*qlh+qs*.86; let x=(W-L.w)/2; const xs=[]; L.a.forEach((t,i)=>{ xs.push(x); x+=t.tw+qw.sp; });
+      qw.lines.forEach((L,k)=>{ const base=qy+gp+k*qlh+qs*.86; let x=(W-L.w)/2; const xs=[]; L.a.forEach((t,i)=>{ xs.push(x); x+=t.tw+qw.sp; });
         L.a.forEach((t,i)=>{ if(!t.hl) return; const nxt=L.a[i+1], x0=xs[i]-10, x1=xs[i]+t.tw+(nxt&&nxt.hl?qw.sp:0)+10; cc.save(); cc.fillStyle=lt; cc.beginPath(); cc.moveTo(x0+qs*.08,base-qs*.86); cc.lineTo(x1+qs*.08,base-qs*.86); cc.lineTo(x1-qs*.06,base+qs*.16); cc.lineTo(x0-qs*.06,base+qs*.16); cc.closePath(); cc.fill(); cc.restore(); });
         L.a.forEach((t,i)=>{ cc.save(); if(t.hl){ cc.fillStyle='#0b1220'; } else { cc.fillStyle='#fff'; cc.shadowColor='rgba(0,0,0,.6)'; cc.shadowBlur=14*q; cc.shadowOffsetY=4*q; } cc.fillText(t.w,xs[i],base); cc.restore(); }); });
       hitBox('f-cqQuote','Frase',M-10,qy-8,MW+20,qh+16,false,{ctrls:[SZ('cqQuote')]}); }); y+=qh+26; }
@@ -1555,8 +1560,8 @@ function drawArbitros(c,W,H,F){
   });
 }
 /* ================= CUENTAS DE NEGOCIOS: lista de precios, aviso, agenda, evento ================= */
-const BIZ_T=['precios','aviso','agenda','evento','flyer','clases','cover'];
-const ACC_TPLS={tz:['cover','precios','aviso'],se:['cover','precios','aviso'],fb:['cover','flyer','precios','aviso'],mz:['cover','precios','aviso'],lg:['cover','clases','evento','agenda','precios','aviso']};
+const BIZ_T=['combos','precios','aviso','agenda','evento','flyer','clases','cover'];
+const ACC_TPLS={tz:['cover','combos','precios','aviso'],se:['cover','combos','precios','aviso'],fb:['cover','flyer','combos','precios','aviso'],mz:['cover','precios','aviso'],lg:['cover','clases','evento','agenda','precios','aviso']};
 function tplKeys(){
   const a=currentAccount(), base=Object.keys(TEMPLATES).filter(k=>k==='reducido'||!isRed(k)), fbk=base.filter(k=>!BIZ_T.includes(k)); const nopn=fbk.filter(k=>k!=='entradas'&&k!=='entranking'&&k!=='once'&&k!=='ascenso'&&k!=='cruce'&&k!=='cita');
   if(ACC_TPLS[a.id]) return ACC_TPLS[a.id]; if(a.id==='pn') return fbk; return [...nopn,'cover','precios','aviso'];
@@ -1651,6 +1656,7 @@ const BZ_DEF={
     aviso:{lines:'NUEVOS HORARIOS\nLUNES A VIERNES DE 9 A 18\nSÁBADOS DE 9 A 13',sub:'',sticker:'',pos:'low',box:'color',c1:'',c2:''},
     cover:{l1:'EL ANDAMIO MÁS',l2:'REFORZADO',pic:false,guide:true,sw:true,sp:true,c1:'',c2:''}},
   se:{
+    combos:{title:'COMBINADAS ECONÓMICAS',sub:'',items:'#7\n200 gr Salchichón primavera s/pl\n200 gr Mortadela Cañón calchaquí\n$5.700\n\n#8\n200 gr Salchichón primavera s/pl\n200 gr Mortadela Cañón calchaquí\n150 gr Queso de máquina\n$7.900\n\n#10\n100 gr Salchichón primavera s/pl\n200 gr Mortadela Cañón calchaquí\n150 gr Paleta especial\n$6.400\n\n#11\n100 gr Salame milán\n200 gr Queso de máquina\n100 gr Mortadela Cañón calchaquí\n$7.300',foot:'',c1:'',c2:'Avenida Constituyentes 3148, General Pacheco'},
     precios:{title:'OFERTAS COMBINADAS',sub:'',items:'300 gr jamón cocido natural + 200 gr queso de máquina - $8.600\n100 gr salame milán + 150 gr cocido 4 Condes + 200 gr queso máquina - $7.600\n300 gr cocido 4 Condes + 200 gr queso máquina - $6.900',c1:'',c2:'Avenida Constituyentes 3148, General Pacheco'},
     aviso:{lines:'TE ESPERAMOS DE\nLUNES A SÁBADO - 8 A 13 // 16:30 A 20:30\nDOMINGOS Y FERIADOS DE 9 A 13',sub:'',sticker:'',pos:'low',box:'color',c1:'',c2:'Avenida Constituyentes 3148, General Pacheco'}},
   fb:{
@@ -1664,7 +1670,7 @@ const BZ_DEF={
     agenda:{title:'CLASES DE POLO',sub:'Horarios de la semana',items:'Martes | Iniciación | 17:00 a 18:30\nJueves | Nivel intermedio | 17:00 a 18:30\nSábado | Práctica libre | 10:00 a 13:00\nDomingo | Partidos | 15:00',c1:'',c2:'@laguapeadapolo'},
     evento:{tag:'TORNEO',title:'COPA LA GUAPEADA',date:'Sábado 5 de diciembre',time:'15:00 hs',place:'Pilar, Buenos Aires',text:'Inscripción abierta. Cupos limitados.',c1:'',c2:'@laguapeadapolo'}}
 };
-const BZ_GENERIC={cover:{l1:'TÍTULO DE LA',l2:'PORTADA',pic:false,guide:true,sw:true,sp:true,c1:'',c2:''},precios:{title:'LISTA DE PRECIOS',sub:'',items:'Producto 1 - $0.000\nProducto 2 - $0.000\nProducto 3 - $0.000',c1:'',c2:''},aviso:{lines:'ESCRIBÍ ACÁ EL AVISO',sub:'',sticker:'',pos:'low',box:'color',c1:'',c2:''},agenda:{title:'HORARIOS',sub:'',items:'Lunes | Actividad | 10:00',c1:'',c2:''},evento:{tag:'EVENTO',title:'NOMBRE DEL EVENTO',date:'',time:'',place:'',text:'',c1:'',c2:''}};
+const BZ_GENERIC={combos:{title:'COMBOS',sub:'',items:'#1\n2 Producto uno\n1 Producto dos\n$0.000\n\n#2\n3 Producto uno\n2 Producto tres\n$0.000',foot:'',c1:'',c2:''},cover:{l1:'TÍTULO DE LA',l2:'PORTADA',pic:false,guide:true,sw:true,sp:true,c1:'',c2:''},precios:{title:'LISTA DE PRECIOS',sub:'',items:'Producto 1 - $0.000\nProducto 2 - $0.000\nProducto 3 - $0.000',c1:'',c2:''},aviso:{lines:'ESCRIBÍ ACÁ EL AVISO',sub:'',sticker:'',pos:'low',box:'color',c1:'',c2:''},agenda:{title:'HORARIOS',sub:'',items:'Lunes | Actividad | 10:00',c1:'',c2:''},evento:{tag:'EVENTO',title:'NOMBRE DEL EVENTO',date:'',time:'',place:'',text:'',c1:'',c2:''}};
 function bzData(){
   const R=S.red; R.biz=R.biz||{}; const k=currentAccount().id+':'+S.tpl; const def=((BZ_DEF[currentAccount().id]||{})[S.tpl])||BZ_GENERIC[S.tpl]||{};
   const o=R.biz[k]=R.biz[k]||{}; Object.keys(def).forEach(f=>{ if(o[f]===undefined) o[f]=def[f]; }); return o;
@@ -1712,6 +1718,40 @@ function bzTitle(c,W,F,d,y){
   const s=String(d.sub||'').trim();
   if(s){ bzLS(c,5); const ft=fit(c,s.toUpperCase(),TH.font,TH.bw,W-200,1,38,22,'bSub'); c.font=`${TH.bw} ${ft.size}px ${TH.font}`; c.fillStyle=TH.acc; c.fillText(ft.lines[0]||'',W/2+2.5,y+ft.size*.8); hitLines(c,'f-bSub','Subtítulo',ft.lines,W/2,y+ft.size*.8,ft.size,ft.size,'center',false,{ctrls:[SZ('bSub')]}); bzLS(c,0); y+=ft.size*1.1+16; }
   return y+14;
+}
+function parseCombos(txt){ const out=[]; let cur=null; const close=()=>{ if(cur&&(cur.items.length||cur.price)) out.push(cur); cur=null; };
+  String(txt||'').split(/\r?\n/).forEach(raw=>{ const l=raw.trim(); if(!l){ close(); return; } if(l[0]==='#'){ close(); cur={label:l.replace(/^#+\s*/,''),items:[],price:''}; return; }
+    if(!cur) cur={label:'',items:[],price:''};
+    if(/^\$\s?[\d.,]+/.test(l)||/^precio\s*[:\-]/i.test(l)) cur.price=l.replace(/^precio\s*[:\-]\s*/i,'');
+    else if(cur.price&&cur.items.length){ close(); cur={label:'',items:[l],price:''}; } else cur.items.push(l); });
+  close(); return out; }
+function splitQty(l){ const m=String(l).match(/^(\d[\d.,]*\s*(?:kgs?|grs?|gr|g|ml|cc|lts?|l|unidades|unid|un|u)?\.?)\s+(.+)$/i); return m?{q:m[1].trim(),n:m[2].trim()}:{q:'',n:String(l).trim()}; }
+function drawCombos(c,W,H,F){
+  const TH=bzTh(), d=bzData(), M=96, q=(S.qNow||1), flat=S.bzFlat, dark=flat?!!flat.dark:true, yS=Math.max(F.top+58*2+54,(S.logoBot||0)+44);
+  let y=bzTitle(c,W,F,d,yS); const yEnd=bzContact(c,W,H,F,d,TH)-34, foot=String(d.foot||'').trim(), footH=foot?56:0, avail=yEnd-footH-y;
+  const list=parseCombos(d.items), rS=(S.sz.bRows||100)/100, W2=W-2*M, hasHead=b=>b.label&&!/^\d+$/.test(b.label);
+  if(!list.length){ if(!S.exporting){ c.textAlign='center'; c.fillStyle=bzA(TH,.55); c.font=`600 40px ${TH.font}`; c.fillText('ESCRIBÍ LOS COMBOS EN EL PANEL',W/2,y+80);} return; }
+  const lay=s=>{ const badgeR=Math.max(30,Math.min(62,s*1.08)); c.font=`${TH.hw} ${s*1.35}px ${TH.font}`; let pw=0; list.forEach(b=>{ if(b.price) pw=Math.max(pw,c.measureText(b.price).width); }); pw=Math.max(190,Math.min(pw,W*.3)+64);
+    const tx0=badgeR+34, aw=W2-tx0-pw-48; let mx=0; list.forEach(b=>b.items.forEach(l=>{ const p=splitQty(l); c.font=`${TH.hw} ${s}px ${TH.font}`; const wq=p.q?c.measureText(p.q.toUpperCase()).width+s*.35:0; c.font=`${TH.bw} ${s}px ${TH.font}`; mx=Math.max(mx,wq+c.measureText(p.n.toUpperCase()).width); }));
+    const pad=Math.max(s*.75,24), hs=list.map(b=>Math.max(badgeR*2+18,pad*2+(hasHead(b)?s*.95:0)+b.items.length*s*1.3)), g=s*.6; return {badgeR,pw,tx0,aw,mx,pad,hs,g,tot:hs.reduce((a,b)=>a+b,0)+g*(list.length-1)}; };
+  let s=Math.round(46*rS), L=lay(s); while(s>16&&(L.mx>L.aw||L.tot>avail)){ s-=1; L=lay(s); }
+  const ky=Math.min(1.55,Math.max(1,avail*.94/L.tot)), lh=s*1.3*(1+(ky-1)*.45); L.hs=L.hs.map(h=>h*ky); L.g*=ky; L.tot=L.hs.reduce((a,b)=>a+b,0)+L.g*(list.length-1);
+  let yy=y+Math.max(0,(avail-L.tot)*.4);
+  list.forEach((b,i)=>{ const h=L.hs[i], x0=M, y0=yy;
+    E(c,'cmb'+i,cc=>{ cc.textBaseline='alphabetic'; cc.textAlign='left';
+      cc.save(); if(!dark){ cc.shadowColor='rgba(0,0,0,.16)'; cc.shadowBlur=24*q; cc.shadowOffsetY=8*q; } cc.fillStyle=flat?(dark?'rgba(255,255,255,.09)':'#ffffff'):'rgba(8,12,20,.8)'; rrect(cc,x0,y0,W2,h,22); cc.fill(); cc.restore();
+      cc.strokeStyle=bzA(TH,.16); cc.lineWidth=2; rrect(cc,x0,y0,W2,h,22); cc.stroke();
+      const r=L.badgeR, cy=y0+h/2; cc.fillStyle=flat?TH.bg:'#0b1220'; cc.beginPath(); cc.arc(x0,cy,r+7,0,7); cc.fill(); cc.fillStyle=TH.acc; cc.beginPath(); cc.arc(x0,cy,r,0,7); cc.fill();
+      const num=/^\d+$/.test(b.label)?b.label:String(i+1); cc.textAlign='center'; cc.fillStyle=TH.on; cc.font=`${TH.hw} ${r*(num.length>2?.78:1)}px ${TH.font}`; cc.fillText(num,x0,cy+r*.36);
+      cc.textAlign='left'; const tx=x0+L.tx0, ch=(hasHead(b)?s*.95:0)+b.items.length*lh; let ty=y0+(h-ch)/2;
+      if(hasHead(b)){ bzLS(cc,3); cc.fillStyle=TH.acc; cc.font=`${TH.hw} ${s*.62}px ${TH.font}`; cc.fillText(b.label.toUpperCase(),tx,ty+s*.62); bzLS(cc,0); ty+=s*.95; }
+      b.items.forEach((l,k)=>{ const p=splitQty(l), by=ty+k*lh+s*.5+lh*.5; let xx=tx; if(p.q){ cc.font=`${TH.hw} ${s}px ${TH.font}`; cc.fillStyle=TH.acc; cc.fillText(p.q.toUpperCase(),xx,by); xx+=cc.measureText(p.q.toUpperCase()).width+s*.35; } cc.font=`${TH.bw} ${s}px ${TH.font}`; cc.fillStyle=TH.ink; cc.fillText(p.n.toUpperCase(),xx,by); });
+      if(b.price){ const ft=fit(cc,b.price,TH.font,TH.hw,L.pw-48,1,s*1.35,16), ph=Math.min(h-24,ft.size*1.9), px=x0+W2-L.pw-22, py=y0+(h-ph)/2;
+        cc.save(); cc.shadowColor='rgba(0,0,0,.25)'; cc.shadowBlur=10*q; cc.shadowOffsetY=4*q; cc.fillStyle=TH.ink; rrect(cc,px,py,L.pw,ph,ph/2); cc.fill(); cc.restore();
+        cc.textAlign='center'; cc.fillStyle=flat?TH.bg:'#111111'; cc.font=`${TH.hw} ${ft.size}px ${TH.font}`; cc.save(); cc.shadowColor='rgba(0,0,0,0)'; cc.shadowBlur=1; cc.fillText(ft.lines[0]||'',px+L.pw/2,py+ph/2+ft.size*.34); cc.restore(); }
+      hitBox('f-bItems','Combo '+(i+1),x0-L.badgeR-8,y0-8,W2+L.badgeR+16,h+16,true,{ctrls:[{label:'Tamaño de los combos',o:S.sz,k:'bRows',min:50,max:170,step:5,unit:'%',def:100}]}); });
+    yy+=h+L.g; });
+  if(foot){ E(c,'cmbFoot',cc=>{ const ft=fit(cc,foot,TH.font,600,W-2*M,1,30,16,'bFoot'), by=yEnd-footH+ft.size+8; cc.textAlign='center'; cc.font=`600 ${ft.size}px ${TH.font}`; cc.fillStyle=bzA(TH,.7); cc.fillText(ft.lines[0]||'',W/2,by); hitLines(cc,'f-bFoot','Aclaración',ft.lines,W/2,by,ft.size,ft.size,'center',false,{ctrls:[SZ('bFoot')]}); }); }
 }
 function drawLista(c,W,H,F){
   const TH=bzTh(), d=bzData(), M=90, yS=Math.max(F.top+58*2+54,(S.logoBot||0)+44);
@@ -2013,6 +2053,10 @@ function makeCopy(kind){
     body.push((cap(d.title)?'🔥 '+cap(d.title)+(cap(d.sub)?' · '+cap(d.sub):''):'🔥 Precios'));
     const lim=tw?3:12; it.slice(0,lim).forEach(x=>body.push('• '+cap(x.name)+(x.right?' – '+cap(x.right):'')));
     if(!tw){ body.push(''); body.push('Precios sujetos a cambios y stock.'); }
+  } else if(t==='combos'){
+    const cb=parseCombos(d.items); body.push('🧺 '+(cap(d.title)||'Combos')+(cap(d.sub)?' · '+cap(d.sub):''));
+    cb.slice(0,tw?3:12).forEach((x,i)=>body.push('• '+(/^\d+$/.test(x.label)?'Combo '+x.label:(cap(x.label)||'Combo '+(i+1)))+': '+x.items.map(cap).join(' + ')+(x.price?' – '+cap(x.price):'')));
+    if(!tw){ body.push(''); body.push('Precios sujetos a cambios y stock.'); }
   } else if(t==='agenda'){
     body.push('🗓 '+(cap(d.title)||'Horarios')+(cap(d.sub)?' · '+cap(d.sub):''));
     const it=parseLista(d.items); it.slice(0,tw?3:12).forEach(x=>body.push('• '+[x.name,x.det&&x.det[0],x.right].filter(Boolean).join(' · ')));
@@ -2190,6 +2234,10 @@ function buildBizUI(box){
     F('bItems',t==='agenda'?'Horarios (uno por línea: Día | Actividad | Hora)':'Ítems (uno por línea: Producto - $precio)','items',true,230);
     const h=document.createElement('p'); h.className='hint'; h.textContent=t==='agenda'?'Separá con "|": Día | Actividad | Horario. Podés omitir la actividad.':'Escribí "Producto - $1.000". Con "Producto | detalle | $1.000" el detalle sale chico abajo. Una línea que empiece con # es un título de sección (ej: # COMBO 1 - $21.000) y las líneas sueltas de abajo son su detalle.'; w.appendChild(h);
     ctl(w,'Tamaño del título',S.sz,'bTitle',{min:30,max:200,step:5,unit:'%',def:100}); ctl(w,'Tamaño de las filas',S.sz,'bRows',{min:50,max:170,step:5,unit:'%',def:100});
+  } else if(t==='combos'){
+    F('bTitle','Título','title'); F('bSub','Subtítulo (opcional)','sub'); F('bItems','Combos','items',true,300); F('bFoot','Aclaración abajo (opcional, ej: Válido hasta agotar stock)','foot');
+    const h=document.createElement('p'); h.className='hint'; h.textContent='Cada combo empieza con # y el número (ej: #7). Debajo, un producto por línea (ej: 200 gr Mortadela) y al final el precio con $ (ej: $5.700). Dejá una línea en blanco entre combos. Si en vez del número escribís un nombre (ej: #Combo pizza), sale como título del combo.'; w.appendChild(h);
+    ctl(w,'Tamaño del título',S.sz,'bTitle',{min:30,max:200,step:5,unit:'%',def:100}); ctl(w,'Tamaño de los combos',S.sz,'bRows',{min:50,max:170,step:5,unit:'%',def:100});
   } else if(t==='aviso'){
     F('bLines','Texto principal (cada línea va en una línea)','lines',true,110); F('bSub','Texto chico abajo (opcional)','sub'); F('bSticker','Sello redondo (opcional, ej: NUEVO INGRESO)','sticker',true,60);
     bzSelect(w,'Recuadro del texto',d,'box',[['color','Color de la marca'],['white','Blanco'],['dark','Oscuro'],['none','Sin recuadro']]); bzSelect(w,'Posición',d,'pos',[['low','Abajo'],['mid','En el medio'],['top','Arriba']]);
@@ -2477,7 +2525,7 @@ function draw(){
   if(S.bzFlat){ if(scMode()) drawScene(c,W,H); else { c.fillStyle=S.bzFlat.bg; c.fillRect(0,0,W,H); S.bzFlat.deco(c,W,H,S.bzFlat); } drawHeader(c,W,F.top,currentAccount()); } else
   if(S.tpl==='partido'){ if(S.tr!==2) drawDark(c,W,H,S.ly.ov/100); } else {if(S.tr!==2&&S.tpl!=='flyer') drawOverlay(c,W,H,tint,S.tpl==='tabla'||isRed(S.tpl)||S.tpl==='resumen'||S.tpl==='equipos'||S.tpl==='arbitros'||S.tpl==='precios'||S.tpl==='agenda'); if(S.format!=='portada') drawHeader(c,W,F.top,currentAccount());}
   const _mo=moAny(); if(_mo) moSnapshot();
-  const _tf0=({noticia:drawNoticia,resultado:drawResultado,consigna:drawConsigna,vs:drawVs,cruce:drawCruce,cita:drawCita,entradas:drawEntradas,entranking:drawEnRanking,tabla:drawTabla,partido:drawPartido,reducido:drawReducido,red_qf:drawReducido,red_sf:drawReducido,red_fin:drawReducido,red_all:drawReducido,resumen:drawResumen,equipos:drawEquipos,arbitros:drawArbitros,precios:drawLista,agenda:drawLista,aviso:drawAviso,evento:drawEvento,flyer:drawFlyer,clases:drawClases,cover:drawPortada,once:drawOnce,ascenso:drawAscenso})[S.tpl]; const _tfn=(BIZ_T.includes(S.tpl)&&scMode()&&S.scProds.length)?((c2,W2,H2,F2)=>{ drawSceneProducts(c2,W2,H2,F2); _tf0(c2,W2,H2,F2); }):_tf0; _tfn(c,W,H,F);
+  const _tf0=({noticia:drawNoticia,resultado:drawResultado,consigna:drawConsigna,vs:drawVs,cruce:drawCruce,cita:drawCita,entradas:drawEntradas,entranking:drawEnRanking,tabla:drawTabla,partido:drawPartido,reducido:drawReducido,red_qf:drawReducido,red_sf:drawReducido,red_fin:drawReducido,red_all:drawReducido,resumen:drawResumen,equipos:drawEquipos,arbitros:drawArbitros,precios:drawLista,combos:drawCombos,agenda:drawLista,aviso:drawAviso,evento:drawEvento,flyer:drawFlyer,clases:drawClases,cover:drawPortada,once:drawOnce,ascenso:drawAscenso})[S.tpl]; const _tfn=(BIZ_T.includes(S.tpl)&&scMode()&&S.scProds.length)?((c2,W2,H2,F2)=>{ drawSceneProducts(c2,W2,H2,F2); _tf0(c2,W2,H2,F2); }):_tf0; _tfn(c,W,H,F);
   if(_mo) moApply(c,_tfn,W,H,F);
   drawTexts(c,W,H);
   if(!S.exporting&&S.guide){c.save();c.strokeStyle='#ff2fd0';c.lineWidth=3;c.setLineDash([16,10]);
@@ -2493,7 +2541,7 @@ function buildAccounts(){
     box.appendChild(b)});
 }
 /* ---- celular: menú de diseños + botón volver ---- */
-const MOBI={cover:['🎬','Portada de reel'],noticia:['📰','Titular + escudo'],consigna:['❓','Pregunta A o B'],vs:['⚔️','Dos equipos'],cruce:['🏟️','Un cruce, ida y vuelta'],cita:['🗣️','Frase con foto'],partido:['⚽','Resultados del día'],tabla:['📊','Tabla de posiciones'],reducido:['🏆','Todas las instancias'],resumen:['📋','Resumen de la fecha'],equipos:['🧩','Equipos 2027'],arbitros:['🟨','Árbitros'],once:['⭐','Formación 4-4-2 y más'],ascenso:['🚀','Ascendió a Primera'],precios:['🏷️','Lista de precios'],aviso:['📢','Aviso con texto'],agenda:['🗓️','Horarios de la semana'],evento:['🎉','Fecha, hora y lugar'],clases:['🐴','Info de las clases']};
+const MOBI={cover:['🎬','Portada de reel'],combos:['🧺','Combos con precio'],noticia:['📰','Titular + escudo'],consigna:['❓','Pregunta A o B'],vs:['⚔️','Dos equipos'],cruce:['🏟️','Un cruce, ida y vuelta'],cita:['🗣️','Frase con foto'],partido:['⚽','Resultados del día'],tabla:['📊','Tabla de posiciones'],reducido:['🏆','Todas las instancias'],resumen:['📋','Resumen de la fecha'],equipos:['🧩','Equipos 2027'],arbitros:['🟨','Árbitros'],once:['⭐','Formación 4-4-2 y más'],ascenso:['🚀','Ascendió a Primera'],precios:['🏷️','Lista de precios'],aviso:['📢','Aviso con texto'],agenda:['🗓️','Horarios de la semana'],evento:['🎉','Fecha, hora y lugar'],clases:['🐴','Info de las clases']};
 const isMob=()=>matchMedia('(max-width:860px)').matches;
 function mobMenu(show){ const m=document.getElementById('menuM'); if(!m) return; m.hidden=!show; document.body.style.overflow=show?'hidden':''; if(show){ mobBuild(); m.scrollTop=0; } }
 function mobBuild(){
@@ -2768,9 +2816,10 @@ function buildTextsUI(){
 }
 function buildFields(){ buildFields0(); buildTextsUI(); }
 function buildFields0(){ if(S.tpl==='cruce') czEnsure(); buildFields00(); const box=$('#fields'); if(S.tpl==='cruce') box.insertBefore(czLoadBox(),box.firstChild); box.insertBefore(ideaBox(),box.firstChild); box.appendChild(copyBox()); }
+function wireOv(){ const k=$('#ovK'), v=$('#ovKv'); if(!k) return; const cur=()=>S.red.ovk==null?100:S.red.ovk; k.value=cur(); v.textContent=cur()+'%'; k.oninput=()=>{ S.red.ovk=+k.value; v.textContent=k.value+'%'; persist(); render(); }; }
 function wireTsh(){ const T=S.red.tsh||(S.red.tsh={on:true,k:100}), a=$('#txSh'), k=$('#txShK'); if(!a||!k) return; a.checked=T.on!==false; k.value=T.k||100; k.disabled=!a.checked; a.onchange=()=>{ T.on=a.checked; k.disabled=!a.checked; persist(); render(); }; k.oninput=()=>{ T.k=+k.value; persist(); render(); }; }
 function buildFields00(){
-  const box=$('#fields'); box.innerHTML=''; wireTsh();
+  const box=$('#fields'); box.innerHTML=''; wireTsh(); wireOv();
   $('#tintSec').hidden = S.tpl==='partido'; $('#dlAll').hidden = S.tpl!=='partido';
   if(S.tpl==='partido'){ buildPartidoUI(box); return; }
   if(isRed(S.tpl)){ if(S.tpl!=='reducido') S.red.mode=PHMAP[S.tpl]; else if(!['p1','qf','sf','fin','all','tab'].includes(S.red.mode)) S.red.mode='p1'; buildReducidoUI(box); return; }
@@ -3048,6 +3097,11 @@ $('#photoIn').addEventListener('change',async e=>{const fs=[...e.target.files]; 
   });
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&box) close()});
 })();
+$('#dlX').onclick=()=>{ const msg=$('#dlmsg'); let t=''; try{ t=makeCopyAny('tw')||''; }catch(e){ t=''; } if(t.length>280) t=t.slice(0,277).replace(/\s+\S*$/,'')+'…';
+  let ok=false; try{ const ta=document.createElement('textarea'); ta.value=t; ta.style.cssText='position:fixed;opacity:0;top:0'; document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0,99999); ok=document.execCommand('copy'); ta.remove(); }catch(e){}
+  if(!ok&&navigator.clipboard){ try{ navigator.clipboard.writeText(t); ok=true; }catch(e){} }
+  const cp=$('#copyTxt'); if(cp){ cp.value=t; cp.dispatchEvent(new Event('input')); }
+  $('#dl').click(); setTimeout(()=>{ msg.textContent=(ok?'Texto para X copiado ('+t.length+'/280). Abrí X, pegalo y subí la imagen.':'Imagen lista. El texto para X está en "Copy del posteo".'); },300); };
 /* clic derecho sobre el posteo: pegar / copiar / guardar */
 (function(){
   let m=null; const hide=()=>{ if(m){ m.remove(); m=null; } };

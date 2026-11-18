@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 18/11 · 14:01</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 18/11 · 14:05</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -172,7 +172,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
   <div class="grid">
     <section class="stage" aria-label="Vista previa">
       <div class="canvasWrap"><canvas id="cv" width="1080" height="1350" aria-label="Vista previa del posteo"></canvas></div>
-      <div class="row" id="undoRow" style="justify-content:flex-start"><button class="ghost" id="undoBtn" type="button" disabled>↶ Deshacer</button><button class="ghost" id="redoBtn" type="button" disabled>↷ Rehacer</button><span class="hint">También Ctrl+Z / Ctrl+Y</span></div>
+      <div class="row" id="undoRow" style="justify-content:flex-start"><button class="ghost" id="undoBtn" type="button" disabled>↶ Deshacer</button><button class="ghost" id="redoBtn" type="button" disabled>↷ Rehacer</button><button class="ghost" id="msBtn" type="button">▭ Seleccionar varios</button><span class="hint">También Ctrl+Z / Ctrl+Y</span></div>
       <div class="row">
         <button class="primary" id="dl" type="button">Descargar PNG</button>
         <button class="ghost" id="dlX" type="button" title="Copia el texto para X (máx. 280) y baja la imagen">Para X: texto + imagen</button>
@@ -2580,6 +2580,8 @@ function draw(){
   const _tf0=({noticia:drawNoticia,resultado:drawResultado,consigna:drawConsigna,vs:drawVs,cruce:drawCruce,cita:drawCita,entradas:drawEntradas,entranking:drawEnRanking,tabla:drawTabla,partido:drawPartido,reducido:drawReducido,red_qf:drawReducido,red_sf:drawReducido,red_fin:drawReducido,red_all:drawReducido,resumen:drawResumen,equipos:drawEquipos,arbitros:drawArbitros,precios:drawLista,combos:drawCombos,subt:drawSubt,agenda:drawLista,aviso:drawAviso,evento:drawEvento,flyer:drawFlyer,clases:drawClases,cover:drawPortada,once:drawOnce,ascenso:drawAscenso})[S.tpl]; const _tfn=(BIZ_T.includes(S.tpl)&&scMode()&&S.scProds.length)?((c2,W2,H2,F2)=>{ drawSceneProducts(c2,W2,H2,F2); _tf0(c2,W2,H2,F2); }):_tf0; _tfn(c,W,H,F);
   if(_mo) moApply(c,_tfn,W,H,F);
   drawTexts(c,W,H);
+  if(!S.exporting&&(S.marq||(S.msel&&S.msel.length))){ c.save(); const sb=msBounds(); if(S.msel) S.msel.forEach(k=>{ const h=S.hitsAll.find(z=>z.key===k); if(!h) return; c.strokeStyle='#4f6bff'; c.lineWidth=3; c.setLineDash([10,8]); c.strokeRect(h.x+(h.o.dx||0)-4,h.y+(h.o.dy||0)-4,h.w+8,h.h+8); }); if(sb){ c.setLineDash([]); c.strokeStyle='#4f6bff'; c.lineWidth=4; c.strokeRect(sb.x-10,sb.y-10,sb.w+20,sb.h+20); }
+    if(S.marq){ const m=S.marq, x=Math.min(m.x0,m.x1), y=Math.min(m.y0,m.y1), w=Math.abs(m.x1-m.x0), h=Math.abs(m.y1-m.y0); c.setLineDash([]); c.fillStyle='rgba(79,107,255,.28)'; c.fillRect(x,y,w,h); c.strokeStyle='#4f6bff'; c.lineWidth=3; c.strokeRect(x,y,w,h); } c.restore(); }
   if(!S.exporting&&S.guide){c.save();c.strokeStyle='#ff2fd0';c.lineWidth=3;c.setLineDash([16,10]);
     if(S.guide.x){c.beginPath();c.moveTo(W/2,0);c.lineTo(W/2,H);c.stroke()} if(S.guide.y){c.beginPath();c.moveTo(0,H/2);c.lineTo(W,H/2);c.stroke()} c.restore();}
   tcHeal();
@@ -3329,6 +3331,31 @@ cv.addEventListener('pointermove',e=>{
   if(S.reorder){ const r0=cv.getBoundingClientRect(), F0=FORMATS[S.format]; S.reorder.to=photoAt(F0.w,F0.h,(e.clientX-r0.left)*F0.w/r0.width,(e.clientY-r0.top)*F0.h/r0.height); render(); return; }
   if(S.rtp&&Math.hypot(e.clientX-S.rtp.x,e.clientY-S.rtp.y)>9) clearTimeout(S.rt);
   if(!drag)return;const k=FORMATS[S.format].w/cv.getBoundingClientRect().width, nx=drag.ox+(e.clientX-drag.x)*k, ny=drag.oy+(e.clientY-drag.y)*k; PS.set(drag.w-1,{...PS.get(drag.w-1),ox:nx,oy:ny}); render()});
+/* selección múltiple: arrastrar un recuadro (botón "Seleccionar varios" o Shift+arrastrar) → mover y cambiar tamaño de todo junto */
+S.msel=[]; S.mselMode=false; S.marq=null; let MG=null, MBASE={};
+function msItems(){ return (S.msel||[]).map(k=>S.hitsAll.find(z=>z.key===k)).filter(Boolean); }
+function msBounds(){ const it=msItems(); if(!it.length) return null; let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9; it.forEach(h=>{ const x=h.x+(h.o.dx||0), y=h.y+(h.o.dy||0); x0=Math.min(x0,x); y0=Math.min(y0,y); x1=Math.max(x1,x+h.w); y1=Math.max(y1,y+h.h); }); return {x:x0,y:y0,w:x1-x0,h:y1-y0}; }
+function msLocal(e){ const r=cv.getBoundingClientRect(), F=FORMATS[S.format]; return {x:(e.clientX-r.left)*F.w/r.width, y:(e.clientY-r.top)*F.h/r.height, k:F.w/r.width}; }
+function msBar(){ let b=document.getElementById('msBar'); const n=msItems().length;
+  if(!n){ if(b) b.remove(); return; }
+  if(!b){ b=document.createElement('div'); b.id='msBar'; b.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:84px;z-index:60;background:#fff;color:#111;border:1px solid #cfd4dc;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.25);padding:10px 14px;display:flex;gap:12px;align-items:center;font:600 14px system-ui,sans-serif;max-width:94vw';
+    b.innerHTML='<span id="msN"></span><label style="display:flex;gap:8px;align-items:center">Tamaño <input id="msSz" type="range" min="50" max="150" step="5" value="100" style="width:140px"><b id="msV">100%</b></label><button type="button" id="msOk" class="ghost" style="padding:6px 12px">Listo</button>'; document.body.appendChild(b);
+    b.querySelector('#msSz').addEventListener('input',e=>{ const f=(+e.target.value)/100; b.querySelector('#msV').textContent=e.target.value+'%'; msItems().forEach(h=>{ const z=S.hits.find(q=>q.mv&&q.mv.key===h.key); if(!z) return; (z.mv.ctrls||[]).filter(c=>c.o===S.sz).forEach(c=>{ if(MBASE[c.k]==null) MBASE[c.k]=S.sz[c.k]||c.def||100; S.sz[c.k]=Math.max(c.min,Math.min(c.max,Math.round(MBASE[c.k]*f))); }); }); persist(); render(); });
+    b.querySelector('#msOk').addEventListener('click',()=>{ S.msel=[]; S.mselMode=false; MBASE={}; const mb=document.getElementById('msBtn'); if(mb) mb.classList.remove('on'); b.remove(); render(); }); }
+  b.querySelector('#msN').textContent=n+(n===1?' elemento':' elementos'); }
+{ const mb=document.getElementById('msBtn'); if(mb) mb.addEventListener('click',()=>{ S.mselMode=!S.mselMode; mb.style.outline=S.mselMode?'2px solid #4f6bff':''; mb.style.background=S.mselMode?'#e6ebff':''; if(!S.mselMode){ S.msel=[]; msBar(); render(); } }); }
+cv.addEventListener('pointerdown',e=>{ if(PTR&&PTR.size>1) return; const L=msLocal(e), sb=msBounds(), inSel=sb&&L.x>=sb.x-10&&L.x<=sb.x+sb.w+10&&L.y>=sb.y-10&&L.y<=sb.y+sb.h+10;
+  if(inSel){ MG={t:'move',x:L.x,y:L.y,base:msItems().map(h=>({o:h.o,ox:h.o.dx||0,oy:h.o.dy||0}))}; }
+  else if(S.mselMode||e.shiftKey){ MG={t:'marq',x:L.x,y:L.y}; S.marq={x0:L.x,y0:L.y,x1:L.x,y1:L.y}; }
+  else return;
+  cv.setPointerCapture(e.pointerId); tap=null; drag=null; elDrag=null; clearTimeout(S.rt); clearTimeout(S.gt); e.stopImmediatePropagation(); e.preventDefault(); },true);
+cv.addEventListener('pointermove',e=>{ if(!MG) return; const L=msLocal(e); e.stopImmediatePropagation();
+  if(MG.t==='marq'){ S.marq.x1=L.x; S.marq.y1=L.y; render(); }
+  else { const dx=L.x-MG.x, dy=L.y-MG.y; MG.base.forEach(b=>{ b.o.dx=Math.round(b.ox+dx); b.o.dy=Math.round(b.oy+dy); }); persist(); render(); } },true);
+cv.addEventListener('pointerup',e=>{ if(!MG) return; e.stopImmediatePropagation(); const g=MG; MG=null;
+  if(g.t==='marq'){ const m=S.marq; S.marq=null; const x0=Math.min(m.x0,m.x1), y0=Math.min(m.y0,m.y1), x1=Math.max(m.x0,m.x1), y1=Math.max(m.y0,m.y1), tiny=(x1-x0)<8&&(y1-y0)<8;
+    S.msel=S.hitsAll.filter(h=>{ const x=h.x+(h.o.dx||0), y=h.y+(h.o.dy||0); return tiny? (m.x0>=x&&m.x0<=x+h.w&&m.y0>=y&&m.y0<=y+h.h) : (x<x1&&x+h.w>x0&&y<y1&&y+h.h>y0); }).map(h=>h.key); MBASE={}; const sl=document.getElementById('msSz'); if(sl){ sl.value=100; document.getElementById('msV').textContent='100%'; } }
+  msBar(); render(); },true);
 cv.addEventListener('pointercancel',()=>{clearTimeout(S.rt);S.reorder=null;drag=null;tap=null;elDrag=null;S.guide=null;render()});
 
 async function download(){

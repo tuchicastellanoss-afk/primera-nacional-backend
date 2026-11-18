@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 18/11 · 17:04</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 18/11 · 17:05</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -1802,6 +1802,9 @@ function drawLista(c,W,H,F){
   const base=it=>it.t==='sec'?96:(108+it.det.length*38), total=list.reduce((s,it)=>s+base(it),0), k=Math.max(.45,Math.min(1.15,avail/total));
   const th=total*k; y+=Math.max(0,(avail-th)/2)*.55;
   hitBox('f-bItems','Lista',M-20,y,W-2*M+40,th,true,{ctrls:[{label:'Tamaño de las filas',o:S.sz,k:'bRows',min:50,max:170,step:5,unit:'%',def:100}]});
+  /* tamaño parejo: el nombre y el precio de todas las filas usan el mismo tamaño (el menor que entra) */
+  let minN=1e9, minP=1e9; list.forEach(it=>{ if(it.t==='sec') return; const h=base(it)*k, hasR=!!it.right, rf=Math.min(56*k*rS,h*.5); let pw=0; if(hasR){ c.font=`${TH.hw} ${rf}px ${TH.font}`; pw=Math.min(c.measureText(it.right).width,W*.36); if(pw>0){ const f2=fit(c,it.right,TH.font,TH.hw,pw,1,rf,16); minP=Math.min(minP,f2.size); } }
+    const nw=W-2*M-(hasR?pw+48:0), nf=Math.min(44*k*rS,h*.4), ft=fit(c,it.name.toUpperCase(),TH.font,TH.bw,nw,2,nf,18); minN=Math.min(minN,ft.size); });
   list.forEach((it,ix)=>{
     const h=base(it)*k; c.textAlign='left'; c.textBaseline='alphabetic';
     if(it.t==='sec'){
@@ -1810,8 +1813,8 @@ function drawLista(c,W,H,F){
       c.fillRect(M,y+h*.62+14,W-2*M,3);
       let dy=y+h*.62+14+36*k; it.det.forEach(dt=>{ const fd=fit(c,dt,TH.font,600,W-2*M,1,32*k*rS,16); c.fillStyle=bzA(TH,.8); c.font=`600 ${fd.size}px ${TH.font}`; c.fillText(fd.lines[0]||'',M,dy); dy+=38*k; });
     } else {
-      const hasR=!!it.right, rf=Math.min(56*k*rS,h*.5); let pw=0; if(hasR){ c.font=`${TH.hw} ${rf}px ${TH.font}`; pw=Math.min(c.measureText(it.right).width,W*.36); }
-      const nw=W-2*M-(hasR?pw+48:0), nf=Math.min(44*k*rS,h*.4), nl=it.det.length;
+      const hasR=!!it.right, rf=Math.min(56*k*rS,h*.5,minP); let pw=0; if(hasR){ c.font=`${TH.hw} ${rf}px ${TH.font}`; pw=Math.min(c.measureText(it.right).width,W*.36); }
+      const nw=W-2*M-(hasR?pw+48:0), nf=Math.min(44*k*rS,h*.4,minN), nl=it.det.length;
       const ft=fit(c,it.name.toUpperCase(),TH.font,TH.bw,nw,2,nf,18), dtS=Math.min(30*k*rS,h*.27), blockH=ft.lines.length*ft.size*1.04+(nl?nl*dtS*1.2+6:0);
       let ty=y+(h-blockH)/2+ft.size*.82; c.fillStyle=TH.ink; c.font=`${TH.bw} ${ft.size}px ${TH.font}`; let lastW=0; ft.lines.forEach(l=>{c.fillText(l,M,ty); lastW=c.measureText(l).width; ty+=ft.size*1.04;}); const nameBase=ty-ft.size*1.04;
       ty+=dtS*.2; it.det.forEach(dt=>{ const fd=fit(c,dt,TH.font,600,nw,1,dtS,14); c.fillStyle=bzA(TH,.72); c.font=`600 ${fd.size}px ${TH.font}`; c.fillText(fd.lines[0]||'',M,ty); ty+=dtS*1.2; });

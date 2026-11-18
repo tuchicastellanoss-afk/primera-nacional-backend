@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 18/11 · 13:07</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 18/11 · 13:12</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -784,7 +784,7 @@ function drawPhoto0(c,W,H,tint){
 }
 /* sombra automática en textos claros que no tengan una propia: se leen aunque el degradé o la foto sean claros */
 (function(){ const P=CanvasRenderingContext2D.prototype, ft=P.fillText; function lightCol(v){ if(typeof v!=='string') return false; let r,g,b,a=1,m; if((m=v.match(/^#([0-9a-f]{6})$/i))){ r=parseInt(m[1].slice(0,2),16); g=parseInt(m[1].slice(2,4),16); b=parseInt(m[1].slice(4,6),16); } else if((m=v.match(/^rgba?\(([^)]+)\)/))){ const q=m[1].split(',').map(parseFloat); r=q[0]; g=q[1]; b=q[2]; a=q.length>3?q[3]:1; } else return false; return a>.3&&(.299*r+.587*g+.114*b)>170; }
-  P.fillText=function(t,x,y,mw){ let ov=null; try{ if(typeof S!=='undefined'){ const sg=(S.curEl||'')+'|'+t, n=(_tcnt[sg]=(_tcnt[sg]||0)+1); _truns.push({sg:sg+'#'+n,t:String(t).trim(),el:S.curEl||'',col:this.fillStyle}); const key=TCM_prev[sg+'#'+n]; if(key&&S.red&&S.red.tco) ov=S.red.tco[key]||null; } }catch(e){}
+  P.fillText=function(t,x,y,mw){ let ov=null; try{ if(typeof S!=='undefined'){ const sg=(S.curEl||'')+'|'+t, n=(_tcnt[sg]=(_tcnt[sg]||0)+1); let cx=x,cy=y; try{ const al=this.textAlign, fs=parseFloat((String(this.font).match(/(\d+(?:\.\d+)?)px/)||[0,30])[1]), w=this.measureText(t).width; cx=al==='center'?x:al==='right'?x-w/2:x+w/2; cy=y-fs*.33; }catch(e){} _truns.push({sg:sg+'#'+n,t:String(t).trim(),el:S.curEl||'',col:this.fillStyle,cx,cy,mp:_mp}); const key=TCM_prev[sg+'#'+n]; if(key&&S.red&&S.red.tco) ov=S.red.tco[key]||null; } }catch(e){}
     const sv=!!(ov&&(ov.c||ov.sh||ov.ns)); if(sv){ const k0=(S.qNow||1); this.save(); if(ov.c) this.fillStyle=ov.c; if(ov.ns){ this.shadowColor='transparent'; this.shadowBlur=0; this.shadowOffsetX=0; this.shadowOffsetY=0; } else if(ov.sh){ this.shadowColor=ov.sh; if(!this.shadowBlur){ this.shadowBlur=16*k0; this.shadowOffsetY=3*k0; } } }
     const T=(typeof S!=='undefined'&&S.red&&S.red.tsh)||{on:true,k:100}; if(T.on!==false&&!(ov&&ov.ns)&&!this.shadowBlur&&!this.shadowOffsetY&&lightCol(this.fillStyle)){ const k=((typeof S!=='undefined'&&S.qNow)||1), m=(T.k||100)/100; this.save(); this.shadowColor='rgba(0,0,0,'+Math.min(.95,.62*m*1.2)+')'; this.shadowBlur=16*k*m; this.shadowOffsetY=3*k; ft.call(this,t,x,y,mw); this.restore(); } else ft.call(this,t,x,y,mw);
     if(sv) this.restore(); };
@@ -2521,7 +2521,10 @@ function phSync(){ const key=S.account+'|'+S.tpl; if(S.phKey===null){S.phKey=key
   else { const e=S.phs[key]||{}; delete S.phs[key]; S.photo=e.photo||null;S.photoBlob=e.photoBlob||null;S.ox=e.ox||0;S.oy=e.oy||0;S.zoom=e.zoom||1;S.photo2=e.photo2||null;S.photoBlob2=e.photoBlob2||null;S.ox2=e.ox2||0;S.oy2=e.oy2||0;S.zoom2=e.zoom2||1;S.xph=(e.xph||[]).map(p=>({...p})); const z=$('#zoom'); if(z) z.value=Math.round(S.zoom*100); try{buildCollageUI()}catch(_){} } }
 let _fxSig='';
 function render(){ try{vidUI()}catch(_){} phSync(); { const sg=(S.phKey||'')+'|'+(S.photo?1:0)+PS.n(); if(sg!==_fxSig){ _fxSig=sg; try{buildFx()}catch(e){} } } cancelAnimationFrame(raf); raf=requestAnimationFrame(draw); }
-function tcHeal(){ try{ if(S.exporting||!S.red||!S.red.tco||!Object.keys(S.red.tco).length) { _tcAuto=false; return; } if(JSON.stringify(TCM_cur)!==JSON.stringify(TCM_prev)){ if(_tcAuto){ _tcAuto=false; return; } _tcAuto=true; requestAnimationFrame(()=>render()); } else _tcAuto=false; }catch(e){ _tcAuto=false; } }
+/* los textos que no encontraron su cuadro por nombre se asignan por posición: cada texto va al cuadro de edición más chico que lo contiene */
+function tcGeo(){ try{ const hs=(S.hitsAll||[]).filter(h=>h.key&&TCCLAIM[h.key]===undefined&&h.w>0&&h.h>0); if(!hs.length) return;
+  _truns.forEach(r=>{ if(r.mp||TCM_cur[r.sg]) return; let best=null,ba=1e18; hs.forEach(h=>{ if(r.cx>=h.x-6&&r.cx<=h.x+h.w+6&&r.cy>=h.y-6&&r.cy<=h.y+h.h+6){ const a=h.w*h.h; if(a<ba){ ba=a; best=h; } } }); if(best){ TCM_cur[r.sg]=best.key; if(TCCLAIM[best.key]===undefined) TCCLAIM[best.key]=r.col; } }); }catch(e){} }
+function tcHeal(){ try{ tcGeo(); if(S.exporting||!S.red||!S.red.tco||!Object.keys(S.red.tco).length) { _tcAuto=false; return; } if(JSON.stringify(TCM_cur)!==JSON.stringify(TCM_prev)){ if(_tcAuto){ _tcAuto=false; return; } _tcAuto=true; requestAnimationFrame(()=>render()); } else _tcAuto=false; }catch(e){ _tcAuto=false; } }
 function draw(){
   const F=FORMATS[S.format], W=F.w, H=F.h;
   const Q=S.exporting?S.q:1; S.qNow=Q;

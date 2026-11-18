@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 18/11 · 13:59</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 18/11 · 14:01</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -1777,14 +1777,14 @@ async function trEsEn(text){
   if(!out) throw new Error('sin traducción'); TR_CACHE[clean]=out; return out+(emo?' '+emo:'');
 }
 function drawSubt(c,W,H,F){
-  const TH=bzTh(), d=bzData(), q=(S.qNow||1), M=70, bw=W-2*M, pad=34, barW=12, tx=M+barW+pad, mw=bw-barW-2*pad;
+  const TH=bzTh(), d=bzData(), q=(S.qNow||1), gk=(S.sz.bAll||100)/100; const ALL={label:'Tamaño de TODO (caja + textos)',o:S.sz,k:'bAll',min:50,max:150,step:5,unit:'%',def:100}; if(!S.red.sgrp) S.red.sgrp={}; const G=S.red.sgrp, gx=G.dx||0, gy=G.dy||0, bw=(W-140)*gk, M=(W-bw)/2+gx, pad=34*gk, barW=12*gk, tx=M+barW+pad, mw=bw-barW-2*pad;
   const es=String(d.es||'').trim(), en=String(d.en||'').trim(); if(!es&&!en) return;
-  const fE=es?fit(c,es.toUpperCase(),TH.font,TH.hw,mw,2,60,26,'bEs'):null, fN=en?fit(c,en.toUpperCase(),TH.font,TH.hw,mw,2,60,26,'bEn'):null;
-  const lE=fE?fE.size*1.1:0, lN=fN?fN.size*1.1:0, hE=fE?fE.lines.length*lE:0, hN=fN?fN.lines.length*lN:0, gap=fE&&fN?8:0, bh=pad*2+hE+gap+hN, y0=Math.round(H*.56-bh/2), bo=(d.bo==null?58:d.bo)/100;
-  E(c,'subtBox',cc=>{ cc.save(); cc.fillStyle=`rgba(26,22,16,${bo})`; const kW=(S.sz.bBoxW||100)/100, kH=(S.sz.bBoxH||100)/100, BW=Math.min(W-M,bw*kW), BH=bh*kH, BY=y0+(bh-BH)/2; rrect(cc,M,BY,BW,BH,8); cc.fill(); cc.fillStyle=TH.acc; cc.fillRect(M,BY,barW,BH); cc.restore(); hitBox('f-bEs','Caja del texto',M,BY,BW,BH,false,{ctrls:[{label:'Ancho de la caja',o:S.sz,k:'bBoxW',min:40,max:130,step:5,unit:'%',def:100},{label:'Alto de la caja',o:S.sz,k:'bBoxH',min:50,max:250,step:5,unit:'%',def:100}]}); });
+  const fE=es?fit(c,es.toUpperCase(),TH.font,TH.hw,mw,2,60*gk,26*gk,'bEs'):null, fN=en?fit(c,en.toUpperCase(),TH.font,TH.hw,mw,2,60*gk,26*gk,'bEn'):null;
+  const lE=fE?fE.size*1.1:0, lN=fN?fN.size*1.1:0, hE=fE?fE.lines.length*lE:0, hN=fN?fN.lines.length*lN:0, gap=fE&&fN?8:0, bh=pad*2+hE+gap+hN, y0=Math.round(H*.56-bh/2+gy), bo=(d.bo==null?58:d.bo)/100;
+  E(c,'subtBox',cc=>{ cc.save(); cc.fillStyle=`rgba(26,22,16,${bo})`; const kW=(S.sz.bBoxW||100)/100, kH=(S.sz.bBoxH||100)/100, BW=Math.min(W-M,bw*kW), BH=bh*kH, BY=y0+(bh-BH)/2; rrect(cc,M,BY,BW,BH,8); cc.fill(); cc.fillStyle=TH.acc; cc.fillRect(M,BY,barW,BH); cc.restore(); const GM={o:G,x:'dx',y:'dy',tb:true,rng:1200,ctrls:[ALL],ctr:{x:M+BW/2,y:BY+BH/2}}; { const gb=Math.min(M,60); hitBox('f-bEs','Todo (caja + textos)',M-gb,BY-gb,BW+2*gb,BH+2*gb,false,GM); } hitBox('f-bEs','Caja del texto',M,BY,BW,BH,false,{ctrls:[ALL,{label:'Ancho de la caja',o:S.sz,k:'bBoxW',min:40,max:130,step:5,unit:'%',def:100},{label:'Alto de la caja',o:S.sz,k:'bBoxH',min:50,max:250,step:5,unit:'%',def:100}]}); });
   let y=y0+pad;
-  if(fE){ E(c,'subtEs',cc=>{ cc.textBaseline='alphabetic'; cc.textAlign='left'; cc.fillStyle='#ffffff'; cc.font=`${TH.hw} ${fE.size}px ${TH.font}`; fE.lines.forEach((l,i)=>cc.fillText(l,tx,y+fE.size*.86+i*lE)); hitLines(cc,'f-bEs','Texto en español',fE.lines,tx,y+fE.size*.86,fE.size,lE,'left',true,{ctrls:[SZ('bEs')]}); }); y+=hE+gap; }
-  if(fN){ E(c,'subtEn',cc=>{ cc.textBaseline='alphabetic'; cc.textAlign='left'; cc.fillStyle='#ffffff'; cc.font=`${TH.hw} ${fN.size}px ${TH.font}`; fN.lines.forEach((l,i)=>cc.fillText(l,tx,y+fN.size*.86+i*lN)); hitLines(cc,'f-bEn','Texto en inglés',fN.lines,tx,y+fN.size*.86,fN.size,lN,'left',true,{ctrls:[SZ('bEn')]}); }); }
+  if(fE){ E(c,'subtEs',cc=>{ cc.textBaseline='alphabetic'; cc.textAlign='left'; cc.fillStyle='#ffffff'; cc.font=`${TH.hw} ${fE.size}px ${TH.font}`; fE.lines.forEach((l,i)=>cc.fillText(l,tx,y+fE.size*.86+i*lE)); hitLines(cc,'f-bEs','Texto en español',fE.lines,tx,y+fE.size*.86,fE.size,lE,'left',true,{ctrls:[SZ('bEs'),ALL]}); }); y+=hE+gap; }
+  if(fN){ E(c,'subtEn',cc=>{ cc.textBaseline='alphabetic'; cc.textAlign='left'; cc.fillStyle='#ffffff'; cc.font=`${TH.hw} ${fN.size}px ${TH.font}`; fN.lines.forEach((l,i)=>cc.fillText(l,tx,y+fN.size*.86+i*lN)); hitLines(cc,'f-bEn','Texto en inglés',fN.lines,tx,y+fN.size*.86,fN.size,lN,'left',true,{ctrls:[SZ('bEn'),ALL]}); }); }
 }
 function subtDim(c,W,H){ const d=bzData(), k=(d.dim==null?12:d.dim)/100; if(k>0){ c.save(); c.fillStyle=`rgba(0,0,0,${k})`; c.fillRect(0,0,W,H); c.restore(); } }
 function drawLista(c,W,H,F){
@@ -3301,7 +3301,8 @@ cv.addEventListener('pointerdown',e=>{tap={x:e.clientX,y:e.clientY,t:performance
   elDrag=null; {
     const r=cv.getBoundingClientRect(), F=FORMATS[S.format], lx=(e.clientX-r.left)*F.w/r.width, ly=(e.clientY-r.top)*F.h/r.height, canMv=S.moveMode&&S.tpl==='partido';
     const h=[...S.hits].reverse().find(z=>z.mv&&z.mv.x&&(canMv||z.mv.tb)&&lx>=z.x&&lx<=z.x+z.w&&ly>=z.y&&ly<=z.y+z.h);
-    if(h){const ct=h.mv.ctr||{x:h.x+h.w/2,y:h.y+h.h/2}; elDrag={mv:h.mv,x:e.clientX,y:e.clientY,ox:h.mv.o[h.mv.x]||0,oy:h.mv.o[h.mv.y]||0,cx:ct.x,cy:ct.y,moved:false};drag=null}
+    if(h){const ct=h.mv.ctr||{x:h.x+h.w/2,y:h.y+h.h/2}; elDrag={mv:h.mv,x:e.clientX,y:e.clientY,ox:h.mv.o[h.mv.x]||0,oy:h.mv.o[h.mv.y]||0,cx:ct.x,cy:ct.y,moved:false};drag=null;
+      clearTimeout(S.gt); if(S.tpl==='subt'&&h.label!=='Todo (caja + textos)'){ S.gt=setTimeout(()=>{ if(!elDrag||elDrag.moved) return; const g=S.hits.find(z=>z.label==='Todo (caja + textos)'); if(!g) return; const c2=g.mv.ctr; elDrag={mv:g.mv,x:elDrag.x,y:elDrag.y,ox:g.mv.o[g.mv.x]||0,oy:g.mv.o[g.mv.y]||0,cx:c2.x,cy:c2.y,moved:false,grp:true}; try{navigator.vibrate&&navigator.vibrate(30)}catch(er){} },450); }}
   }});
 cv.addEventListener('pointermove',e=>{ if(!elDrag) return; const r=cv.getBoundingClientRect(), F=FORMATS[S.format], k=F.w/r.width, dx=(e.clientX-elDrag.x)*k, dy=(e.clientY-elDrag.y)*k;
   if(Math.hypot(dx,dy)>3) elDrag.moved=true; if(!elDrag.moved) return; const mv=elDrag.mv; let ddx=dx, ddy=dy; const lk=mv.o['lk_'+mv.x];
@@ -3311,7 +3312,7 @@ cv.addEventListener('pointermove',e=>{ if(!elDrag) return; const r=cv.getBoundin
   if(lk!=='h'&&Math.abs(ccy-F.h/2)<12){ddy+=F.h/2-ccy;gd.y=true} S.guide=(gd.x||gd.y)?gd:null;
   mv.o[mv.x]=Math.round(elDrag.ox+ddx); mv.o[mv.y]=Math.round(elDrag.oy+ddy); persist(); render(); });
 cv.addEventListener('pointerup',e=>{
-  clearTimeout(S.rt);
+  clearTimeout(S.rt); clearTimeout(S.gt);
   if(S.reorder){ const r0=cv.getBoundingClientRect(), F0=FORMATS[S.format], to=photoAt(F0.w,F0.h,(e.clientX-r0.left)*F0.w/r0.width,(e.clientY-r0.top)*F0.h/r0.height), fr=S.reorder.from; S.reorder=null; tap=null; drag=null; if(to!==fr) movePhoto(fr-1,to-1); else render(); return; }
   if(elDrag){const mvd=elDrag.moved; elDrag=null; S.guide=null; if(mvd){tap=null;drag=null;render();return}}
   if(!tap) return; const dx=e.clientX-tap.x, dy=e.clientY-tap.y, dt=performance.now()-tap.t;

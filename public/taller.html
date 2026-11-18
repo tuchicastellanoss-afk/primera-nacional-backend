@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 18/11 · 13:49</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 18/11 · 13:59</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -1781,7 +1781,7 @@ function drawSubt(c,W,H,F){
   const es=String(d.es||'').trim(), en=String(d.en||'').trim(); if(!es&&!en) return;
   const fE=es?fit(c,es.toUpperCase(),TH.font,TH.hw,mw,2,60,26,'bEs'):null, fN=en?fit(c,en.toUpperCase(),TH.font,TH.hw,mw,2,60,26,'bEn'):null;
   const lE=fE?fE.size*1.1:0, lN=fN?fN.size*1.1:0, hE=fE?fE.lines.length*lE:0, hN=fN?fN.lines.length*lN:0, gap=fE&&fN?8:0, bh=pad*2+hE+gap+hN, y0=Math.round(H*.56-bh/2), bo=(d.bo==null?58:d.bo)/100;
-  E(c,'subtBox',cc=>{ cc.save(); cc.fillStyle=`rgba(26,22,16,${bo})`; rrect(cc,M,y0,bw,bh,8); cc.fill(); cc.fillStyle=TH.acc; cc.fillRect(M,y0,barW,bh); cc.restore(); hitBox('f-bEs','Caja del texto',M,y0,bw,bh,false); });
+  E(c,'subtBox',cc=>{ cc.save(); cc.fillStyle=`rgba(26,22,16,${bo})`; const kW=(S.sz.bBoxW||100)/100, kH=(S.sz.bBoxH||100)/100, BW=Math.min(W-M,bw*kW), BH=bh*kH, BY=y0+(bh-BH)/2; rrect(cc,M,BY,BW,BH,8); cc.fill(); cc.fillStyle=TH.acc; cc.fillRect(M,BY,barW,BH); cc.restore(); hitBox('f-bEs','Caja del texto',M,BY,BW,BH,false,{ctrls:[{label:'Ancho de la caja',o:S.sz,k:'bBoxW',min:40,max:130,step:5,unit:'%',def:100},{label:'Alto de la caja',o:S.sz,k:'bBoxH',min:50,max:250,step:5,unit:'%',def:100}]}); });
   let y=y0+pad;
   if(fE){ E(c,'subtEs',cc=>{ cc.textBaseline='alphabetic'; cc.textAlign='left'; cc.fillStyle='#ffffff'; cc.font=`${TH.hw} ${fE.size}px ${TH.font}`; fE.lines.forEach((l,i)=>cc.fillText(l,tx,y+fE.size*.86+i*lE)); hitLines(cc,'f-bEs','Texto en español',fE.lines,tx,y+fE.size*.86,fE.size,lE,'left',true,{ctrls:[SZ('bEs')]}); }); y+=hE+gap; }
   if(fN){ E(c,'subtEn',cc=>{ cc.textBaseline='alphabetic'; cc.textAlign='left'; cc.fillStyle='#ffffff'; cc.font=`${TH.hw} ${fN.size}px ${TH.font}`; fN.lines.forEach((l,i)=>cc.fillText(l,tx,y+fN.size*.86+i*lN)); hitLines(cc,'f-bEn','Texto en inglés',fN.lines,tx,y+fN.size*.86,fN.size,lN,'left',true,{ctrls:[SZ('bEn')]}); }); }

@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 18/11 · 13:12</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 18/11 · 13:46</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -367,6 +367,7 @@ const TEMPLATES = {
   arbitros:{label:'Árbitros',main:null,fields:[]},
   once:{label:'Once ideal',main:null,fields:[]},
   ascenso:{label:'Ascenso',main:null,fields:[]},
+  subt:{label:'Stories | Reels',main:null,fields:[]},
   combos:{label:'Combos',main:null,fields:[]},
   precios:{label:'Lista de precios',main:null,fields:[]},
   aviso:{label:'Aviso con texto',main:null,fields:[]},
@@ -1568,8 +1569,8 @@ function drawArbitros(c,W,H,F){
   });
 }
 /* ================= CUENTAS DE NEGOCIOS: lista de precios, aviso, agenda, evento ================= */
-const BIZ_T=['combos','precios','aviso','agenda','evento','flyer','clases','cover'];
-const ACC_TPLS={tz:['cover','combos','precios','aviso'],se:['cover','combos','precios','aviso'],fb:['cover','flyer','combos','precios','aviso'],mz:['cover','precios','aviso'],lg:['cover','clases','evento','agenda','precios','aviso']};
+const BIZ_T=['subt','combos','precios','aviso','agenda','evento','flyer','clases','cover'];
+const ACC_TPLS={tz:['cover','combos','precios','aviso'],se:['cover','combos','precios','aviso'],fb:['cover','flyer','combos','precios','aviso'],mz:['cover','precios','aviso'],lg:['cover','subt','clases','evento','agenda','precios','aviso']};
 function tplKeys(){
   const a=currentAccount(), base=Object.keys(TEMPLATES).filter(k=>k==='reducido'||!isRed(k)), fbk=base.filter(k=>!BIZ_T.includes(k)); const nopn=fbk.filter(k=>k!=='entradas'&&k!=='entranking'&&k!=='once'&&k!=='ascenso'&&k!=='cruce'&&k!=='cita');
   if(ACC_TPLS[a.id]) return ACC_TPLS[a.id]; if(a.id==='pn') return fbk; return [...nopn,'cover','precios','aviso'];
@@ -1651,7 +1652,7 @@ function bzRgb(h){ h=String(h||'#000000').replace('#',''); if(h.length===3) h=h.
 function bzMix(a,b,t){ const x=bzRgb(a), y=bzRgb(b); return 'rgb('+x.map((v,i)=>Math.round(v+(y[i]-v)*t)).join(',')+')'; }
 function bzLum(h){ const [r,g,b]=bzRgb(h); return (.299*r+.587*g+.114*b)/255; }
 function bzOv(){ const R=S.red; R.bizCol=R.bizCol||{}; return R.bizCol[currentAccount().id]=R.bizCol[currentAccount().id]||{}; }
-function bzFlatCalc(){ if(!BIZ_T.includes(S.tpl)) return null; const a=currentAccount(); if(((S.red.bizFlat||{})[a.id])==='off') return null; const base=FLAT[a.id]||FLAT._, ov=bzOv(); const f=Object.assign({},base,{bg:ov.bg||base.bg,ink:ov.ink||base.ink,acc:ov.acc||base.acc,on:ov.on||base.on}); f.dark=bzLum(f.bg)<.5; return f; }
+function bzFlatCalc(){ if(!BIZ_T.includes(S.tpl)||S.tpl==='subt') return null; const a=currentAccount(); if(((S.red.bizFlat||{})[a.id])==='off') return null; const base=FLAT[a.id]||FLAT._, ov=bzOv(); const f=Object.assign({},base,{bg:ov.bg||base.bg,ink:ov.ink||base.ink,acc:ov.acc||base.acc,on:ov.on||base.on}); f.dark=bzLum(f.bg)<.5; return f; }
 /* con foto: si la foto está muy transparente (<60%) manda el diseño de la marca y la foto queda encima; si no, se ve como siempre (foto + degradé) */
 function bzFlatOn(){ if(S.photo){ let op=100; try{ op=fxGet().op; }catch(e){} if(op>=60) return null; } return bzFlatCalc(); }
 function bzUnder(c,W,H){ if(S.account==='pn') return false; const f=bzFlatCalc(); if(!f) return false; if(scMode()) drawScene(c,W,H); else { c.fillStyle=f.bg; c.fillRect(0,0,W,H); f.deco(c,W,H,f); } return true; }
@@ -1675,13 +1676,14 @@ const BZ_DEF={
     aviso:{lines:'ASÍ ESTABA LA PILETA',sub:'Sin mantenimiento del piso',sticker:'',pos:'low',box:'none',c1:'+54 9 11 6601-2377',c2:''},
     flyer:{t1:'CAMBIO DE',t2:'GRAVA',t3:'DE FILTROS',t4:'para piscinas',tag:'FILTROS',brand:'VULCANO',bsub:'Inspirados por el agua',desc:'Mantenimiento y renovación de filtros Vulcano',bens:'Mejora la filtración del agua\nMayor rendimiento del filtro\nAgua más limpia y cristalina',note:'Grava nueva, mejor filtrado',circ:'1',cta:'Consultanos',c1:'11 6601-2377',c2:''}},
   lg:{
+    subt:{es:'DÍA DE PELUQUERÍA 🐎',en:'HAIR DAY 🐴',bo:58,dim:12},
     clases:{tag:'ASÍ SON LAS CLASES',title:'CLASES DE POLO',sub:'',items:'Duración | 1 hora a 1 hora y media\nQué aprendés | Preparar el caballo, equitación básica y taqueo\nEquipamiento incluido | Botas, casco y taco\nSeguimiento personalizado | Según el conocimiento de cada uno',cta1:'FECHAS, VALORES Y PAQUETES',cta2:'Escribinos por WhatsApp',c1:'',c2:'@laguapeadapolo'},
     precios:{title:'PLANES Y VALORES',sub:'Clases de polo',items:'Clase de iniciación | 1 hora | $00.000\nPack de 4 clases | por mes | $00.000\nAlquiler de caballo | por hora | $00.000\nPupilaje | por mes | $00.000',c1:'',c2:'@laguapeadapolo'},
     aviso:{lines:'COMUNICADO\nEscribí acá el aviso',sub:'',sticker:'',pos:'mid',box:'none',c1:'',c2:'@laguapeadapolo'},
     agenda:{title:'CLASES DE POLO',sub:'Horarios de la semana',items:'Martes | Iniciación | 17:00 a 18:30\nJueves | Nivel intermedio | 17:00 a 18:30\nSábado | Práctica libre | 10:00 a 13:00\nDomingo | Partidos | 15:00',c1:'',c2:'@laguapeadapolo'},
     evento:{tag:'TORNEO',title:'COPA LA GUAPEADA',date:'Sábado 5 de diciembre',time:'15:00 hs',place:'Pilar, Buenos Aires',text:'Inscripción abierta. Cupos limitados.',c1:'',c2:'@laguapeadapolo'}}
 };
-const BZ_GENERIC={combos:{title:'COMBOS',sub:'',items:'#1\n2 Producto uno\n1 Producto dos\n$0.000\n\n#2\n3 Producto uno\n2 Producto tres\n$0.000',foot:'',c1:'',c2:''},cover:{l1:'TÍTULO DE LA',l2:'PORTADA',pic:false,guide:true,sw:true,sp:true,c1:'',c2:''},precios:{title:'LISTA DE PRECIOS',sub:'',items:'Producto 1 - $0.000\nProducto 2 - $0.000\nProducto 3 - $0.000',c1:'',c2:''},aviso:{lines:'ESCRIBÍ ACÁ EL AVISO',sub:'',sticker:'',pos:'low',box:'color',c1:'',c2:''},agenda:{title:'HORARIOS',sub:'',items:'Lunes | Actividad | 10:00',c1:'',c2:''},evento:{tag:'EVENTO',title:'NOMBRE DEL EVENTO',date:'',time:'',place:'',text:'',c1:'',c2:''}};
+const BZ_GENERIC={subt:{es:'TEXTO EN ESPAÑOL',en:'TEXT IN ENGLISH',bo:58,dim:12},combos:{title:'COMBOS',sub:'',items:'#1\n2 Producto uno\n1 Producto dos\n$0.000\n\n#2\n3 Producto uno\n2 Producto tres\n$0.000',foot:'',c1:'',c2:''},cover:{l1:'TÍTULO DE LA',l2:'PORTADA',pic:false,guide:true,sw:true,sp:true,c1:'',c2:''},precios:{title:'LISTA DE PRECIOS',sub:'',items:'Producto 1 - $0.000\nProducto 2 - $0.000\nProducto 3 - $0.000',c1:'',c2:''},aviso:{lines:'ESCRIBÍ ACÁ EL AVISO',sub:'',sticker:'',pos:'low',box:'color',c1:'',c2:''},agenda:{title:'HORARIOS',sub:'',items:'Lunes | Actividad | 10:00',c1:'',c2:''},evento:{tag:'EVENTO',title:'NOMBRE DEL EVENTO',date:'',time:'',place:'',text:'',c1:'',c2:''}};
 function bzData(){
   const R=S.red; R.biz=R.biz||{}; const k=currentAccount().id+':'+S.tpl+(S.inst?'#'+S.inst:''); const def=((BZ_DEF[currentAccount().id]||{})[S.tpl])||BZ_GENERIC[S.tpl]||{};
   const o=R.biz[k]=R.biz[k]||{}; Object.keys(def).forEach(f=>{ if(o[f]===undefined) o[f]=def[f]; }); return o;
@@ -1764,6 +1766,18 @@ function drawCombos(c,W,H,F){
     yy+=h+L.g; });
   if(foot){ E(c,'cmbFoot',cc=>{ const ft=fit(cc,foot,TH.font,600,W-2*M,1,30,16,'bFoot'), by=yEnd-footH+ft.size+8; cc.textAlign='center'; cc.font=`600 ${ft.size}px ${TH.font}`; cc.fillStyle=bzA(TH,.7); cc.fillText(ft.lines[0]||'',W/2,by); hitLines(cc,'f-bFoot','Aclaración',ft.lines,W/2,by,ft.size,ft.size,'center',false,{ctrls:[SZ('bFoot')]}); }); }
 }
+function drawSubt(c,W,H,F){
+  const TH=bzTh(), d=bzData(), q=(S.qNow||1), M=70, bw=W-2*M, pad=34, barW=12, tx=M+barW+pad, mw=bw-barW-2*pad;
+  const es=String(d.es||'').trim(), en=String(d.en||'').trim(); if(!es&&!en) return;
+  const fE=es?fit(c,es.toUpperCase(),TH.font,TH.hw,mw,2,60,26,'bEs'):null, fN=en?fit(c,en.toUpperCase(),TH.font,TH.hw,mw,2,60,26,'bEn'):null;
+  const lE=fE?fE.size*1.1:0, lN=fN?fN.size*1.1:0, hE=fE?fE.lines.length*lE:0, hN=fN?fN.lines.length*lN:0, gap=fE&&fN?8:0, bh=pad*2+hE+gap+hN, y0=Math.round(H*.56-bh/2), bo=(d.bo==null?58:d.bo)/100;
+  E(c,'subtCap',cc=>{ cc.textBaseline='alphabetic'; cc.textAlign='left';
+    cc.save(); cc.fillStyle=`rgba(26,22,16,${bo})`; rrect(cc,M,y0,bw,bh,8); cc.fill(); cc.fillStyle=TH.acc; cc.fillRect(M,y0,barW,bh); cc.restore();
+    let y=y0+pad; cc.fillStyle='#ffffff';
+    if(fE){ cc.font=`${TH.hw} ${fE.size}px ${TH.font}`; fE.lines.forEach((l,i)=>cc.fillText(l,tx,y+fE.size*.86+i*lE)); hitLines(cc,'f-bEs','Texto en español',fE.lines,tx,y+fE.size*.86,fE.size,lE,'left',true,{ctrls:[SZ('bEs')]}); y+=hE+gap; }
+    if(fN){ cc.font=`${TH.hw} ${fN.size}px ${TH.font}`; fN.lines.forEach((l,i)=>cc.fillText(l,tx,y+fN.size*.86+i*lN)); hitLines(cc,'f-bEn','Texto en inglés',fN.lines,tx,y+fN.size*.86,fN.size,lN,'left',true,{ctrls:[SZ('bEn')]}); } });
+}
+function subtDim(c,W,H){ const d=bzData(), k=(d.dim==null?12:d.dim)/100; if(k>0){ c.save(); c.fillStyle=`rgba(0,0,0,${k})`; c.fillRect(0,0,W,H); c.restore(); } }
 function drawLista(c,W,H,F){
   const TH=bzTh(), d=bzData(), M=90, yS=Math.max(F.top+58*2+54,(S.logoBot||0)+44);
   let y=bzTitle(c,W,F,d,yS); const yEnd=bzContact(c,W,H,F,d,TH)-34, avail=yEnd-y;
@@ -2064,6 +2078,8 @@ function makeCopy(kind){
     body.push((cap(d.title)?'🔥 '+cap(d.title)+(cap(d.sub)?' · '+cap(d.sub):''):'🔥 Precios'));
     const lim=tw?3:12; it.slice(0,lim).forEach(x=>body.push('• '+cap(x.name)+(x.right?' – '+cap(x.right):'')));
     if(!tw){ body.push(''); body.push('Precios sujetos a cambios y stock.'); }
+  } else if(t==='subt'){
+    body.push('💬 '+cap(d.es)); if(cap(d.en)) body.push(cap(d.en));
   } else if(t==='combos'){
     const cb=parseCombos(d.items); body.push('🧺 '+(cap(d.title)||'Combos')+(cap(d.sub)?' · '+cap(d.sub):''));
     cb.slice(0,tw?3:12).forEach((x,i)=>body.push('• '+(/^\d+$/.test(x.label)?'Combo '+x.label:(cap(x.label)||'Combo '+(i+1)))+': '+x.items.map(cap).join(' + ')+(x.price?' – '+cap(x.price):'')));
@@ -2251,6 +2267,10 @@ function buildBizUI(box){
     F('bTitle','Título','title'); F('bSub','Subtítulo (opcional)','sub'); F('bItems','Combos','items',true,300); F('bFoot','Aclaración abajo (opcional, ej: Válido hasta agotar stock)','foot');
     const h=document.createElement('p'); h.className='hint'; h.textContent='Cada combo empieza con # y el número (ej: #7). Debajo, un producto por línea (ej: 200 gr Mortadela) y al final el precio con $ (ej: $5.700). Dejá una línea en blanco entre combos. Si en vez del número escribís un nombre (ej: #Combo pizza), sale como título del combo.'; w.appendChild(h);
     ctl(w,'Tamaño del título',S.sz,'bTitle',{min:30,max:200,step:5,unit:'%',def:100}); ctl(w,'Tamaño de los combos',S.sz,'bRows',{min:50,max:170,step:5,unit:'%',def:100});
+  } else if(t==='subt'){
+    F('bEs','Texto en español','es',true,100); F('bEn','Texto en inglés (opcional)','en',true,100);
+    const h=document.createElement('p'); h.className='hint'; h.textContent='Subí la foto o el video de fondo (arriba). El texto se mueve tocándolo y arrastrándolo. Podés cambiar el color del texto tocándolo.'; w.appendChild(h);
+    ctl(w,'Tamaño del texto en español',S.sz,'bEs',{min:50,max:160,step:5,unit:'%',def:100}); ctl(w,'Tamaño del texto en inglés',S.sz,'bEn',{min:50,max:160,step:5,unit:'%',def:100}); ctl(w,'Opacidad de la caja',d,'bo',{min:0,max:100,step:5,unit:'%',def:58}); ctl(w,'Oscurecer la foto',d,'dim',{min:0,max:70,step:5,unit:'%',def:12});
   } else if(t==='aviso'){
     F('bLines','Texto principal (cada línea va en una línea)','lines',true,110); F('bSub','Texto chico abajo (opcional)','sub'); F('bSticker','Sello redondo (opcional, ej: NUEVO INGRESO)','sticker',true,60);
     bzSelect(w,'Recuadro del texto',d,'box',[['color','Color de la marca'],['white','Blanco'],['dark','Oscuro'],['none','Sin recuadro']]); bzSelect(w,'Posición',d,'pos',[['low','Abajo'],['mid','En el medio'],['top','Arriba']]);
@@ -2540,9 +2560,9 @@ function draw(){
   S.logoBot=0; S.bzFlat=(typeof bzFlatOn==='function')?bzFlatOn():null;
   if(S.tr) S.bzFlat=null; else drawPhoto(c,W,H,tint);
   if(S.bzFlat){ if(!S.photo){ if(scMode()) drawScene(c,W,H); else { c.fillStyle=S.bzFlat.bg; c.fillRect(0,0,W,H); S.bzFlat.deco(c,W,H,S.bzFlat); } } drawHeader(c,W,F.top,currentAccount()); } else
-  if(S.tpl==='partido'){ if(S.tr!==2) drawDark(c,W,H,S.ly.ov/100); } else {if(S.tr!==2&&S.tpl!=='flyer') drawOverlay(c,W,H,tint,S.tpl==='tabla'||isRed(S.tpl)||S.tpl==='resumen'||S.tpl==='equipos'||S.tpl==='arbitros'||S.tpl==='precios'||S.tpl==='agenda'); if(S.format!=='portada') drawHeader(c,W,F.top,currentAccount());}
+  if(S.tpl==='partido'){ if(S.tr!==2) drawDark(c,W,H,S.ly.ov/100); } else {if(S.tpl==='subt'){ if(S.tr!==2) subtDim(c,W,H); } else if(S.tr!==2&&S.tpl!=='flyer') drawOverlay(c,W,H,tint,S.tpl==='tabla'||isRed(S.tpl)||S.tpl==='resumen'||S.tpl==='equipos'||S.tpl==='arbitros'||S.tpl==='precios'||S.tpl==='agenda'); if(S.format!=='portada') drawHeader(c,W,F.top,currentAccount());}
   const _mo=moAny(); if(_mo) moSnapshot();
-  const _tf0=({noticia:drawNoticia,resultado:drawResultado,consigna:drawConsigna,vs:drawVs,cruce:drawCruce,cita:drawCita,entradas:drawEntradas,entranking:drawEnRanking,tabla:drawTabla,partido:drawPartido,reducido:drawReducido,red_qf:drawReducido,red_sf:drawReducido,red_fin:drawReducido,red_all:drawReducido,resumen:drawResumen,equipos:drawEquipos,arbitros:drawArbitros,precios:drawLista,combos:drawCombos,agenda:drawLista,aviso:drawAviso,evento:drawEvento,flyer:drawFlyer,clases:drawClases,cover:drawPortada,once:drawOnce,ascenso:drawAscenso})[S.tpl]; const _tfn=(BIZ_T.includes(S.tpl)&&scMode()&&S.scProds.length)?((c2,W2,H2,F2)=>{ drawSceneProducts(c2,W2,H2,F2); _tf0(c2,W2,H2,F2); }):_tf0; _tfn(c,W,H,F);
+  const _tf0=({noticia:drawNoticia,resultado:drawResultado,consigna:drawConsigna,vs:drawVs,cruce:drawCruce,cita:drawCita,entradas:drawEntradas,entranking:drawEnRanking,tabla:drawTabla,partido:drawPartido,reducido:drawReducido,red_qf:drawReducido,red_sf:drawReducido,red_fin:drawReducido,red_all:drawReducido,resumen:drawResumen,equipos:drawEquipos,arbitros:drawArbitros,precios:drawLista,combos:drawCombos,subt:drawSubt,agenda:drawLista,aviso:drawAviso,evento:drawEvento,flyer:drawFlyer,clases:drawClases,cover:drawPortada,once:drawOnce,ascenso:drawAscenso})[S.tpl]; const _tfn=(BIZ_T.includes(S.tpl)&&scMode()&&S.scProds.length)?((c2,W2,H2,F2)=>{ drawSceneProducts(c2,W2,H2,F2); _tf0(c2,W2,H2,F2); }):_tf0; _tfn(c,W,H,F);
   if(_mo) moApply(c,_tfn,W,H,F);
   drawTexts(c,W,H);
   if(!S.exporting&&S.guide){c.save();c.strokeStyle='#ff2fd0';c.lineWidth=3;c.setLineDash([16,10]);
@@ -2559,7 +2579,7 @@ function buildAccounts(){
     box.appendChild(b)});
 }
 /* ---- celular: menú de diseños + botón volver ---- */
-const MOBI={cover:['🎬','Portada de reel'],combos:['🧺','Combos con precio'],noticia:['📰','Titular + escudo'],consigna:['❓','Pregunta A o B'],vs:['⚔️','Dos equipos'],cruce:['🏟️','Un cruce, ida y vuelta'],cita:['🗣️','Frase con foto'],partido:['⚽','Resultados del día'],tabla:['📊','Tabla de posiciones'],reducido:['🏆','Todas las instancias'],resumen:['📋','Resumen de la fecha'],equipos:['🧩','Equipos 2027'],arbitros:['🟨','Árbitros'],once:['⭐','Formación 4-4-2 y más'],ascenso:['🚀','Ascendió a Primera'],precios:['🏷️','Lista de precios'],aviso:['📢','Aviso con texto'],agenda:['🗓️','Horarios de la semana'],evento:['🎉','Fecha, hora y lugar'],clases:['🐴','Info de las clases']};
+const MOBI={cover:['🎬','Portada de reel'],combos:['🧺','Combos con precio'],subt:['💬','Texto para stories y reels'],noticia:['📰','Titular + escudo'],consigna:['❓','Pregunta A o B'],vs:['⚔️','Dos equipos'],cruce:['🏟️','Un cruce, ida y vuelta'],cita:['🗣️','Frase con foto'],partido:['⚽','Resultados del día'],tabla:['📊','Tabla de posiciones'],reducido:['🏆','Todas las instancias'],resumen:['📋','Resumen de la fecha'],equipos:['🧩','Equipos 2027'],arbitros:['🟨','Árbitros'],once:['⭐','Formación 4-4-2 y más'],ascenso:['🚀','Ascendió a Primera'],precios:['🏷️','Lista de precios'],aviso:['📢','Aviso con texto'],agenda:['🗓️','Horarios de la semana'],evento:['🎉','Fecha, hora y lugar'],clases:['🐴','Info de las clases']};
 const isMob=()=>matchMedia('(max-width:860px)').matches;
 function mobMenu(show){ const m=document.getElementById('menuM'); if(!m) return; m.hidden=!show; document.body.style.overflow=show?'hidden':''; if(show){ mobBuild(); m.scrollTop=0; } }
 function mobBuild(){
@@ -2591,7 +2611,7 @@ function buildTpls(){
 }
 /* copias de una solapa (ej: Combos 2, Combos 3): cada una guarda sus propios textos y posiciones */
 function bzDups(k){ return (BIZ_T.includes(k)&&S.red&&S.red.dups&&S.red.dups[currentAccount().id+':'+k])||[]; }
-function chipGo(k,n){ S.inst=n||0; S.tpl=k;if(k==='cover'&&S.format!=='story'){S.format='story';S.ox=S.oy=0;}if(k==='noticia'){S.autoTint=true; S.logoTint=false; const ai=$('#autoTint'); if(ai) ai.checked=true; const li=$('#logoTint'); if(li) li.checked=false;} if(k!=='equipos'&&S.format==='portada'){S.format='retrato';S.ox=S.oy=0} buildTpls();buildFormats();buildQual();buildFields();render(); }
+function chipGo(k,n){ S.inst=n||0; S.tpl=k;if((k==='cover'||k==='subt')&&S.format!=='story'){S.format='story';S.ox=S.oy=0;}if(k==='noticia'){S.autoTint=true; S.logoTint=false; const ai=$('#autoTint'); if(ai) ai.checked=true; const li=$('#logoTint'); if(li) li.checked=false;} if(k!=='equipos'&&S.format==='portada'){S.format='retrato';S.ox=S.oy=0} buildTpls();buildFormats();buildQual();buildFields();render(); }
 function bzDupNew(){ const R=S.red, a=currentAccount().id, key=a+':'+S.tpl; R.dups=R.dups||{}; const L=R.dups[key]=R.dups[key]||[]; const n=Math.max(1,...L)+1, src=bzData(); R.biz[key+'#'+n]=JSON.parse(JSON.stringify(src)); L.push(n); persist(); chipGo(S.tpl,n); }
 function bzDupDel(){ const R=S.red, a=currentAccount().id, key=a+':'+S.tpl, n=S.inst; if(!n) return; R.dups[key]=(R.dups[key]||[]).filter(x=>x!==n); delete R.biz[key+'#'+n]; persist(); chipGo(S.tpl,0); }
 function ctl(parent,label,obj,key,o){

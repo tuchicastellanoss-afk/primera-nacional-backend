@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 18/11 · 16:48</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 18/11 · 16:56</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -1600,7 +1600,7 @@ const FLAT={
   tz:{bg:'#121212',ink:'#ffffff',acc:'#ffc20e',on:'#111111',deco(c,W,H,f){ c.fillStyle='rgba(255,255,255,.05)'; for(let y=60;y<H;y+=54) for(let x=96;x<W;x+=54){ c.fillRect(x-1.5,y-1.5,3,3); }
     c.save(); c.beginPath(); c.rect(0,H-44,W,44); c.clip(); c.fillStyle=f.acc; c.fillRect(0,H-44,W,44); c.fillStyle='#111'; for(let x=-60;x<W+60;x+=64){ c.beginPath(); c.moveTo(x,H); c.lineTo(x+32,H); c.lineTo(x+64,H-44); c.lineTo(x+32,H-44); c.closePath(); c.fill(); } c.restore();
     c.save(); c.beginPath(); c.rect(W-44,0,44,H-44); c.clip(); c.fillStyle=f.acc; c.fillRect(W-44,0,44,H-44); c.fillStyle='#111'; for(let y=-60;y<H+60;y+=64){ c.beginPath(); c.moveTo(W,y); c.lineTo(W,y+32); c.lineTo(W-44,y+64); c.lineTo(W-44,y+32); c.closePath(); c.fill(); } c.restore(); }},
-  se:{bg:'#fbf2df',ink:'#0b3f9e',acc:'#e8780a',on:'#0b3f9e',deco(c,W,H,f){ c.fillStyle=f.acc; c.beginPath(); c.arc(W,0,250,0,7); c.fill(); c.fillRect(0,H-40,W,40); c.strokeStyle=f.ink; c.lineWidth=4; c.strokeRect(34,34,W-68,H-108); }},
+  se:{bg:'#fbf2df',ink:'#0b3f9e',acc:'#e8780a',on:'#0b3f9e',deco(c,W,H,f){ c.fillStyle=f.acc; c.beginPath(); c.arc(W,0,250,0,7); c.fill(); c.strokeStyle=f.ink; c.lineWidth=4; c.strokeRect(34,34,W-68,H-108); }},
   fb:{bg:'#eef7fc',ink:'#0b3f8f',acc:'#1590d2',on:'#ffffff',deco(c,W,H,f){ const g=c.createLinearGradient(0,0,0,H); g.addColorStop(0,'#f7fcff'); g.addColorStop(1,'#d9eef9'); c.fillStyle=g; c.fillRect(0,0,W,H);
     c.strokeStyle=bzA({ink:f.acc},.28); c.lineWidth=3; [[120,420,34],[190,520,16],[930,360,46],[870,470,20],[990,560,12]].forEach(([x,y,r])=>{c.beginPath(); c.arc(x,y,r,0,7); c.stroke();});
     [[.14,300,38],[.2,230,30],[.3,150,24]].forEach(([al,h,amp],i)=>{ c.fillStyle=bzA({ink:f.acc},al); c.beginPath(); c.moveTo(0,H); for(let x=0;x<=W;x+=12){ c.lineTo(x,H-h+Math.sin(x/150+i*1.7)*amp); } c.lineTo(W,H); c.closePath(); c.fill(); }); c.fillStyle=f.ink; c.fillRect(0,0,W,14); }},

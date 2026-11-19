@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 19/11 · 18:29</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 19/11 · 18:41</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -385,6 +385,8 @@ const RED_NOTE='Ojo: no es un cuadro de llaves. Después de cada instancia los c
 const PHMAP={reducido:'p1',red_qf:'qf',red_sf:'sf',red_fin:'fin',red_all:'all'}, isRed=t=>Object.prototype.hasOwnProperty.call(PHMAP,t);
 const PHDATE={p1:'Sáb 14 y Dom 15/11',qf:'Ida 21/11 · Vuelta 28/11',sf:'Ida 2/12 · Vuelta 5/12',fin:'Ida 12/12 · Vuelta 19/12'};
 const REAL_QF=[['Tristán Suárez','Gimnasia y Tiro'],['Atlanta','Ciudad de Bolívar'],['Deportivo Morón','Colón'],['Deportivo Madryn','Gimnasia de Jujuy']];
+const QF_IDA=[['Dom 22/11','21:00'],['Sáb 21/11','17:00'],['Sáb 21/11','17:30'],['Sáb 21/11','21:30']];
+const swapM=m=>{ const o={...m}; [['a','b'],['ra','rb'],['pa','pb'],['ca','cb'],['as','bs'],['_ka','_kb'],['_na','_nb']].forEach(([x,y])=>{ o[x]=m[y]; o[y]=m[x]; }); o._sw=1; return o; };
 const mkM=(ra,rb,ph)=>({ra,rb,a:'',b:'',as:'',bs:'',pa:'',pb:'',d:PHDATE[ph]||'',h:''});
 function defEq(){return {
   stay:['All Boys','Chaco For Ever','Racing de Córdoba','Los Andes','Mitre','Central Norte','San Telmo','Defensores de Belgrano','Chacarita','San Martín de Tucumán','Almagro','San Martín de San Juan','Agropecuario','Patronato','Quilmes','Atlético Rafaela'].join('\n'),
@@ -393,8 +395,8 @@ function defEq(){return {
   lg:true};}
 function defRed(){return {v:2,eqTitle:'PRIMERA NACIONAL',eqSub:'Así viene la temporada 2027',eq:defEq(),mode:'p1',title:'REDUCIDO',sub:'Primera instancia',f1loser:'',rsTitle:'RESULTADOS',rsSub:'Fecha 28 · Primera Nacional',rsOnly:false,
   f1show:true, f1title:'FINAL POR EL PRIMER ASCENSO', f1:[{ra:'',rb:'',a:'Godoy Cruz',b:'Tristán Suárez',as:'',bs:'',pa:'',pb:'',d:'Dom 15/11',h:'17:00'}],
-  p1:REAL_P1.map(([a,b],ix)=>({...mkM('','','p1'),a,b,d:P1_WHEN[ix][0],h:P1_WHEN[ix][1]})), qf:[[1,8],[2,7],[3,6],[4,5]].map(([a,b],ix)=>({...mkM(a+'º',b+'º','qf'),a:REAL_QF[ix][0],b:REAL_QF[ix][1]})), sf:[[1,4],[2,3]].map(([a,b])=>mkM(a+'º',b+'º','sf')), fin:[mkM('1º','2º','fin')],
-  subs:{p1:'Primera instancia',qf:'Segunda instancia · Cuartos de final',sf:'Tercera instancia · Semifinales',fin:'Final',all:'Cuadro completo'}};}
+  p1:REAL_P1.map(([a,b],ix)=>({...mkM('','','p1'),a,b,d:P1_WHEN[ix][0],h:P1_WHEN[ix][1]})), qf:[[1,8],[2,7],[3,6],[4,5]].map(([a,b],ix)=>({...mkM(a+'º',b+'º','qf'),a:REAL_QF[ix][0],b:REAL_QF[ix][1],...(ix===0?{d:'Ida Dom 22/11 21:00 · Vuelta 28/11'}:{}),di:QF_IDA[ix][0],hi:QF_IDA[ix][1],dv:'Sáb 28/11',hv:''})), sf:[[1,4],[2,3]].map(([a,b])=>mkM(a+'º',b+'º','sf')), fin:[mkM('1º','2º','fin')],
+  subs:{p1:'Primera instancia',qf:'Cuartos de final · IDA',qfv:'Cuartos de final · VUELTA',sf:'Tercera instancia · Semifinales',fin:'Final',all:'Cuadro completo'}};}
 
 const S = {
   account:'pn', format:'retrato', tpl:'partido',
@@ -407,7 +409,7 @@ const S = {
     tTitle:'Así va la tabla', tSub:'Zona A · Fecha 31', startPos:'1',
     vsTag:'REDUCIDO · PRIMERA INSTANCIA', vsA:'Ferro', vsAn:'', vsB:'Gimnasia y Tiro', vsBn:'', vsSa:'', vsSb:'', vsWhen:'Domingo 15/11 · 20:00', vsWhere:'', vsTv:'',
     cqTag:'DECLARACIONES', cqC1:'', cqC2:'', cqName:'NOMBRE APELLIDO', cqRole:'Cargo o medio', cqQuote:'La frase que *genera debate* va acá', cqAsk:'¿Estás de acuerdo?', cqY:'', cqN:'', cqSrc:'',
-    czTag:'REDUCIDO · CUARTOS DE FINAL', czA:'Tristán Suárez', czAn:'', czAp:'1º', czB:'Gimnasia y Tiro', czBn:'', czBp:'8º', czL1:'IDA', czW1:'Sábado 21/11', czV1l:'Gimnasia y Tiro', czV1r:'Tristán Suárez', czA1:'', czB1:'', czL2:'VUELTA', czW2:'Sábado 28/11', czV2l:'Tristán Suárez', czV2r:'Gimnasia y Tiro', czA2:'', czB2:'', czBan:'', czWhere:'', czTv:'',
+    czTag:'REDUCIDO · CUARTOS DE FINAL', czA:'Tristán Suárez', czAn:'', czAp:'1º', czB:'Gimnasia y Tiro', czBn:'', czBp:'8º', czL1:'IDA', czW1:'Domingo 22/11 · 21:00', czV1l:'Gimnasia y Tiro', czV1r:'Tristán Suárez', czA1:'', czB1:'', czL2:'VUELTA', czW2:'Sábado 28/11 · Horario a confirmar', czV2l:'Tristán Suárez', czV2r:'Gimnasia y Tiro', czA2:'', czB2:'', czBan:'', czWhere:'', czTv:'',
     enrT:'Las finales con más entradas vendidas', enrS:'Final por el primer ascenso · Primera Nacional', enrRows:'Godoy Cruz, Final 2026, 14500\nSan Martín (T), Final 2024, 19000', enrNote:'',
     enTag:'ENTRADAS VENDIDAS', enA:'Godoy Cruz', enAn:'', enB:'Tristán Suárez', enBn:'', enNa:'14500', enNb:'1080', enUnit:'entradas', enWhen:'Sábado 14/11 · 17:00', enWhere:'',
     rows:'Club A, 31, 60\nClub B, 31, 58\nClub C, 31, 55\nClub D, 31, 54'
@@ -892,7 +894,7 @@ const CZ_TAG={p1:'REDUCIDO · PRIMERA INSTANCIA',qf:'REDUCIDO · CUARTOS DE FINA
 function czList(){ const R=S.red, out=[]; ['qf','sf','fin'].forEach(ph=>(R[ph]||[]).forEach((m,ix)=>{ if(String(m.a||'').trim()&&String(m.b||'').trim()) out.push({ph,ix,m}); })); return out; }
 function czLoad(o){ const F=S.f, m=o.m, ph=o.ph, A=String(m.a||'').trim(), B=String(m.b||'').trim(), two=ph!=='p1', d=String(m.d||'').trim(), h=String(m.h||'').trim(); const pos=(r,p)=>[String(r||'').trim(),String(p||'').trim()?String(p).trim()+' PTS':''].filter(Boolean).join(' · ');
   Object.assign(F,{czTag:CZ_TAG[ph]||'REDUCIDO',czA:A,czAn:'',czAp:pos(m.ra,m.pa),czB:B,czBn:'',czBp:pos(m.rb,m.pb),czA1:'',czB1:'',czA2:'',czB2:'',czBan:'',czWhere:F.czWhere||'',czTv:F.czTv||''});
-  if(two){ const mm=d.match(/ida\s*:?\s*([^·]+?)\s*·\s*vuelta\s*:?\s*(.+)$/i), d1=mm?mm[1].trim():d, d2=mm?mm[2].trim():''; Object.assign(F,{czL1:'IDA',czW1:d1,czV1l:nm(B),czV1r:nm(A),czL2:'VUELTA',czW2:d2,czV2l:nm(A),czV2r:nm(B)}); }
+  if(two){ const mm=d.match(/ida\s*:?\s*([^·]+?)\s*·\s*vuelta\s*:?\s*(.+)$/i), d1=mm?mm[1].trim():d, d2=(x=>x&&!/\d{1,2}[:.]\d{2}/.test(x)&&!/conf/i.test(x)?x+' (a confirmar)':x)(mm?mm[2].trim():''); Object.assign(F,{czL1:'IDA',czW1:d1,czV1l:nm(B),czV1r:nm(A),czL2:'VUELTA',czW2:d2,czV2l:nm(A),czV2r:nm(B)}); }
   else { Object.assign(F,{czL1:'PARTIDO ÚNICO',czW1:[d,h].filter(Boolean).join(' · '),czV1l:nm(A),czV1r:nm(B),czL2:'',czW2:'',czV2l:'',czV2r:''}); const sa=String(m.as??'').trim(), sb=String(m.bs??'').trim(); if(sa!==''&&sb!==''){ F.czA1=sa; F.czB1=sb; const w=winSide(m,'p1'); if(w) F.czBan='PASA '+nm(w===1?A:B).toUpperCase()+(sa===sb?' · POR MEJOR UBICACIÓN':''); } }
   S.red.czIdx=czList().findIndex(x=>x.ph===ph&&x.ix===o.ix); }
 function czEnsure(){ const L=czList(); if(!L.length||S.red.czInit) return; S.red.czInit=true; czLoad(L[0]); }
@@ -1256,7 +1258,7 @@ function buildRedTabUI(w){
   const det=document.createElement('details'); const sm=document.createElement('summary'); sm.textContent='Cómo se arma esta tabla (reglamento)'; det.appendChild(sm); const dd=document.createElement('div'); dd.className='hint'; dd.innerHTML='Después de cada instancia los cruces se vuelven a armar con una <b>tabla nueva</b> entre los clasificados. Orden: <b>1)</b> posición que ocupó cada club en su zona (el perdedor de la final por el primer ascenso, que fue 1.º de su zona, queda primero), <b>2)</b> puntos, <b>3)</b> diferencia de gol, <b>4)</b> goles a favor, <b>5)</b> sorteo.<br><b>Cuartos:</b> 1.º–8.º, 2.º–7.º, 3.º–6.º, 4.º–5.º. <b>Semifinales:</b> 1.º–4.º y 2.º–3.º. <b>Final:</b> 1.º–2.º. El mejor ubicado define de local la vuelta. Escribí la posición como "2A" (2.º de la zona A), "1B", etc.<br><i>Los criterios salen de lo que informó la prensa sobre el reglamento; si tenés el reglamento oficial de la AFA, chequealo.</i>'; det.appendChild(dd); w.appendChild(det);
 }
 function drawReducido(c,W,H,F){
-  const R=S.red; if(R.mode==='tab') return drawRedTabla(c,W,H,F); if(R.subs&&R.subs[R.mode]!=null) R.sub=R.subs[R.mode];
+  const R=S.red; if(R.mode==='tab') return drawRedTabla(c,W,H,F); const SK=(R.mode==='qf'&&R.qfLeg==='vuelta')?'qfv':R.mode; if(R.subs&&R.subs[SK]!=null) R.sub=R.subs[SK];
   const bottom=H-F.bottom+10, ph0=R.mode, hasF=ph0==='p1'&&R.f1show!==false&&(R.f1||[]).length>0; let y, yF=0, chF=0, rhF=0;
   if(hasF){
     const yt=F.top+58*2+84; c.textAlign='center'; c.textBaseline='alphabetic'; const ft0=fit(c,String(R.f1title||'FINAL POR EL PRIMER ASCENSO').toUpperCase(),FD,700,W-100,1,84,40,'f1T');
@@ -1265,10 +1267,15 @@ function drawReducido(c,W,H,F){
   } else y=redHeader(c,W,F,'title','sub','f-rTitle','f-rSub');
   const avail=bottom-y;
   if(R.mode==='all') return drawBracket(c,W,y,bottom);
-  const ph=R.mode, srt=R[ph].map((m,ix)=>{const dm=String(m.d||'').match(/(\d{1,2})\/(\d{1,2})/), tm=String(m.h||'').match(/(\d{1,2})[:.hH](\d{2})?/); return {m,ix,k:(dm?(+dm[2])*10000+(+dm[1])*100:99999999)+(tm?(+tm[1])+(+(tm[2]||0))/100:99)}}).sort((a,b)=>a.k-b.k||a.ix-b.ix), list=hasF?[{m:R.f1[0],ix:-1},...srt]:srt, n=srt.length, big=ph==='fin', rh=Math.min(big?440:200,avail/n), gp=Math.min(12,rh*.08), ch=rh-gp;
+  const ph=R.mode, srt=R[ph].map((m,ix)=>{const dm=String(m.d||'').match(/(\d{1,2})\/(\d{1,2})/), tm=String(m.h||'').match(/(\d{1,2})[:.hH](\d{2})?/); return {m,ix,k:(dm?(+dm[2])*10000+(+dm[1])*100:99999999)+(tm?(+tm[1])+(+(tm[2]||0))/100:99)}}).sort((a,b)=>a.k-b.k||a.ix-b.ix), qfL=ph==='qf'&&(R.qf||[]).every(m=>m.di!==undefined), leg=R.qfLeg==='vuelta'?'vuelta':'ida', HH=64;
+  let qfItems=null, nH=0; if(qfL){ const dk=(d,h)=>{ const dm=String(d||'').match(/(\d{1,2})\/(\d{1,2})/), tm=String(h||'').match(/(\d{1,2})[:.hH](\d{2})?/); return (dm?(+dm[2])*10000+(+dm[1])*100:99999999)+(tm?(+tm[1])+(+(tm[2]||0))/100:99); };
+    const its=R.qf.map((m,ix)=>{ const dd=String((leg==='ida'?m.di:m.dv)||'').trim(), hh=String((leg==='ida'?m.hi:m.hv)||'').trim(), v=leg==='ida'?swapM(m):{...m}; v.d=''; v.h=hh||'A confirmar'; return {m:v,ix,day:dd,k:dk(dd,hh)}; }).sort((a,b)=>a.k-b.k||a.ix-b.ix); qfItems=[]; let last=null; its.forEach(it=>{ if(it.day!==last){ qfItems.push({hdr:it.day||'A confirmar'}); nH++; last=it.day; } qfItems.push(it); }); }
+  const list=qfL?qfItems:(hasF?[{m:R.f1[0],ix:-1},...srt]:srt), n=srt.length, big=ph==='fin', rh=qfL?Math.min(200,(avail-nH*HH)/n):Math.min(big?440:200,avail/n), gp=Math.min(12,rh*.08), ch=rh-gp;
   const nameKey='rnames', nmS=(S.sz[nameKey]||100)/100;
-  list.forEach(({m,ix},i)=>{
-    const isF=ix<0, ch0=isF?chF:ch, pid=isF?'r-f1-0':`r-${ph}-${ix}`, ry=isF?yF:y+(big?(avail-rh)/2:(i-(hasF?1:0))*rh), mid=ry+ch0/2, cs=Math.min(ch0*.72,big?230:110), cw=Math.min(big?260:200,(W-80)*.22), ws=winSide(m,isF?'f1':ph);
+  if(qfL){ let cur=y; list.forEach(it=>{ it.ry=cur; cur+=it.hdr!=null?HH:rh; }); }
+  list.forEach(({m,ix,hdr,ry:ryQ},i)=>{
+    if(hdr!=null){ const hh2=HH-12, fz=Math.min(36,hh2*.6); c.fillStyle='rgba(255,255,255,.13)'; rr(c,40,ryQ,W-80,hh2,14); c.fill(); c.textAlign='center'; c.textBaseline='alphabetic'; c.fillStyle='#fff'; c.font=`700 ${fz}px ${FD}`; c.fillText(String(hdr).toUpperCase(),W/2,ryQ+hh2/2+fz*.34); return; }
+    const isF=ix<0, ch0=isF?chF:ch, pid=isF?'r-f1-0':`r-${ph}-${ix}`, ry=isF?yF:(ryQ!=null?ryQ:y+(big?(avail-rh)/2:(i-(hasF?1:0))*rh)), mid=ry+ch0/2, cs=Math.min(ch0*.72,big?230:110), cw=Math.min(big?260:200,(W-80)*.22), ws=winSide(m,isF?'f1':ph);
     c.fillStyle='rgba(0,0,0,.42)'; rr(c,40,ry,W-80,ch0,14); c.fill();
     [[m.a,m.ra,m.pa,1,m.ca],[m.b,m.rb,m.pb,2,m.cb]].forEach(([name,rank,pts,sd,cr])=>{
       const left=sd===1, cx0=left?56:W-56-cs, img=slotCrest(m,sd===1?'a':'b',sd===1?'ca':'cb'); if(img) drawBox(c,img,cx0,mid-cs/2,cs,cs);
@@ -1281,7 +1288,7 @@ function drawReducido(c,W,H,F){
       const bl=ft.lines.length*lh+(label&&String(name||'').trim()?ls*1.5:0), first=mid-bl/2+nf*.85;
       c.globalAlpha=dim?.5:1; c.textAlign=al; c.textBaseline='alphabetic'; c.fillStyle=String(name||'').trim()?'#fff':'rgba(226,226,226,.55)';
       c.font=`700 ${nf}px ${FD}`; ft.lines.forEach((l,k)=>c.fillText(l,tx,first+k*lh));
-      hitLines(c,`${pid}-${sd===1?'a':'b'}`,'Equipo',ft.lines,tx,first,nf,lh,al,false,{ctrls:[SZ(nameKey)]});
+      hitLines(c,`${pid}-${(sd===1)!==!!m._sw?'a':'b'}`,'Equipo',ft.lines,tx,first,nf,lh,al,false,{ctrls:[SZ(nameKey)]});
       if(label&&String(name||'').trim()){c.font=`600 ${ls}px ${FN}`; c.fillStyle='rgba(226,226,226,.8)'; c.fillText(label,tx,first+(ft.lines.length-1)*lh+ls*1.35);}
       c.globalAlpha=1;
     });
@@ -2427,6 +2434,8 @@ async function stApply(st){
   S.ox=st.ox||0; S.oy=st.oy||0; S.zoom=st.zoom||1; S.photoBlob=st.photoBlob||null; S.photo=await toBitmap(S.photoBlob); if(st.red){Object.assign(S.red,st.red); ['p1','qf','sf','fin'].forEach(ph=>(S.red[ph]||[]).forEach(m=>{if(m.d===undefined) m.d=PHDATE[ph]; if(m.h===undefined) m.h=''})); if(!S.red.subs) S.red.subs=defRed().subs; if(!S.red.v){S.red.v=2; S.red.p1=defRed().p1;}} S.photoBlob2=st.photoBlob2||null; S.photo2=await toBitmap(S.photoBlob2); S.ox2=st.ox2||0; S.oy2=st.oy2||0; S.zoom2=st.zoom2||1;
   if(legacyMode) S.red.mode=legacyMode;
   if(!S.red.qfr){S.red.qfr=1; (S.red.qf||[]).forEach((m,ix)=>{ if(REAL_QF[ix]&&!String(m.a||'').trim()&&!String(m.b||'').trim()){ m.a=REAL_QF[ix][0]; m.b=REAL_QF[ix][1]; } });}
+  if(!S.red.qfl){ S.red.qfl=1; (S.red.qf||[]).forEach((m,ix)=>{ if(m.di===undefined&&QF_IDA[ix]&&(REAL_QF[ix]&&m.a===REAL_QF[ix][0])){ m.di=QF_IDA[ix][0]; m.hi=QF_IDA[ix][1]; m.dv='Sáb 28/11'; m.hv=''; } }); S.red.subs=S.red.subs||{}; if(S.red.subs.qf==null||S.red.subs.qf==='Segunda instancia · Cuartos de final') S.red.subs.qf='Cuartos de final · IDA'; if(S.red.subs.qfv==null) S.red.subs.qfv='Cuartos de final · VUELTA'; }
+  if(!S.red.czm1){ S.red.czm1=1; const q0=(S.red.qf||[])[0]; if(q0&&q0.a==='Tristán Suárez'&&q0.b==='Gimnasia y Tiro'&&(!q0.d||q0.d===PHDATE.qf)) q0.d='Ida Dom 22/11 21:00 · Vuelta 28/11'; if(S.f&&S.f.czA==='Tristán Suárez'&&S.f.czB==='Gimnasia y Tiro'){ if(S.f.czW1==='Sábado 21/11') S.f.czW1='Domingo 22/11 · 21:00'; if(S.f.czW2==='Sábado 28/11') S.f.czW2='Sábado 28/11 · Horario a confirmar'; } }
   if(!S.red.hm2){S.red.hm2=1; const f=(S.red.p1||[])[0]; if(f&&f.a==='Ferro'&&String(f.h||'').trim()==='20:00') f.h='20:30';}
   if(!S.red.hm1){S.red.hm1=1;(S.red.p1||[]).forEach((m,ix)=>{const w=P1_WHEN[ix]; if(w&&REAL_P1[ix]&&m.a===REAL_P1[ix][0]&&!String(m.h||'').trim()&&(!m.d||m.d==='Sáb 14/11')){m.d=w[0];m.h=w[1]}})}
   S.xph=[]; for(const p of (st.xph||[])){ const im=await toBitmap(p.blob); if(im) S.xph.push({img:im,blob:p.blob,ox:p.ox||0,oy:p.oy||0,zoom:p.zoom||1}); } if(st.tx) S.tx=st.tx; S.mo=st.mo||{};
@@ -2849,9 +2858,10 @@ function buildReducidoUI(box){
   const ttl=document.createElement('div'); ttl.className='chips'; ttl.setAttribute('role','group'); ttl.setAttribute('aria-label','Instancia del Reducido');
   MODES.forEach(([k,lb])=>{const b=document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=lb; b.setAttribute('aria-pressed',k===R.mode); b.onclick=()=>{R.mode=k; buildFields(); render()}; ttl.appendChild(b)}); w.appendChild(ttl);
   if(R.mode==='p1'){ chk(w,'Mostrar arriba la final por el primer ascenso',R,'f1show').querySelector('input').addEventListener('change',()=>{buildFields()}); if(R.f1show!==false){ const tl=document.createElement('label'); tl.textContent='Título de la final'; const ti=document.createElement('input'); ti.type='text'; ti.id='f-f1Title'; ti.autocomplete='off'; ti.value=R.f1title==null?'FINAL POR EL PRIMER ASCENSO':R.f1title; ti.addEventListener('input',()=>{R.f1title=ti.value; render()}); tl.appendChild(ti); w.appendChild(tl);} }
+  if(R.mode==='qf'){ const lg=document.createElement('div'); lg.className='chips'; lg.setAttribute('role','group'); lg.setAttribute('aria-label','Partido de los cuartos'); [['ida','Ida'],['vuelta','Vuelta']].forEach(([k,lb])=>{ const b=document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=lb; b.setAttribute('aria-pressed',(R.qfLeg||'ida')===k); b.onclick=()=>{ R.qfLeg=k; buildFields(); render(); }; lg.appendChild(b); }); w.appendChild(lg); const lh=document.createElement('p'); lh.className='hint'; lh.textContent='Cada partido va en su propia placa, agrupado por día. En la ida juega de local el peor ubicado; en la vuelta, el mejor ubicado. Cargá día y hora de cada partido abajo.'; w.appendChild(lh); }
   if(R.mode==='all'){ const nl=document.createElement('label'); nl.textContent='Aclaración debajo del cuadro'; const na=document.createElement('textarea'); na.id='f-rNote'; na.style.minHeight='70px'; na.value=R.note==null?RED_NOTE:R.note; na.addEventListener('input',()=>{R.note=na.value; render()}); nl.appendChild(na); w.appendChild(nl); }
   if(R.mode==='tab'){ buildRedTabUI(w); return; }
-  [['f-rTitle','Título','title'],['f-rSub','Subtítulo','sub']].forEach(([id,l,k])=>{const lab=document.createElement('label'); lab.textContent=l; const e=document.createElement('input'); e.type='text'; e.id=id; e.value=(k==='sub'&&R.subs&&R.subs[R.mode]!=null)?R.subs[R.mode]:(R[k]||''); e.autocomplete='off'; e.addEventListener('input',()=>{R[k]=e.value; if(k==='sub'&&R.subs) R.subs[R.mode]=e.value; render()}); lab.appendChild(e); w.appendChild(lab);});
+  [['f-rTitle','Título','title'],['f-rSub','Subtítulo','sub']].forEach(([id,l,k])=>{const lab=document.createElement('label'); lab.textContent=l; const e=document.createElement('input'); e.type='text'; e.id=id; const SK=(R.mode==='qf'&&R.qfLeg==='vuelta')?'qfv':R.mode; e.value=(k==='sub'&&R.subs&&R.subs[SK]!=null)?R.subs[SK]:(R[k]||''); e.autocomplete='off'; e.addEventListener('input',()=>{R[k]=e.value; if(k==='sub'&&R.subs) R.subs[SK]=e.value; render()}); lab.appendChild(e); w.appendChild(lab);});
   const det=document.createElement('details'); const sm=document.createElement('summary'); sm.textContent='Cómo funciona el Reducido (reglamento)'; det.appendChild(sm);
   const dd=document.createElement('div'); dd.className='hint'; dd.innerHTML='<b>Participan 15 equipos:</b> del 2.º al 8.º de cada zona (14) y el perdedor de la final por el primer ascenso.<br><b>Primera instancia:</b> un solo partido, en cancha del mejor ubicado: 2ºA-8ºB, 2ºB-8ºA, 3ºA-7ºB, 3ºB-7ºA, 4ºA-6ºB, 4ºB-6ºA y 5ºA-5ºB. Si hay empate, avanza el mejor ubicado de su zona.<br><b>Cuartos:</b> los 7 ganadores + el perdedor de la final (entra como 1.º) se ordenan en una tabla general. Cruces: 1º-8º, 2º-7º, 3º-6º, 4º-5º, ida y vuelta, con ventaja deportiva.<br><b>Semifinales:</b> otra tabla con los 4 ganadores: 1º-4º y 2º-3º, ida y vuelta.<br><b>Final:</b> ida y vuelta; si siguen igualados en puntos y diferencia de gol, definen por penales. El ganador asciende.<br>Las posiciones de cada tabla las definís vos: cargá los equipos y mové los cruces como corresponda.'; det.appendChild(dd); w.appendChild(det);
   const act=document.createElement('div'); act.className='webbox'; const ah=document.createElement('h2'); ah.textContent='Armar los cruces'; act.appendChild(ah);
@@ -2890,6 +2900,7 @@ function buildReducidoUI(box){
       });
       const rd=document.createElement('div'); rd.style.cssText='display:grid;grid-template-columns:1fr 100px;gap:6px';
       [['d','Fecha (ej: Sáb 14/11)'],['h','Hora (ej: 17:00)']].forEach(([key,plc])=>{const e=document.createElement('input'); e.type='text'; e.value=m[key]??''; e.placeholder=plc; e.id=`r-${ph}-${i}-${key}`; e.setAttribute('aria-label',plc); e.autocomplete='off'; e.addEventListener('input',()=>{m[key]=e.value; render()}); rd.appendChild(e)});
+      if(ph==='qf'&&m.di!==undefined){ const lg0=(R.qfLeg||'ida')==='ida', kd=lg0?'di':'dv', kh=lg0?'hi':'hv'; rd.innerHTML=''; [[kd,lg0?'Día de la ida (ej: Sáb 21/11)':'Día de la vuelta (ej: Sáb 28/11)'],[kh,'Hora (ej: 17:00)']].forEach(([key,plc])=>{const e=document.createElement('input'); e.type='text'; e.value=m[key]??''; e.placeholder=plc; e.id=`r-${ph}-${i}-${key}`; e.setAttribute('aria-label',plc); e.autocomplete='off'; e.addEventListener('input',()=>{m[key]=e.value; render()}); rd.appendChild(e)}); }
       card.appendChild(rd); sec.appendChild(card);
     });
     w.appendChild(sec);

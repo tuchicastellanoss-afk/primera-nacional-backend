@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 19/11 · 14:09</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 19/11 · 14:33</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -2068,7 +2068,15 @@ function scCut(img,tol){
 }
 function scAdd(files){ [...files].forEach(f=>{ const u=URL.createObjectURL(f), im=new Image(); im.onload=()=>{ try{ S.scProds.push({src:im,cv:scCut(im,S.scTol),s:100,name:f.name}); }catch(e){} (S.red.bizFlat=S.red.bizFlat||{})[currentAccount().id]='scene'; buildFields(); render(); }; im.src=u; }); }
 function drawSceneProducts(c,W,H,F){
-  const P=S.scProds; if(!P.length) return; const n=P.length, base=(S.tpl==='flyer'&&S.flyPT)?S.flyPT-8:H*.74, maxH=(S.tpl==='flyer'?Math.min(base-(S.flyTT||H*.4)+40,H*.34):H*.3);
+  const P=S.scProds; if(!P.length) return;
+  if(S.tpl==='flyer'){ /* cada producto en su propio círculo blanco: se mueve y se achica/agranda por separado */
+    const n=P.length, top=(S.flyTT||H*.4)+14, bot=(S.flyPT?S.flyPT-14:H*.72), aH=Math.max(120,bot-top), aX=W*.46, aW=W*.52, D0=Math.min(aH*.92,aW/n-14,300), Dd=Math.max(90,D0), tot=n*Dd+(n-1)*14; let x0=aX+(aW-tot)/2;
+    P.forEach((p,i)=>{ if(p.s==null) p.s=100; const D=Dd*(p.s/100), cx=x0+i*(Dd+14)+Dd/2, cy=top+aH/2;
+      E(c,'prod'+i,c=>{ c.save(); c.shadowColor='rgba(0,0,0,.35)'; c.shadowBlur=14*(S.qNow||1); c.fillStyle='#fff'; c.beginPath(); c.arc(cx,cy,D/2+8,0,7); c.fill(); c.restore();
+        c.save(); c.beginPath(); c.arc(cx,cy,D/2,0,7); c.clip(); c.fillStyle='#fff'; c.fillRect(cx-D/2,cy-D/2,D,D); const z=(p.z||100)/100, sc=Math.min(D*.86/p.cv.width,D*.86/p.cv.height)*z; c.drawImage(p.cv,cx-p.cv.width*sc/2+(p.px||0),cy-p.cv.height*sc/2+(p.py||0),p.cv.width*sc,p.cv.height*sc); c.restore();
+        hitBox('','Producto '+(i+1),cx-D/2-8,cy-D/2-8,D+16,D+16,false,{ctrls:[{label:'Tamaño del círculo',o:p,k:'s',min:30,max:220,step:5,unit:'%',def:100},{label:'Tamaño del producto dentro',o:p,k:'z',min:40,max:220,step:5,unit:'%',def:100}]}); }); });
+    return; }
+  const n=P.length, base=(S.tpl==='flyer'&&S.flyPT)?S.flyPT-8:H*.74, maxH=(S.tpl==='flyer'?Math.min(base-(S.flyTT||H*.4)+40,H*.34):H*.3);
   const hs=P.map((p,i)=>Math.max(60,maxH*(p.s/100)*(n>2&&i===(n/2|0)?1.08:n>2?.88:1))), ws=P.map((p,i)=>hs[i]*p.cv.width/p.cv.height); let tot=ws.reduce((a,b)=>a+b,0)+(n-1)*10; const fl=S.tpl==='flyer', aX=fl?W*.46:W*.05, aW=fl?W*.52:W*.9, k=Math.min(1,aW/tot); let x=aX+(aW-tot*k)/2;
   P.forEach((p,i)=>E(c,'prod'+i,c=>{ const w=ws[i]*k, h=hs[i]*k, y=base-h; c.save(); c.fillStyle='rgba(0,0,0,.28)'; c.filter&&0; c.beginPath(); c.ellipse(x+w/2,base+4,w*.48,h*.06,0,0,7); c.fill(); c.shadowColor='rgba(0,0,0,.35)'; c.shadowBlur=18*(S.qNow||1); c.shadowOffsetY=6; c.drawImage(p.cv,x,y,w,h); c.restore();
     hitBox('','Producto '+(i+1),x,y,w,h,false,{ctrls:[{label:'Tamaño del producto',o:p,k:'s',min:30,max:220,step:5,unit:'%',def:100}]}); x+=w+10*k; }));

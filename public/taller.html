@@ -166,7 +166,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 19/11 · 18:51</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 19/11 · 19:17</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -317,8 +317,10 @@ const TEMPLATES = {
   noticia:{label:'Noticia',main:'crest',fields:[
     {k:'crest',l:'Escudo del club',t:'crest'},
     {k:'crest2',l:'Segundo escudo (opcional, queda al lado y del mismo tamaño)',t:'crest'},
+    {k:'tag',l:'Etiqueta (ej: ÚLTIMO MOMENTO, OFICIAL, CONFIRMADO)',t:'text'},
     {k:'headline',l:'Titular',t:'area'},
-    {k:'sub',l:'Bajada',t:'area'}]},
+    {k:'sub',l:'Bajada',t:'area'},
+    {k:'src',l:'Fuente (opcional, ej: AFA, Mundo Ascenso)',t:'text'}]},
   consigna:{label:'Consigna',main:'a',fields:[
     {k:'q',l:'Consigna',t:'area'},
     {k:'a',l:'Opción A',t:'crest'},{k:'b',l:'Opción B',t:'crest'},
@@ -831,7 +833,53 @@ function drawHeader(c,W,top,acc){
 }
 function glowText(c,txt,x,y,color,blur){c.save();c.shadowColor='rgba(255,255,255,.35)';c.shadowBlur=blur*(S.qNow||1);c.fillStyle=color;c.fillText(txt,x,y);c.restore()}
 
+function nzOpts(){ const R=S.red; if(!R.nz) R.nz={style:'ed',accC:'#e9c46a'}; return R.nz; }
+function nzShadow(c,fn){ c.save(); c.shadowColor='rgba(0,0,0,.6)'; c.shadowBlur=16*(S.qNow||1); c.shadowOffsetY=3; fn(); c.restore(); }
+function nzCrests(c,f,cx,bottom,bw,bh,gap,align){ const img=findCrest(f.crest), img2=(f.crest2||'').trim()?findCrest(f.crest2):null, q=(S.cs.crest||100)/100, w=bw*q, h=bh*q;
+  const L=[img,img2].filter(Boolean); if(!L.length) return; const tot=L.length*w+(L.length-1)*gap*q; let x=align==='left'?cx:cx-tot/2; L.forEach(im=>{ drawBox(c,im,x,bottom-h,w,h,'b'); x+=w+gap*q; }); }
+function drawNoticiaNew(c,W,H,F,st){
+  const f=S.f, nz=nzOpts(), acc=nz.accC||'#e9c46a', M=64, maxW=W-2*M; let y=H-F.bottom; c.textBaseline='alphabetic';
+  const src=String(f.src||'').trim().toUpperCase(), tag=String(f.tag||'').trim().toUpperCase(), sub=String(f.sub||'').trim(), head=String(f.headline||'').toUpperCase();
+  const left=st!=='ed', al=left?'left':'center';
+  if(st==='ed'){
+    c.textAlign='center';
+    if(src){ const sf=fit(c,src,FN,600,maxW,1,28,18,'src'); c.font=`600 ${sf.size}px ${FN}`; c.fillStyle='rgba(235,235,235,.75)'; nzShadow(c,()=>c.fillText(sf.lines[0]||'',W/2,y)); hitLines(c,'f-src','Fuente',sf.lines,W/2,y,sf.size,sf.size,'center',false,{ctrls:[SZ('src')]}); y-=sf.size+26; }
+    E(c,'nzLine',cc=>{ cc.fillStyle='rgba(255,255,255,.6)'; cc.fillRect(W/2-W*.2,y-1.5,W*.4,3); hitBox('','Filete',W/2-W*.2,y-10,W*.4,20,false); }); y-=40;
+    if(sub){ c.font=`italic 600 40px ${FD}`; const sf=fit(c,sub,FD,600,maxW-40,3,48,28,'sub'), lh=sf.size*1.18, first=y-(sf.lines.length-1)*lh; c.font=`italic 600 ${sf.size}px ${FD}`; c.fillStyle='rgba(240,240,240,.95)'; nzShadow(c,()=>sf.lines.forEach((l,i)=>c.fillText(l,W/2,first+i*lh))); hitLines(c,'f-sub','Bajada',sf.lines,W/2,first,sf.size,lh,'center',true,{ctrls:[SZ('sub')]}); y=first-sf.size*.7-30; }
+    const hf=fit(c,head||' ',FD,700,maxW,4,104,50,'headline'), lh=hf.size*1.04, first=y-(hf.lines.length-1)*lh; c.font=`700 ${hf.size}px ${FD}`; c.fillStyle='#fff'; nzShadow(c,()=>hf.lines.forEach((l,i)=>c.fillText(l,W/2,first+i*lh))); hitLines(c,'f-headline','Titular',hf.lines,W/2,first,hf.size,lh,'center',true,{ctrls:[SZ('headline')]}); y=first-hf.size*.78-34;
+    if(tag){ const tf=fit(c,tag,FN,700,W*.6,1,34,20,'tag'); c.font=`700 ${tf.size}px ${FN}`; const tw=c.measureText(tf.lines[0]||'').width; c.fillStyle=acc; nzShadow(c,()=>c.fillText(tf.lines[0]||'',W/2,y)); hitLines(c,'f-tag','Etiqueta',tf.lines,W/2,y,tf.size,tf.size,'center',false,{ctrls:[SZ('tag')]}); E(c,'nzTagL',cc=>{ cc.fillStyle=acc; cc.fillRect(W/2-tw/2-90,y-tf.size*.34-1.5,64,3); cc.fillRect(W/2+tw/2+26,y-tf.size*.34-1.5,64,3); hitBox('','Filetes de la etiqueta',W/2-tw/2-90,y-tf.size*.34-8,tw+180,16,false); }); y-=tf.size+32; }
+    nzCrests(c,f,W/2,y,230,176,46,'center');
+    return; }
+  if(st==='fr'){
+    const X=M+34; c.textAlign='left'; const mw=maxW-34; let yb=y;
+    if(src){ const sf=fit(c,src,FN,600,mw,1,28,18,'src'); c.font=`600 ${sf.size}px ${FN}`; c.fillStyle='rgba(235,235,235,.75)'; nzShadow(c,()=>c.fillText(sf.lines[0]||'',X,y)); hitLines(c,'f-src','Fuente',sf.lines,X,y,sf.size,sf.size,'left',false,{ctrls:[SZ('src')]}); y-=sf.size+34; }
+    const bottomText=y; let subTop=y;
+    if(sub){ const sf=fit(c,sub.toUpperCase(),FN,600,mw,2,52,30,'sub'), lh=sf.size*1.1, first=y-(sf.lines.length-1)*lh; c.font=`600 ${sf.size}px ${FN}`; c.fillStyle='rgba(235,235,235,.92)'; nzShadow(c,()=>sf.lines.forEach((l,i)=>c.fillText(l,X,first+i*lh))); hitLines(c,'f-sub','Bajada',sf.lines,X,first,sf.size,lh,'left',true,{ctrls:[SZ('sub')]}); y=first-sf.size*.72-18; }
+    const hf=fit(c,head||' ',FD,700,mw,4,100,48,'headline'), lh=hf.size*1.04, first=y-(hf.lines.length-1)*lh; c.font=`700 ${hf.size}px ${FD}`; c.fillStyle='#fff'; nzShadow(c,()=>hf.lines.forEach((l,i)=>c.fillText(l,X,first+i*lh))); hitLines(c,'f-headline','Titular',hf.lines,X,first,hf.size,lh,'left',true,{ctrls:[SZ('headline')]});
+    const topText=first-hf.size*.78, barBot=bottomText+10; y=topText-22;
+    if(tag){ const tf=fit(c,tag,FN,700,mw,1,36,20,'tag'); c.font=`700 ${tf.size}px ${FN}`; c.fillStyle=acc; nzShadow(c,()=>c.fillText(tf.lines[0]||'',X,y)); hitLines(c,'f-tag','Etiqueta',tf.lines,X,y,tf.size,tf.size,'left',false,{ctrls:[SZ('tag')]}); y-=tf.size+16; }
+    const barTop=Math.min(y+tf0(tag)+2,topText-4); E(c,'nzBar',cc=>{ cc.fillStyle=acc; cc.fillRect(M,y+8,12,barBot-(y+8)); hitBox('','Barra de color',M,y+8,12,barBot-(y+8),false,{colors:[['Color de la barra',nz,'accC']]}); });
+    y-=30; nzCrests(c,f,X,y,190,146,40,'left');
+    return; }
+  /* panel */
+  const PX=40, PW=W-80, pad=34, hasC=!!(String(f.crest||'').trim()||String(f.crest2||'').trim()), colW=hasC?250:0, X=PX+pad+(hasC?colW+34:0), mw=PX+PW-pad-X;
+  const items=[]; let th=0; c.textAlign='left';
+  const tf=tag?fit(c,tag,FN,700,mw,1,32,20,'tag'):null; if(tf) th+=tf.size+18;
+  const hf=fit(c,head||' ',FN,700,mw,4,88,46,'headline'), hlh=hf.size*1.02; th+=hf.lines.length*hlh;
+  const sf=sub?fit(c,sub,FD,600,mw,3,40,26,'sub'):null, slh=sf?sf.size*1.2:0; if(sf){ c.font=`600 ${sf.size}px ${FD}`; th+=16+sf.lines.length*slh; }
+  const srf=src?fit(c,src,FN,600,mw,1,26,16,'src'):null; if(srf) th+=14+srf.size;
+  const ph=Math.max(th+pad*2,hasC?250:0), pb=y+34, pt=pb-ph;
+  E(c,'nzPanel',cc=>{ cc.save(); cc.fillStyle='rgba(8,10,14,.74)'; rr(cc,PX,pt,PW,ph,22); cc.fill(); cc.restore(); hitBox('','Panel',PX,pt,PW,ph,false,{colors:[]}); });
+  let ty=pt+pad; if(tf){ ty+=tf.size*.8; c.font=`700 ${tf.size}px ${FN}`; c.fillStyle=acc; c.fillText(tf.lines[0]||'',X,ty); hitLines(c,'f-tag','Etiqueta',tf.lines,X,ty,tf.size,tf.size,'left',false,{ctrls:[SZ('tag')]}); ty+=tf.size*.2+18; }
+  ty+=hf.size*.8; c.font=`700 ${hf.size}px ${FN}`; c.fillStyle='#fff'; hf.lines.forEach((l,i)=>c.fillText(l,X,ty+i*hlh)); hitLines(c,'f-headline','Titular',hf.lines,X,ty,hf.size,hlh,'left',true,{ctrls:[SZ('headline')]}); ty+=(hf.lines.length-1)*hlh+hf.size*.2;
+  if(sf){ ty+=16+sf.size*.8; c.font=`600 ${sf.size}px ${FD}`; c.fillStyle='rgba(235,235,235,.92)'; sf.lines.forEach((l,i)=>c.fillText(l,X,ty+i*slh)); hitLines(c,'f-sub','Bajada',sf.lines,X,ty,sf.size,slh,'left',true,{ctrls:[SZ('sub')]}); ty+=(sf.lines.length-1)*slh+sf.size*.2; }
+  if(srf){ ty+=14+srf.size*.8; c.font=`600 ${srf.size}px ${FN}`; c.fillStyle='rgba(235,235,235,.6)'; c.fillText(srf.lines[0]||'',X,ty); hitLines(c,'f-src','Fuente',srf.lines,X,ty,srf.size,srf.size,'left',false,{ctrls:[SZ('src')]}); }
+  if(hasC){ const img=findCrest(f.crest), img2=(f.crest2||'').trim()?findCrest(f.crest2):null, L=[img,img2].filter(Boolean), q=(S.cs.crest||100)/100, cw=Math.min(colW,L.length>1?170:210)*q, chh=cw*.78, gap=24*q, tot=L.length*chh+(L.length-1)*gap; let cy0=pt+ph/2-tot/2; L.forEach(im=>{ drawBox(c,im,PX+pad+colW/2-cw/2,cy0,cw,chh,'b'); cy0+=chh+gap; }); E(c,'nzDiv',cc=>{ cc.fillStyle='rgba(255,255,255,.18)'; cc.fillRect(PX+pad+colW+14,pt+pad,2,ph-pad*2); hitBox('','Divisor',PX+pad+colW+8,pt+pad,14,ph-pad*2,false); }); }
+}
+const tf0=t=>t?0:0;
+function drawNoticiaImp(c,W,H,F){ return drawNoticiaNew(c,W,H,F,'ed'); }
 function drawNoticia(c,W,H,F){
+  if(nzOpts().style!=='clasico') return drawNoticiaImp(c,W,H,F);
   const f=S.f, maxW=W-130; let y=H-F.bottom;
   c.textAlign='center'; c.textBaseline='alphabetic';
   const sub=(f.sub||'').toUpperCase(), head=(f.headline||'').toUpperCase();
@@ -1277,7 +1325,7 @@ function drawReducido(c,W,H,F){
   const nameKey='rnames', nmS=(S.sz[nameKey]||100)/100;
   if(qfL){ let cur=y; list.forEach(it=>{ it.ry=cur; cur+=it.hdr!=null?HH:rh; }); }
   list.forEach(({m,ix,hdr,ry:ryQ},i)=>{
-    if(hdr!=null){ const hh2=HH-12, fz=Math.min(36,hh2*.6); c.fillStyle='rgba(255,255,255,.13)'; rr(c,40,ryQ,W-80,hh2,14); c.fill(); c.textAlign='center'; c.textBaseline='alphabetic'; c.fillStyle='#fff'; c.font=`700 ${fz}px ${FD}`; c.fillText(String(hdr).toUpperCase(),W/2,ryQ+hh2/2+fz*.34); return; }
+    if(hdr!=null){ const hh2=HH-12, fz=Math.min(36,hh2*.6)*(S.sz.rday||100)/100; c.fillStyle='rgba(255,255,255,.13)'; rr(c,40,ryQ,W-80,hh2,14); c.fill(); c.textAlign='center'; c.textBaseline='alphabetic'; c.fillStyle='#fff'; c.font=`700 ${fz}px ${FD}`; c.fillText(String(hdr).toUpperCase(),W/2,ryQ+hh2/2+fz*.34); hitBox(`r-day-${ryQ|0}`,'Día',40,ryQ,W-80,hh2,false,{ctrls:[{label:'Tamaño del día',o:S.sz,k:'rday',min:60,max:130,step:5,unit:'%',def:100}]}); return; }
     const isF=ix<0, ch0=isF?chF:ch, pid=isF?'r-f1-0':`r-${ph}-${ix}`, ry=isF?yF:(ryQ!=null?ryQ:y+(big?(avail-rh)/2:(i-(hasF?1:0))*rh)), mid=ry+ch0/2, cs=Math.min(ch0*.72,big?230:110), cw=Math.min(big?260:200,(W-80)*.22), ws=winSide(m,isF?'f1':ph);
     c.fillStyle='rgba(0,0,0,.42)'; rr(c,40,ry,W-80,ch0,14); c.fill();
     [[m.a,m.ra,m.pa,1,m.ca],[m.b,m.rb,m.pb,2,m.cb]].forEach(([name,rank,pts,sd,cr])=>{
@@ -1296,7 +1344,7 @@ function drawReducido(c,W,H,F){
       c.globalAlpha=1;
     });
     const sa=String(m.as??'').trim(), sb=String(m.bs??'').trim(), dt=[m.d,m.h].map(x=>String(x||'').trim()).filter(Boolean).join(' · '), off=dt?ch0*.16:0;
-    if(dt){const dfs=Math.min(ch0*.2,big?46:30), dmax=cw+90; let fz=dfs; c.font=`600 ${fz}px ${FN}`; const lines=wrapTxt(c,dt,dmax); c.textAlign='center'; c.fillStyle='rgba(235,235,235,.9)'; lines.slice(0,2).forEach((l,k)=>c.fillText(l,W/2,mid+ch0*.36+k*fz*1.15)); hitBox(`${pid}-d`,'Fecha y hora',W/2-dmax/2,mid+ch0*.36-fz,dmax,fz*2.4,false);}
+    if(dt){const dfs=(qfL?Math.min(ch0*.34,52):Math.min(ch0*.2,big?46:30))*(S.sz.rtime||100)/100, dmax=cw+90; let fz=dfs; c.font=`600 ${fz}px ${FN}`; const lines=wrapTxt(c,dt,dmax); c.textAlign='center'; c.fillStyle='rgba(235,235,235,.9)'; lines.slice(0,2).forEach((l,k)=>c.fillText(l,W/2,mid+ch0*.36+k*fz*1.15)); hitBox(`${pid}-d`,'Fecha y hora',W/2-dmax/2,mid+ch0*.36-fz,dmax,fz*2.4,false,{ctrls:[{label:'Tamaño de la hora',o:S.sz,k:'rtime',min:60,max:220,step:5,unit:'%',def:100}]});}
     c.textAlign='center'; c.fillStyle='#fff';
     if(sa!==''||sb!==''){const fs=Math.min(ch0*.5,big?150:66); c.font=`700 ${fs}px ${FN}`; const tx=`${sa||'0'} - ${sb||'0'}`; c.fillText(tx,W/2,mid-off+fs*.34); const w=c.measureText(tx).width;
       hitBox(`${pid}-as`,'Goles del primero',W/2-w/2,mid-off-fs*.6,w/2,fs,false); hitBox(`${pid}-bs`,'Goles del segundo',W/2,mid-fs*.6,w/2,fs,false);}
@@ -2995,6 +3043,8 @@ function buildFields00(){
     if(CRESTSZ.has(d.k)&&d.t==='crest') ctl(box,'Tamaño del escudo',S.cs,d.k,{min:40,max:200,step:5,unit:'%',def:100});
   });
   TEMPLATES[S.tpl].fields.filter(d=>d.t==='crest').forEach(d=>crestStatus(d.k));
+  if(S.tpl==='noticia'){ const nz=nzOpts(), g=document.createElement('div'); g.className='webbox'; const h=document.createElement('h2'); h.textContent='Estilo de la noticia'; g.appendChild(h); const ch=document.createElement('div'); ch.className='chips'; [['ed','Editorial'],['clasico','Clásico']].forEach(([k,lb])=>{ const b=document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=lb; b.setAttribute('aria-pressed',(nz.style||'ed')===k); b.onclick=()=>{ nz.style=k; persist(); buildFields(); render(); }; ch.appendChild(b); }); g.appendChild(ch);
+    if((nz.style||'ed')!=='clasico') colorCtl(g,'Color de acento (etiqueta, barra, filetes)',nz,'accC'); box.appendChild(g); }
   rowsStatus();
   if(S.tpl==='tabla'){ buildTablaUI(box); buildWebBox(box); }
 }

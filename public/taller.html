@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 19/11 · 14:54</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 19/11 · 18:29</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -384,6 +384,7 @@ const SEEDS_P1=[['2ºA','8ºB'],['2ºB','8ºA'],['3ºA','7ºB'],['3ºB','7ºA'],
 const RED_NOTE='Ojo: no es un cuadro de llaves. Después de cada instancia los cruces se vuelven a armar según la posición en la tabla: el mejor ubicado juega contra el peor ubicado.';
 const PHMAP={reducido:'p1',red_qf:'qf',red_sf:'sf',red_fin:'fin',red_all:'all'}, isRed=t=>Object.prototype.hasOwnProperty.call(PHMAP,t);
 const PHDATE={p1:'Sáb 14 y Dom 15/11',qf:'Ida 21/11 · Vuelta 28/11',sf:'Ida 2/12 · Vuelta 5/12',fin:'Ida 12/12 · Vuelta 19/12'};
+const REAL_QF=[['Tristán Suárez','Gimnasia y Tiro'],['Atlanta','Ciudad de Bolívar'],['Deportivo Morón','Colón'],['Deportivo Madryn','Gimnasia de Jujuy']];
 const mkM=(ra,rb,ph)=>({ra,rb,a:'',b:'',as:'',bs:'',pa:'',pb:'',d:PHDATE[ph]||'',h:''});
 function defEq(){return {
   stay:['All Boys','Chaco For Ever','Racing de Córdoba','Los Andes','Mitre','Central Norte','San Telmo','Defensores de Belgrano','Chacarita','San Martín de Tucumán','Almagro','San Martín de San Juan','Agropecuario','Patronato','Quilmes','Atlético Rafaela'].join('\n'),
@@ -392,7 +393,7 @@ function defEq(){return {
   lg:true};}
 function defRed(){return {v:2,eqTitle:'PRIMERA NACIONAL',eqSub:'Así viene la temporada 2027',eq:defEq(),mode:'p1',title:'REDUCIDO',sub:'Primera instancia',f1loser:'',rsTitle:'RESULTADOS',rsSub:'Fecha 28 · Primera Nacional',rsOnly:false,
   f1show:true, f1title:'FINAL POR EL PRIMER ASCENSO', f1:[{ra:'',rb:'',a:'Godoy Cruz',b:'Tristán Suárez',as:'',bs:'',pa:'',pb:'',d:'Dom 15/11',h:'17:00'}],
-  p1:REAL_P1.map(([a,b],ix)=>({...mkM('','','p1'),a,b,d:P1_WHEN[ix][0],h:P1_WHEN[ix][1]})), qf:[[1,8],[2,7],[3,6],[4,5]].map(([a,b])=>mkM(a+'º',b+'º','qf')), sf:[[1,4],[2,3]].map(([a,b])=>mkM(a+'º',b+'º','sf')), fin:[mkM('1º','2º','fin')],
+  p1:REAL_P1.map(([a,b],ix)=>({...mkM('','','p1'),a,b,d:P1_WHEN[ix][0],h:P1_WHEN[ix][1]})), qf:[[1,8],[2,7],[3,6],[4,5]].map(([a,b],ix)=>({...mkM(a+'º',b+'º','qf'),a:REAL_QF[ix][0],b:REAL_QF[ix][1]})), sf:[[1,4],[2,3]].map(([a,b])=>mkM(a+'º',b+'º','sf')), fin:[mkM('1º','2º','fin')],
   subs:{p1:'Primera instancia',qf:'Segunda instancia · Cuartos de final',sf:'Tercera instancia · Semifinales',fin:'Final',all:'Cuadro completo'}};}
 
 const S = {
@@ -2425,6 +2426,7 @@ async function stApply(st){
   Object.assign(S.f,st.f||{}); Object.assign(S.tags,st.tags||{});
   S.ox=st.ox||0; S.oy=st.oy||0; S.zoom=st.zoom||1; S.photoBlob=st.photoBlob||null; S.photo=await toBitmap(S.photoBlob); if(st.red){Object.assign(S.red,st.red); ['p1','qf','sf','fin'].forEach(ph=>(S.red[ph]||[]).forEach(m=>{if(m.d===undefined) m.d=PHDATE[ph]; if(m.h===undefined) m.h=''})); if(!S.red.subs) S.red.subs=defRed().subs; if(!S.red.v){S.red.v=2; S.red.p1=defRed().p1;}} S.photoBlob2=st.photoBlob2||null; S.photo2=await toBitmap(S.photoBlob2); S.ox2=st.ox2||0; S.oy2=st.oy2||0; S.zoom2=st.zoom2||1;
   if(legacyMode) S.red.mode=legacyMode;
+  if(!S.red.qfr){S.red.qfr=1; (S.red.qf||[]).forEach((m,ix)=>{ if(REAL_QF[ix]&&!String(m.a||'').trim()&&!String(m.b||'').trim()){ m.a=REAL_QF[ix][0]; m.b=REAL_QF[ix][1]; } });}
   if(!S.red.hm2){S.red.hm2=1; const f=(S.red.p1||[])[0]; if(f&&f.a==='Ferro'&&String(f.h||'').trim()==='20:00') f.h='20:30';}
   if(!S.red.hm1){S.red.hm1=1;(S.red.p1||[]).forEach((m,ix)=>{const w=P1_WHEN[ix]; if(w&&REAL_P1[ix]&&m.a===REAL_P1[ix][0]&&!String(m.h||'').trim()&&(!m.d||m.d==='Sáb 14/11')){m.d=w[0];m.h=w[1]}})}
   S.xph=[]; for(const p of (st.xph||[])){ const im=await toBitmap(p.blob); if(im) S.xph.push({img:im,blob:p.blob,ox:p.ox||0,oy:p.oy||0,zoom:p.zoom||1}); } if(st.tx) S.tx=st.tx; S.mo=st.mo||{};

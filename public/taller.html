@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 18/11 · 17:05</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 19/11 · 14:09</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -373,6 +373,7 @@ const TEMPLATES = {
   aviso:{label:'Aviso con texto',main:null,fields:[]},
   agenda:{label:'Agenda / horarios',main:null,fields:[]},
   evento:{label:'Evento',main:null,fields:[]},
+  hospedaje:{label:'Hospedaje',main:null,fields:[]},
   flyer:{label:'Flyer',main:null,fields:[]},
   clases:{label:'Clases',main:null,fields:[]},
   cover:{label:'Portadas',main:null,fields:[]}
@@ -1576,8 +1577,8 @@ function drawArbitros(c,W,H,F){
   });
 }
 /* ================= CUENTAS DE NEGOCIOS: lista de precios, aviso, agenda, evento ================= */
-const BIZ_T=['subt','combos','precios','aviso','agenda','evento','flyer','clases','cover'];
-const ACC_TPLS={tz:['cover','combos','precios','aviso'],se:['cover','combos','precios','aviso'],fb:['cover','flyer','combos','precios','aviso'],mz:['cover','precios','aviso'],lg:['cover','subt','clases','evento','agenda','precios','aviso']};
+const BIZ_T=['subt','combos','precios','aviso','agenda','evento','hospedaje','flyer','clases','cover'];
+const ACC_TPLS={tz:['cover','combos','precios','aviso'],se:['cover','combos','precios','aviso'],fb:['cover','flyer','combos','precios','aviso'],mz:['cover','precios','aviso'],lg:['cover','subt','clases','evento','hospedaje','agenda','precios','aviso']};
 function tplKeys(){
   const a=currentAccount(), base=Object.keys(TEMPLATES).filter(k=>k==='reducido'||!isRed(k)), fbk=base.filter(k=>!BIZ_T.includes(k)); const nopn=fbk.filter(k=>k!=='entradas'&&k!=='entranking'&&k!=='once'&&k!=='ascenso'&&k!=='cruce'&&k!=='cita');
   if(ACC_TPLS[a.id]) return ACC_TPLS[a.id]; if(a.id==='pn') return fbk; return [...nopn,'cover','precios','aviso'];
@@ -1688,9 +1689,10 @@ const BZ_DEF={
     precios:{title:'PLANES Y VALORES',sub:'Clases de polo',items:'Clase de iniciación | 1 hora | $00.000\nPack de 4 clases | por mes | $00.000\nAlquiler de caballo | por hora | $00.000\nPupilaje | por mes | $00.000',c1:'',c2:'@laguapeadapolo'},
     aviso:{lines:'COMUNICADO\nEscribí acá el aviso',sub:'',sticker:'',pos:'mid',box:'none',c1:'',c2:'@laguapeadapolo'},
     agenda:{title:'CLASES DE POLO',sub:'Horarios de la semana',items:'Martes | Iniciación | 17:00 a 18:30\nJueves | Nivel intermedio | 17:00 a 18:30\nSábado | Práctica libre | 10:00 a 13:00\nDomingo | Partidos | 15:00',c1:'',c2:'@laguapeadapolo'},
-    evento:{tag:'TORNEO',title:'COPA LA GUAPEADA',date:'Sábado 5 de diciembre',time:'15:00 hs',place:'Pilar, Buenos Aires',text:'Inscripción abierta. Cupos limitados.',c1:'',c2:'@laguapeadapolo'}}
+    evento:{tag:'TORNEO',title:'COPA LA GUAPEADA',date:'Sábado 5 de diciembre',time:'15:00 hs',place:'Pilar, Buenos Aires',text:'Inscripción abierta. Cupos limitados.',c1:'',c2:'@laguapeadapolo'},
+    hospedaje:{tag:'HOSPEDAJE · STAY',title:'LA POSADA DEL MANSO',r1:'6 cuartos en suite',r1en:'6 en-suite rooms',r2:'Piscina',r2en:'Pool',ic2:'pool',c1:'',c2:'@laguapeadapolo'}}
 };
-const BZ_GENERIC={subt:{es:'TEXTO EN ESPAÑOL',en:'TEXT IN ENGLISH',bo:58,dim:12,auto:true},combos:{title:'COMBOS',sub:'',items:'#1\n2 Producto uno\n1 Producto dos\n$0.000\n\n#2\n3 Producto uno\n2 Producto tres\n$0.000',foot:'',c1:'',c2:''},cover:{l1:'TÍTULO DE LA',l2:'PORTADA',pic:false,guide:true,sw:true,sp:true,c1:'',c2:''},precios:{title:'LISTA DE PRECIOS',sub:'',items:'Producto 1 - $0.000\nProducto 2 - $0.000\nProducto 3 - $0.000',c1:'',c2:''},aviso:{lines:'ESCRIBÍ ACÁ EL AVISO',sub:'',sticker:'',pos:'low',box:'color',c1:'',c2:''},agenda:{title:'HORARIOS',sub:'',items:'Lunes | Actividad | 10:00',c1:'',c2:''},evento:{tag:'EVENTO',title:'NOMBRE DEL EVENTO',date:'',time:'',place:'',text:'',c1:'',c2:''}};
+const BZ_GENERIC={hospedaje:{tag:'HOSPEDAJE · STAY',title:'NOMBRE DEL HOSPEDAJE',r1:'2 cuartos',r1en:'2 rooms',r2:'',r2en:'',ic2:'star',c1:'',c2:''},subt:{es:'TEXTO EN ESPAÑOL',en:'TEXT IN ENGLISH',bo:58,dim:12,auto:true},combos:{title:'COMBOS',sub:'',items:'#1\n2 Producto uno\n1 Producto dos\n$0.000\n\n#2\n3 Producto uno\n2 Producto tres\n$0.000',foot:'',c1:'',c2:''},cover:{l1:'TÍTULO DE LA',l2:'PORTADA',pic:false,guide:true,sw:true,sp:true,c1:'',c2:''},precios:{title:'LISTA DE PRECIOS',sub:'',items:'Producto 1 - $0.000\nProducto 2 - $0.000\nProducto 3 - $0.000',c1:'',c2:''},aviso:{lines:'ESCRIBÍ ACÁ EL AVISO',sub:'',sticker:'',pos:'low',box:'color',c1:'',c2:''},agenda:{title:'HORARIOS',sub:'',items:'Lunes | Actividad | 10:00',c1:'',c2:''},evento:{tag:'EVENTO',title:'NOMBRE DEL EVENTO',date:'',time:'',place:'',text:'',c1:'',c2:''}};
 function bzData(){
   const R=S.red; R.biz=R.biz||{}; const k=currentAccount().id+':'+S.tpl+(S.inst?'#'+S.inst:''); const def=((BZ_DEF[currentAccount().id]||{})[S.tpl])||BZ_GENERIC[S.tpl]||{};
   const o=R.biz[k]=R.biz[k]||{}; Object.keys(def).forEach(f=>{ if(o[f]===undefined) o[f]=def[f]; }); return o;
@@ -1914,6 +1916,38 @@ function drawClases(c,W,H,F){
     cc.fillStyle=TH.ink; cc.textAlign='left'; cc.font=`${TH.hw} ${fv.size}px ${TH.font}`; fv.lines.forEach((l,q)=>cc.fillText(l,tx,ty+fv.size*.88+q*fv.size*1.06));
     hitBox('f-cItems','Dato '+(i+1),M,yy,W-2*M,h,true,{ctrls:[{label:'Tamaño de las tarjetas',o:S.sz,k:'bRows',min:50,max:130,step:5,unit:'%',def:100}]}); }));
 }
+/* hospedaje: foto de fondo, nombre y datos (español arriba, inglés chico abajo), apoyado abajo */
+function hsIcon(c,kind,x,y,s,col){ c.save(); c.strokeStyle=col; c.fillStyle=col; c.lineWidth=s*.11; c.lineCap='round'; c.lineJoin='round';
+  if(kind==='bed'){ c.beginPath(); c.moveTo(x-s*.5,y-s*.35); c.lineTo(x-s*.5,y+s*.38); c.moveTo(x-s*.5,y+s*.12); c.lineTo(x+s*.5,y+s*.12); c.lineTo(x+s*.5,y+s*.38); c.moveTo(x-s*.5,y+s*.12); c.lineTo(x-s*.5,y-s*.02); c.lineTo(x+s*.5,y-s*.02); c.lineTo(x+s*.5,y+s*.12); c.stroke(); c.beginPath(); c.arc(x-s*.24,y-s*.2,s*.12,0,7); c.fill(); }
+  else if(kind==='pool'){ for(let k=0;k<2;k++){ const yy=y+k*s*.3-s*.08; c.beginPath(); for(let i=0;i<=20;i++){ const xx=x-s*.5+i*s/20; const v=yy+Math.sin(i/20*Math.PI*3)*s*.08; i?c.lineTo(xx,v):c.moveTo(xx,v); } c.stroke(); } c.beginPath(); c.moveTo(x-s*.18,y-s*.2); c.lineTo(x-s*.18,y-s*.48); c.moveTo(x+s*.18,y-s*.2); c.lineTo(x+s*.18,y-s*.48); c.stroke(); }
+  else if(kind==='view'){ c.beginPath(); c.moveTo(x-s*.52,y); c.quadraticCurveTo(x,y-s*.52,x+s*.52,y); c.quadraticCurveTo(x,y+s*.52,x-s*.52,y); c.stroke(); c.beginPath(); c.arc(x,y,s*.15,0,7); c.fill(); }
+  else { c.beginPath(); for(let i=0;i<10;i++){ const r=i%2?s*.22:s*.5, a=-Math.PI/2+i*Math.PI/5; i?c.lineTo(x+Math.cos(a)*r,y+Math.sin(a)*r):c.moveTo(x+Math.cos(a)*r,y+Math.sin(a)*r); } c.closePath(); c.fill(); }
+  c.restore(); }
+function drawHospedaje(c,W,H,F){
+  const TH=bzTh(), d=bzData(), M=96, rs=(S.sz.bRows||100)/100;
+  if(!S.bzFlat){ const g0=H*.26, g=c.createLinearGradient(0,g0,0,H); g.addColorStop(0,'rgba(18,26,16,0)'); g.addColorStop(.42,'rgba(18,26,16,.8)'); g.addColorStop(1,'rgba(18,26,16,.94)'); c.fillStyle=g; c.fillRect(0,g0,W,H-g0); }
+  const yEnd=bzContact(c,W,H,F,d,TH)-44;
+  c.textBaseline='alphabetic'; c.textAlign='left';
+  const tg=String(d.tag||'').trim().toUpperCase(), tl=String(d.title||'').trim().toUpperCase();
+  const rows=[[d.r1,d.r1en,'bed','f-hR1','f-hR1en'],[d.r2,d.r2en,d.ic2||'pool','f-hR2','f-hR2en']].filter(r=>String(r[0]||'').trim()||String(r[1]||'').trim());
+  const iw=64*rs, tx=M+iw+26;
+  const tF=tg?fit(c,tg,TH.font,TH.bw,W-2*M,1,36,18,'bSub'):null;
+  const nF=fit(c,tl||' ',TH.font,TH.hw,W-2*M,3,124,56,'bTitle'), nLh=nF.size*.98;
+  const rF=rows.map(([es,en])=>({es:String(es||'').trim()?fit(c,String(es).trim(),TH.font,TH.bw,W-tx-M,2,58*rs,24):null, en:String(en||'').trim()?fit(c,String(en).trim(),TH.font,600,W-tx-M,2,40*rs,18):null}));
+  const rowH=r=>(r.es?r.es.lines.length*r.es.size*1.08:0)+(r.en?6+r.en.lines.length*r.en.size*1.12:0);
+  const tH=tF?tF.size*1.2+22:0, nH=nF.lines.length*nLh, gap=28*rs;
+  const total=tH+nH+30+6+40+rF.reduce((a,r)=>a+rowH(r),0)+Math.max(0,rF.length-1)*gap;
+  let y=Math.max(F.top+58*2+60,(S.logoBot||0)+50,yEnd-total);
+  if(tF){ bzLS(c,8); c.font=`${TH.bw} ${tF.size}px ${TH.font}`; const by=y+tF.size*.85; bzGlow(c,()=>{ c.fillStyle=TH.acc; c.fillText(tF.lines[0]||'',M,by); }); bzLS(c,0); hitLines(c,'f-hTag','Etiqueta',tF.lines,M,by,tF.size,tF.size,'left',false,{ctrls:[SZ('bSub')]}); y+=tH; }
+  c.font=`${TH.hw} ${nF.size}px ${TH.font}`; bzGlow(c,()=>{ c.fillStyle=TH.ink; nF.lines.forEach((l,i)=>c.fillText(l,M,y+nF.size*.8+i*nLh)); });
+  hitLines(c,'f-hTitle','Nombre',nF.lines,M,y+nF.size*.8,nF.size,nLh,'left',false,{ctrls:[SZ('bTitle')]}); y+=nH+30;
+  c.fillStyle=TH.acc; c.fillRect(M,y,110,6); hitBox('hBar','Línea',M,y-8,110,22,false); y+=6+40;
+  rF.forEach((r,i)=>{ const [, ,ic,idEs,idEn]=rows[i]; const h0=y;
+    if(r.es){ c.font=`${TH.bw} ${r.es.size}px ${TH.font}`; bzGlow(c,()=>{ c.fillStyle=TH.ink; r.es.lines.forEach((l,k)=>c.fillText(l,tx,y+r.es.size*.8+k*r.es.size*1.08)); }); hitLines(c,idEs,'Dato',r.es.lines,tx,y+r.es.size*.8,r.es.size,r.es.size*1.08,'left',false,{ctrls:[{label:'Tamaño de los datos',o:S.sz,k:'bRows',min:50,max:160,step:5,unit:'%',def:100}]}); y+=r.es.lines.length*r.es.size*1.08; }
+    if(r.en){ y+=6; c.font=`600 ${r.en.size}px ${TH.font}`; bzGlow(c,()=>{ c.fillStyle=bzA(TH,.78); r.en.lines.forEach((l,k)=>c.fillText(l,tx,y+r.en.size*.8+k*r.en.size*1.12)); }); hitLines(c,idEn,'Dato en inglés',r.en.lines,tx,y+r.en.size*.8,r.en.size,r.en.size*1.12,'left',false,{ctrls:[{label:'Tamaño de los datos',o:S.sz,k:'bRows',min:50,max:160,step:5,unit:'%',def:100}]}); y+=r.en.lines.length*r.en.size*1.12; }
+    const cy=h0+(r.es?r.es.size*.45:iw*.5); hsIcon(c,ic,M+iw/2,cy,iw*.9,TH.acc); hitBox('hIc'+i,'Ícono',M,cy-iw/2,iw,iw,false);
+    y+=gap; });
+}
 function drawEvento(c,W,H,F){
   const TH=bzTh(), d=bzData(); const yEnd=bzContact(c,W,H,F,d,TH)-26; let y=Math.max(F.top+58*2+70,(S.logoBot||0)+56);
   c.textAlign='center'; c.textBaseline='alphabetic';
@@ -2110,6 +2144,8 @@ function makeCopy(kind){
     body.push('🎬 '+[cap(d.l1),cap(d.l2)].filter(Boolean).join(' '));
   } else if(t==='clases'){
     body.push('🐴 '+(cap(d.title)?low(d.title):'Clases de polo')+(cap(d.sub)?' · '+cap(d.sub):'')); String(d.items||'').split(/\n/).map(cap).filter(Boolean).slice(0,tw?3:6).forEach(l=>{ const p=l.split('|').map(cap); body.push('✅ '+(p.length>1?p[0]+': '+p.slice(1).join(' '):p[0])); }); if(cap(d.cta2)) body.push(cap(d.cta1)?low(d.cta1)+'. '+cap(d.cta2)+' 👇':cap(d.cta2)+' 👇');
+  } else if(t==='hospedaje'){
+    body.push('🏡 '+cap(d.title)); if(d.r1) body.push('🛏 '+cap(d.r1)+(d.r1en?' / '+cap(d.r1en):'')); if(d.r2) body.push('✨ '+cap(d.r2)+(d.r2en?' / '+cap(d.r2en):'')); body.push(''); body.push('Reservá tu estadía / Book your stay');
   } else if(t==='evento'){
     body.push('📣 '+low(d.tag||'Evento')+': '+cap(d.title));
     if(d.date) body.push('🗓 '+cap(d.date)); if(d.time) body.push('🕒 '+cap(d.time)); if(d.place) body.push('📍 '+cap(d.place)); if(d.text) body.push(cap(d.text));
@@ -2327,6 +2363,12 @@ function buildBizUI(box){
       FF('cItems','Tarjetas (una por línea: Título | Texto; hasta 6)','items',true,150);
       FF('cCta1','Llamada: línea grande','cta1'); FF('cCta2','Llamada: línea chica','cta2'); }
     ctl(w,'Tamaño del título',S.sz,'bTitle',{min:30,max:200,step:5,unit:'%',def:100}); ctl(w,'Tamaño de las tarjetas',S.sz,'bRows',{min:50,max:130,step:5,unit:'%',def:100});
+  } else if(t==='hospedaje'){
+    F('hTag','Etiqueta (ej: HOSPEDAJE · STAY)','tag'); F('hTitle','Nombre del hospedaje','title');
+    F('hR1','Cuartos','r1'); F('hR1en','Cuartos en inglés','r1en');
+    F('hR2','Dato extra (opcional)','r2'); F('hR2en','Dato extra en inglés','r2en');
+    bzSelect(w,'Ícono del dato extra',d,'ic2',[['pool','Piscina'],['view','Vista'],['star','Estrella'],['bed','Cama']]);
+    ctl(w,'Tamaño del nombre',S.sz,'bTitle',{min:30,max:200,step:5,unit:'%',def:100}); ctl(w,'Tamaño de los datos',S.sz,'bRows',{min:50,max:160,step:5,unit:'%',def:100});
   } else if(t==='evento'){
     F('eTag','Etiqueta (ej: TORNEO)','tag'); F('eTitle','Título','title'); F('eDate','Fecha','date'); F('eTime','Hora','time'); F('ePlace','Lugar','place'); F('eText','Texto (opcional)','text',true,70);
     ctl(w,'Tamaño del título',S.sz,'bTitle',{min:30,max:200,step:5,unit:'%',def:100}); ctl(w,'Tamaño de los datos',S.sz,'bRows',{min:50,max:150,step:5,unit:'%',def:100});
@@ -2587,7 +2629,7 @@ function draw(){
   if(S.bzFlat){ if(!S.photo){ if(scMode()) drawScene(c,W,H); else { c.fillStyle=S.bzFlat.bg; c.fillRect(0,0,W,H); S.bzFlat.deco(c,W,H,S.bzFlat); } } drawHeader(c,W,F.top,currentAccount()); } else
   if(S.tpl==='partido'){ if(S.tr!==2) drawDark(c,W,H,S.ly.ov/100); } else {if(S.tpl==='subt'){ if(S.tr!==2) subtDim(c,W,H); } else if(S.tr!==2&&S.tpl!=='flyer') drawOverlay(c,W,H,tint,S.tpl==='tabla'||isRed(S.tpl)||S.tpl==='resumen'||S.tpl==='equipos'||S.tpl==='arbitros'||S.tpl==='precios'||S.tpl==='agenda'); if(S.format!=='portada') drawHeader(c,W,F.top,currentAccount());}
   const _mo=moAny(); if(_mo) moSnapshot();
-  const _tf0=({noticia:drawNoticia,resultado:drawResultado,consigna:drawConsigna,vs:drawVs,cruce:drawCruce,cita:drawCita,entradas:drawEntradas,entranking:drawEnRanking,tabla:drawTabla,partido:drawPartido,reducido:drawReducido,red_qf:drawReducido,red_sf:drawReducido,red_fin:drawReducido,red_all:drawReducido,resumen:drawResumen,equipos:drawEquipos,arbitros:drawArbitros,precios:drawLista,combos:drawCombos,subt:drawSubt,agenda:drawLista,aviso:drawAviso,evento:drawEvento,flyer:drawFlyer,clases:drawClases,cover:drawPortada,once:drawOnce,ascenso:drawAscenso})[S.tpl]; const _tfn=(BIZ_T.includes(S.tpl)&&scMode()&&S.scProds.length)?((c2,W2,H2,F2)=>{ drawSceneProducts(c2,W2,H2,F2); _tf0(c2,W2,H2,F2); }):_tf0; _tfn(c,W,H,F);
+  const _tf0=({noticia:drawNoticia,resultado:drawResultado,consigna:drawConsigna,vs:drawVs,cruce:drawCruce,cita:drawCita,entradas:drawEntradas,entranking:drawEnRanking,tabla:drawTabla,partido:drawPartido,reducido:drawReducido,red_qf:drawReducido,red_sf:drawReducido,red_fin:drawReducido,red_all:drawReducido,resumen:drawResumen,equipos:drawEquipos,arbitros:drawArbitros,precios:drawLista,combos:drawCombos,subt:drawSubt,agenda:drawLista,aviso:drawAviso,evento:drawEvento,hospedaje:drawHospedaje,flyer:drawFlyer,clases:drawClases,cover:drawPortada,once:drawOnce,ascenso:drawAscenso})[S.tpl]; const _tfn=(BIZ_T.includes(S.tpl)&&scMode()&&S.scProds.length)?((c2,W2,H2,F2)=>{ drawSceneProducts(c2,W2,H2,F2); _tf0(c2,W2,H2,F2); }):_tf0; _tfn(c,W,H,F);
   if(_mo) moApply(c,_tfn,W,H,F);
   drawTexts(c,W,H);
   if(!S.exporting){ try{ tAutoHits(); }catch(e){} }
@@ -2607,7 +2649,7 @@ function buildAccounts(){
     box.appendChild(b)});
 }
 /* ---- celular: menú de diseños + botón volver ---- */
-const MOBI={cover:['🎬','Portada de reel'],combos:['🧺','Combos con precio'],subt:['💬','Texto para stories y reels'],noticia:['📰','Titular + escudo'],consigna:['❓','Pregunta A o B'],vs:['⚔️','Dos equipos'],cruce:['🏟️','Un cruce, ida y vuelta'],cita:['🗣️','Frase con foto'],partido:['⚽','Resultados del día'],tabla:['📊','Tabla de posiciones'],reducido:['🏆','Todas las instancias'],resumen:['📋','Resumen de la fecha'],equipos:['🧩','Equipos 2027'],arbitros:['🟨','Árbitros'],once:['⭐','Formación 4-4-2 y más'],ascenso:['🚀','Ascendió a Primera'],precios:['🏷️','Lista de precios'],aviso:['📢','Aviso con texto'],agenda:['🗓️','Horarios de la semana'],evento:['🎉','Fecha, hora y lugar'],clases:['🐴','Info de las clases']};
+const MOBI={cover:['🎬','Portada de reel'],combos:['🧺','Combos con precio'],subt:['💬','Texto para stories y reels'],noticia:['📰','Titular + escudo'],consigna:['❓','Pregunta A o B'],vs:['⚔️','Dos equipos'],cruce:['🏟️','Un cruce, ida y vuelta'],cita:['🗣️','Frase con foto'],partido:['⚽','Resultados del día'],tabla:['📊','Tabla de posiciones'],reducido:['🏆','Todas las instancias'],resumen:['📋','Resumen de la fecha'],equipos:['🧩','Equipos 2027'],arbitros:['🟨','Árbitros'],once:['⭐','Formación 4-4-2 y más'],ascenso:['🚀','Ascendió a Primera'],precios:['🏷️','Lista de precios'],aviso:['📢','Aviso con texto'],agenda:['🗓️','Horarios de la semana'],evento:['🎉','Fecha, hora y lugar'],hospedaje:['🛏️','Hospedaje con datos'],clases:['🐴','Info de las clases']};
 const isMob=()=>matchMedia('(max-width:860px)').matches;
 function mobMenu(show){ const m=document.getElementById('menuM'); if(!m) return; m.hidden=!show; document.body.style.overflow=show?'hidden':''; if(show){ mobBuild(); m.scrollTop=0; } }
 function mobBuild(){

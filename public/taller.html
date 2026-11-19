@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 19/11 · 14:49</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 19/11 · 14:52</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -2075,7 +2075,7 @@ function scCut(img,tol){
 function scAdd(files){ [...files].forEach(f=>{ const u=URL.createObjectURL(f), im=new Image(); im.onload=()=>{ try{ S.scProds.push({src:im,cv:scCut(im,S.scTol),s:100,name:f.name}); }catch(e){} (S.red.bizFlat=S.red.bizFlat||{})[currentAccount().id]='scene'; buildFields(); render(); }; im.src=u; }); }
 function drawSceneProducts(c,W,H,F){
   const P=S.scProds; if(!P.length) return;
-  if(S.tpl==='flyer'){ /* cada producto en su propio círculo blanco: se mueve y se achica/agranda por separado */
+  if(false){ /* (círculo por producto desactivado: los productos van como imagen) */
     const n=P.length, top=(S.flyTT||H*.4)+14, bot=(S.flyPT?S.flyPT-14:H*.72), aH=Math.max(120,bot-top), aX=W*.46, aW=W*.52, D0=Math.min(aH*.92,aW/n-14,300), Dd=Math.max(90,D0), tot=n*Dd+(n-1)*14; let x0=aX+(aW-tot)/2;
     P.forEach((p,i)=>{ if(p.s==null) p.s=100; const D=Dd*(p.s/100), cx=x0+i*(Dd+14)+Dd/2, cy=top+aH/2;
       E(c,'prod'+i,c=>{ c.save(); c.shadowColor='rgba(0,0,0,.35)'; c.shadowBlur=14*(S.qNow||1); c.fillStyle='#fff'; c.beginPath(); c.arc(cx,cy,D/2+8,0,7); c.fill(); c.restore();

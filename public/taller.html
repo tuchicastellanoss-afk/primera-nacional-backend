@@ -164,7 +164,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 19/11 · 14:38</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 19/11 · 14:49</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -2016,11 +2016,11 @@ function drawFlyer(c0,W,H,F){
       if(i<bens.length-1) E(c0,'benLn'+i,c=>{ c.fillStyle=IC; c.fillRect(tx-6,cy0+rh/2-3*k,tw+6,3*k); hitBox('','Línea '+(i+1),tx-6,cy0+rh/2-3*k-8,tw+6,3*k+16,false); });
       E(c0,'ben'+i,c=>{ c.textBaseline='alphabetic'; const cy=panelTop+46*k+i*rh+rh/2-6*k, f=ffit(c,up(String(b).replace(/^\s*\p{Extended_Pictographic}\uFE0F?\s*/u,'')),FAM,800,tw,2,28*k,15,'fBen'), lh=f.size*1.1; c.fillStyle='#fff'; c.textAlign='left'; c.font=`800 ${f.size}px ${FAM}`; const ty=cy-(f.lines.length-1)*lh/2+f.size*.34; f.lines.forEach((l,q)=>c.fillText(l,tx,ty+q*lh)); hitBox('f-fBens','Beneficio '+(i+1),tx-6,cy-rh/2+4*k,W-Mx-(tx-6),rh-6*k,true,{ctrls:[FZ('fBen')]}); }); }); }
   S.flyPT=bens.length?panelTop:pBot; S.flyTT=yTitleEnd; const yBase=bens.length?panelTop:pBot; let circTop=yBase-12*k, noteX=Mx+8, noteW=W*.42, noteCy=panelTop+panelH*.55;
-  if(circOn){ const D=Math.min(W*.24,215*k,Math.max(120,panelH-40*k))*(S.sz.fCirc||100)/100, cx=Mx+D/2+8, cy=(bens.length?panelTop+22*k+D/2:yBase-D/2-20*k), im=S.flyIn;
+  if(circOn){ const D=Math.min(W*.24,215*k,Math.max(120,panelH-40*k))*(S.sz.fCirc||100)/100, cx0=Mx+D/2+8, cy0=(bens.length?panelTop+22*k+D/2:yBase-D/2-20*k), CPO=(S.red.fpo=S.red.fpo||{}), cx=cx0+(CPO.ccX||0), cy=cy0+(CPO.ccY||0), im=S.flyIn;
     E(c0,'circ',c=>{ c.save(); c.shadowColor='rgba(0,0,0,.35)'; c.shadowBlur=14*(S.qNow||1); c.fillStyle=S.red.flyRing||'#ffffff'; c.beginPath(); c.arc(cx,cy,D/2+8,0,7); c.fill(); c.restore();
       c.save(); c.beginPath(); c.arc(cx,cy,D/2,0,7); c.clip(); if(im){ const ha=flyHasAlpha(im), z=(S.flyZ||100)/100, px=S.sz.flyPX||0, py=S.sz.flyPY||0; if(ha){ c.fillStyle=S.red.flyCol||'#ffffff'; c.fillRect(cx-D/2,cy-D/2,D,D); const sc=Math.min(D*.9/im.width,D*.9/im.height)*z; c.drawImage(im,cx-im.width*sc/2+px,cy-im.height*sc/2+py,im.width*sc,im.height*sc); } else { const sc=Math.max(D/im.width,D/im.height)*z; c.drawImage(im,cx-im.width*sc/2+px,cy-im.height*sc/2+py,im.width*sc,im.height*sc); } } else { c.fillStyle='#dbeaf5'; c.fillRect(cx-D/2,cy-D/2,D,D); if(!S.exporting){ c.fillStyle='#0a3c87'; c.textAlign='center'; c.font=`700 ${D*.1}px ${FAM}`; c.fillText('FOTO DE',cx,cy-4); c.fillText('DETALLE',cx,cy+D*.12); } } c.restore();
-      hitBox('f-fCirc','Círculo con foto',cx-D/2-8,cy-D/2-8,D+16,D+16,false,{colors:[['Color del círculo (fondo de la foto)',S.red,'flyCol'],['Color del borde',S.red,'flyRing']],ctrls:[{label:'Tamaño del círculo',o:S.sz,k:'fCirc',min:50,max:150,step:5,unit:'%',def:100},{label:'Mover la foto ←→',o:S.sz,k:'flyPX',min:-300,max:300,step:5,def:0},{label:'Mover la foto ↑↓',o:S.sz,k:'flyPY',min:-300,max:300,step:5,def:0}]}); });
-    circTop=cy-D/2-8; noteX=cx+D/2+24*k; noteW=W*.45-12*k-noteX; noteCy=cy; }
+      hitBox('f-fCirc','Círculo con foto',cx-D/2-8,cy-D/2-8,D+16,D+16,false,{o:CPO,x:'ccX',y:'ccY',tb:true,rng:1200,colors:[['Color del círculo (fondo de la foto)',S.red,'flyCol'],['Color del borde',S.red,'flyRing']],ctrls:[{label:'Tamaño del círculo',o:S.sz,k:'fCirc',min:30,max:300,step:5,unit:'%',def:100},{label:'Mover la foto ←→',o:S.sz,k:'flyPX',min:-300,max:300,step:5,def:0},{label:'Mover la foto ↑↓',o:S.sz,k:'flyPY',min:-300,max:300,step:5,def:0}]}); });
+    circTop=cy0-D/2-8; noteX=cx0+D/2+24*k; noteW=W*.45-12*k-noteX; noteCy=cy0; }
   const note=String(d.note||'').trim();
   if(note&&bens.length) E(c0,'note',c=>{ c.textBaseline='alphabetic'; const f=ffit(c,note,SCR,400,Math.max(120,noteW),3,40*k,16,'fNote'), lh=f.size*1.12, ny=noteCy-(f.lines.length-1)*lh/2+f.size*.3; c.fillStyle='#fff'; c.textAlign='left'; c.font=`400 ${f.size}px ${SCR}`; f.lines.forEach((l,q)=>c.fillText(l,noteX,ny+q*lh)); const ly=ny+(f.lines.length-1)*lh+f.size*.32; let mw=0; f.lines.forEach(l=>mw=Math.max(mw,c.measureText(l).width)); c.strokeStyle=IC; c.lineWidth=5*k; c.lineCap='round'; c.beginPath(); c.moveTo(noteX,ly+5*k); c.quadraticCurveTo(noteX+mw*.5,ly-5*k,noteX+mw,ly+1*k); c.stroke(); hitLines(c,'f-fNote','Frase de la izquierda',f.lines,noteX,ny,f.size,lh,'left',true,{ctrls:[FZ('fNote')]}); });
   const tag=up(d.tag), brand=String(d.brand||'').trim(), bsub=String(d.bsub||'').trim(), desc=up(d.desc);

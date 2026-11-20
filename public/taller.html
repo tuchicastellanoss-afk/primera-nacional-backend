@@ -170,7 +170,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 19/11 · 21:17</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 19/11 · 21:20</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -978,7 +978,7 @@ function czLoadBox(){ const box=document.createElement('div'); box.className='se
   const pv=document.createElement('button'); pv.type='button'; pv.className='ghost'; pv.textContent='← Anterior'; pv.onclick=()=>go((S.red.czIdx||0)-1);
   const nx=document.createElement('button'); nx.type='button'; nx.className='ghost'; nx.textContent='Siguiente →'; nx.onclick=()=>go((S.red.czIdx||0)+1);
   const all=document.createElement('button'); all.type='button'; all.className='primary'; all.textContent='Descargar todos ('+L.length+')'; all.onclick=czExportAll;
-  row.append(pv,nx,all); const p=document.createElement('p'); p.className='hint'; p.textContent='Carga el cruce elegido con sus escudos, posiciones y fechas del Reducido. En ida y vuelta, el mejor ubicado juega de local la vuelta. Todo se puede editar abajo (por ejemplo intercambiar quién es local).'; box.append(sel,row,p); return box; }
+  const rz=document.createElement('button'); rz.type='button'; rz.className='ghost'; rz.textContent='Volver todo a su lugar'; rz.onclick=()=>{ Object.keys(S.mo).forEach(k=>{ if(k.includes('|f-cz')) delete S.mo[k]; }); if(S.cs){ delete S.cs.czA; delete S.cs.czB; } persist(); render(); }; row.append(pv,nx,all,rz); const p=document.createElement('p'); p.className='hint'; p.textContent='Carga el cruce elegido con sus escudos, posiciones y fechas del Reducido. En ida y vuelta, el mejor ubicado juega de local la vuelta. Todo se puede editar abajo (por ejemplo intercambiar quién es local).'; box.append(sel,row,p); return box; }
 function drawCita(c,W,H,F){
   const f=S.f, acc=mainTint(), lt=(()=>{ const [r,g,b]=hexRgb(acc), m=.62; return `rgb(${Math.round(r+(255-r)*m)},${Math.round(g+(255-g)*m)},${Math.round(b+(255-b)*m)})`; })(), M=64, MW=W-2*M, q=(S.qNow||1), FH='"Archivo","Arial Black",sans-serif', IT='italic 800', gs=k=>String(f[k]==null?'':f[k]).trim();
   c.textBaseline='alphabetic'; c.textAlign='center';
@@ -2506,6 +2506,7 @@ async function stApply(st){
   if(!S.red.qfl){ S.red.qfl=1; (S.red.qf||[]).forEach((m,ix)=>{ if(m.di===undefined&&QF_IDA[ix]&&(REAL_QF[ix]&&m.a===REAL_QF[ix][0])){ m.di=QF_IDA[ix][0]; m.hi=QF_IDA[ix][1]; m.dv='Sáb 28/11'; m.hv=''; } }); S.red.subs=S.red.subs||{}; if(S.red.subs.qf==null||S.red.subs.qf==='Segunda instancia · Cuartos de final') S.red.subs.qf='Cuartos de final · IDA'; if(S.red.subs.qfv==null) S.red.subs.qfv='Cuartos de final · VUELTA'; }
   if(!S.red.tcf1){ S.red.tcf1=1; if(S.red.lightCards) redTcoClear(); }
   if(!S.red.czm2){ S.red.czm2=1; try{ const it=czList().find(x=>x.m.di!==undefined&&S.f&&nm(x.m.a)===nm(S.f.czA)&&nm(x.m.b)===nm(S.f.czB)); if(it){ const w1=[it.m.di,it.m.hi].filter(Boolean).join(' '), w2=[it.m.dv,it.m.hv].filter(Boolean).join(' '); if(/^\s*(s[aá]b(ado)?\s*)?2[12]\/11\s*$/i.test(S.f.czW1||'')||/^\s*(s[aá]b(ado)?\s*)?28\/11\s*$/i.test(S.f.czW2||'')){ S.f.czW1=w1; S.f.czW2=String(it.m.hv||'').trim()?w2:'A confirmar'; } } }catch(e){} }
+  if(!S.red.czm4){ S.red.czm4=1; try{ Object.keys(S.mo).forEach(k=>{ if(k.includes('|f-cz')) delete S.mo[k]; }); if(S.cs){ delete S.cs.czA; delete S.cs.czB; } }catch(e){} }
   if(!S.red.czm3){ S.red.czm3=1; try{ if(S.f&&/conf/i.test(S.f.czW2||'')) S.f.czW2='A confirmar'; }catch(e){} }
   if(!S.red.czm1){ S.red.czm1=1; const q0=(S.red.qf||[])[0]; if(q0&&q0.a==='Tristán Suárez'&&q0.b==='Gimnasia y Tiro'&&(!q0.d||q0.d===PHDATE.qf)) q0.d='Ida Dom 22/11 21:00 · Vuelta 28/11'; if(S.f&&S.f.czA==='Tristán Suárez'&&S.f.czB==='Gimnasia y Tiro'){ if(S.f.czW1==='Sábado 21/11') S.f.czW1='Domingo 22/11 · 21:00'; if(S.f.czW2==='Sábado 28/11') S.f.czW2='A confirmar'; } }
   if(!S.red.hm2){S.red.hm2=1; const f=(S.red.p1||[])[0]; if(f&&f.a==='Ferro'&&String(f.h||'').trim()==='20:00') f.h='20:30';}

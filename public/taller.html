@@ -170,7 +170,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 19/11 · 21:29</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 20/11 · 16:18</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -632,7 +632,7 @@ function moApply(c,tfn,W,H,F){
         const t=document.createElement('canvas'); t.width=w; t.height=h; t.getContext('2d').putImageData(out,0,0); c.save(); c.setTransform(1,0,0,1,0,0); c.drawImage(t,x0+Math.round(dx*Q),y0+Math.round(dy*Q)); c.restore(); }catch(e){} }); }
   if(!_mv.some(h=>!h.el)) return;
   const _sm=_mv.filter(h=>!h.el); const segs=new Set(_sm.map(h=>h.seg)), skipEl=new Set(_fly.map(h=>h.el)), pad=200;
-  const pass=(x,solo)=>{ S.segMode={solo,skip:segs}; S.segN=0; S.skip=solo==null?skipEl:null; _mp=true; _hcnt={}; _tcnt={}; try{ tfn(segGate(x),W,H,F); }catch(e){} _mp=false; S.segMode=null; S.skip=null; };
+  const pass=(x,solo)=>{ S.segMode={solo,skip:segs}; S.segN=S.segBase||0; S.skip=solo==null?skipEl:null; _mp=true; _hcnt={}; _tcnt={}; try{ tfn(segGate(x),W,H,F); }catch(e){} _mp=false; S.segMode=null; S.skip=null; };
   const mk3=base=>{ const o=document.createElement('canvas'); o.width=cv.width; o.height=cv.height; const x=o.getContext('2d'); x.setTransform(1,0,0,1,0,0); if(base==='bg') x.drawImage(_bd,0,0); else { x.fillStyle=base; x.fillRect(0,0,o.width,o.height); } x.setTransform(Q,0,0,Q,0,0); return x; };
   const xr=mk3('bg'); pass(xr,null);
   const bx2=hh=>{ const x0=Math.max(0,Math.floor((hh.x-pad)*Q)), y0=Math.max(0,Math.floor((hh.y-pad)*Q)), x1=Math.min(cv.width,Math.ceil((hh.x+hh.w+pad)*Q)), y1=Math.min(cv.height,Math.ceil((hh.y+hh.h+pad)*Q)); return [x0,y0,x1-x0,y1-y0]; };
@@ -2733,7 +2733,7 @@ function draw(){
   if(S.bzFlat){ if(!S.photo){ if(scMode()) drawScene(c,W,H); else { c.fillStyle=S.bzFlat.bg; c.fillRect(0,0,W,H); S.bzFlat.deco(c,W,H,S.bzFlat); } } drawHeader(c,W,F.top,currentAccount()); } else
   if(S.tpl==='partido'){ if(S.tr!==2) drawDark(c,W,H,S.ly.ov/100); } else {if(S.tpl==='subt'){ if(S.tr!==2) subtDim(c,W,H); } else if(S.tr!==2&&S.tpl!=='flyer') drawOverlay(c,W,H,tint,S.tpl==='tabla'||isRed(S.tpl)||S.tpl==='resumen'||S.tpl==='equipos'||S.tpl==='arbitros'||S.tpl==='precios'||S.tpl==='agenda'); if(S.format!=='portada') drawHeader(c,W,F.top,currentAccount());}
   const _mo=moAny(); if(_mo) moSnapshot();
-  const _tf0=({noticia:drawNoticia,resultado:drawResultado,consigna:drawConsigna,vs:drawVs,cruce:drawCruce,cita:drawCita,entradas:drawEntradas,entranking:drawEnRanking,tabla:drawTabla,partido:drawPartido,reducido:drawReducido,red_qf:drawReducido,red_sf:drawReducido,red_fin:drawReducido,red_all:drawReducido,resumen:drawResumen,equipos:drawEquipos,arbitros:drawArbitros,precios:drawLista,combos:drawCombos,subt:drawSubt,agenda:drawLista,aviso:drawAviso,evento:drawEvento,hospedaje:drawHospedaje,flyer:drawFlyer,clases:drawClases,cover:drawPortada,once:drawOnce,ascenso:drawAscenso})[S.tpl]; const _tfn=(BIZ_T.includes(S.tpl)&&scMode()&&S.scProds.length)?((c2,W2,H2,F2)=>{ drawSceneProducts(c2,W2,H2,F2); _tf0(c2,W2,H2,F2); }):_tf0; _tfn(c,W,H,F);
+  const _tf0=({noticia:drawNoticia,resultado:drawResultado,consigna:drawConsigna,vs:drawVs,cruce:drawCruce,cita:drawCita,entradas:drawEntradas,entranking:drawEnRanking,tabla:drawTabla,partido:drawPartido,reducido:drawReducido,red_qf:drawReducido,red_sf:drawReducido,red_fin:drawReducido,red_all:drawReducido,resumen:drawResumen,equipos:drawEquipos,arbitros:drawArbitros,precios:drawLista,combos:drawCombos,subt:drawSubt,agenda:drawLista,aviso:drawAviso,evento:drawEvento,hospedaje:drawHospedaje,flyer:drawFlyer,clases:drawClases,cover:drawPortada,once:drawOnce,ascenso:drawAscenso})[S.tpl]; const _tfn=(BIZ_T.includes(S.tpl)&&scMode()&&S.scProds.length)?((c2,W2,H2,F2)=>{ drawSceneProducts(c2,W2,H2,F2); _tf0(c2,W2,H2,F2); }):_tf0; S.segBase=S.segN; _tfn(c,W,H,F);
   if(_mo) moApply(c,_tfn,W,H,F);
   drawTexts(c,W,H);
   if(!S.exporting){ try{ tAutoHits(); }catch(e){} }

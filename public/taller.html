@@ -170,7 +170,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 20/11 · 16:18</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 20/11 · 16:28</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -208,7 +208,8 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
       <div class="sec">
         <h2>Foto de fondo</h2>
         <label class="file"><input id="photoIn" type="file" accept="image/*" multiple><span>Agregar foto (podés elegir varias)</span></label>
-        <label>Zoom de la foto 1 <input id="zoom" type="range" min="100" max="400" value="100"></label>
+        <label class="chk"><input id="phFit" type="checkbox"> Mostrar la foto entera (sin recortar, para capturas)</label>
+        <label>Zoom de la foto 1 <input id="zoom" type="range" min="30" max="400" value="100"></label>
         <div class="row" style="justify-content:flex-start"><button class="ghost" id="resetPhoto" type="button">Centrar foto</button><button class="ghost" id="clearPhoto" type="button">Quitar foto</button></div>
         <p class="hint">Arrastrá la foto para moverla. Con dos dedos (pellizco) hacés zoom; en la compu, Ctrl + rueda.</p>
       </div>
@@ -801,8 +802,8 @@ function drawPhoto0(c,W,H,tint){
     return;
   }
   if(S.photo){
-    const p=S.photo, k=Math.max(W/p.width,H/p.height)*S.zoom, dw=p.width*k, dh=p.height*k;
-    const mx=Math.max(0,(dw-W)/2), my=Math.max(0,(dh-H)/2);
+    const FIT=!!S.red.phFit, p=S.photo, zz=FIT?S.zoom:Math.max(1,S.zoom), k=(FIT?Math.min(W/p.width,H/p.height):Math.max(W/p.width,H/p.height))*zz, dw=p.width*k, dh=p.height*k;
+    const mx=FIT?Math.abs(dw-W)/2+W*.35:Math.max(0,(dw-W)/2), my=FIT?Math.abs(dh-H)/2+H*.35:Math.max(0,(dh-H)/2); if(FIT) bg();
     S.ox=Math.max(-mx,Math.min(mx,S.ox)); S.oy=Math.max(-my,Math.min(my,S.oy));
     if(CUR_FX.op<100) bg(); c.save(); if(CUR_FX.op<100) c.globalAlpha=CUR_FX.op/100; let pi=p; const isV=window.VID&&p===VID.cv; if(isV){ if('filter' in c){ const ff=fxFilter(CUR_FX); if(ff!=='none') c.filter=ff; } } else pi=fxImg(p,dw); c.imageSmoothingEnabled=true; c.imageSmoothingQuality='high'; c.drawImage(pi,(W-dw)/2+S.ox,(H-dh)/2+S.oy,dw,dh); c.restore();
   } else {
@@ -2519,7 +2520,7 @@ async function stApply(st){
   if(S.cards.length<=1&&(!S.cards[0]||S.cards[0].example||(S.cards[0].home==='Acassuso'&&S.cards[0].away==='All Boys'))){ S.cards=defCards(); S.cur=0; if(S.tags.l==='Fecha 28'&&S.tags.r==='Zona A'){S.tags.l='Reducido';S.tags.r="Primera instancia"} }
   S.phs={}; for(const [k,e] of Object.entries(st.phs||{})){ const o={...e}; o.photo=await toBitmap(e.photoBlob); o.photo2=await toBitmap(e.photoBlob2); o.xph=[]; for(const p of (e.xph||[])){ const im=await toBitmap(p.blob); if(im) o.xph.push({img:im,blob:p.blob,ox:p.ox||0,oy:p.oy||0,zoom:p.zoom||1}); } S.phs[k]=o; }
   if(!S.red.flatV2){ S.red.bizFlat={}; S.red.logoLight={}; S.red.flatV2=1; }
-  fixTpl(); S.phKey=S.account+'|'+S.tpl; $('#autoTint').checked=S.autoTint; $('#logoTint').checked=!!S.logoTint; $('#tint').value=S.tint; $('#zoom').value=Math.round(S.zoom*100);
+  fixTpl(); S.phKey=S.account+'|'+S.tpl; try{ $('#phFit').checked=!!S.red.phFit; }catch(e){} $('#autoTint').checked=S.autoTint; $('#logoTint').checked=!!S.logoTint; $('#tint').value=S.tint; $('#zoom').value=Math.round(S.zoom*100);
   buildAccounts();buildFormats();buildQual();buildTpls();buildFields();buildCollageUI();render();
 }
 const hist={st:[],i:-1,sig:'',t:0,busy:false};
@@ -3344,6 +3345,7 @@ $('#dlX').onclick=()=>{ const msg=$('#dlmsg'); let t=''; try{ t=makeCopyAny('tw'
   document.addEventListener('pointerdown',e=>{ if(m&&!m.contains(e.target)) hide(); },true); document.addEventListener('keydown',e=>{ if(e.key==='Escape') hide(); }); window.addEventListener('scroll',hide,true);
 })();
 $('#zoom').addEventListener('input',e=>{S.zoom=e.target.value/100;render()});
+$('#phFit').addEventListener('change',e=>{ S.red.phFit=e.target.checked; if(!e.target.checked&&S.zoom<1){ S.zoom=1; $('#zoom').value=100; } persist(); render(); });
 $('#resetPhoto').onclick=()=>{PS.load(PS.list().map(p=>({...p,ox:0,oy:0,zoom:1}))); $('#zoom').value=100; buildCollageUI(); render()};
 $('#clearPhoto').onclick=()=>{vidClear(); PS.load([]); buildCollageUI(); render()};
 /* ---------- video de fondo ---------- */

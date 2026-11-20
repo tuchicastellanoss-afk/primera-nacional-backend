@@ -170,7 +170,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 19/11 · 21:20</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 19/11 · 21:22</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -1017,6 +1017,7 @@ function drawCita(c,W,H,F){
 }
 function txt3(c,key,t,x,y,mw,font,wt,start,min,col,label){ const ft=fit(c,t,font,wt,mw,1,start,min,key), q=(S.qNow||1), first=y+ft.size*.84; E(c,key,cc=>{ cc.textAlign='center'; cc.textBaseline='alphabetic'; cc.font=`${wt} ${ft.size}px ${font}`; cc.save(); cc.shadowColor='rgba(0,0,0,.6)'; cc.shadowBlur=10*q; cc.fillStyle=col; cc.fillText(ft.lines[0],x,first); cc.restore(); hitLines(cc,'f-'+key,label,ft.lines,x,first,ft.size,ft.size,'center',false,{ctrls:[SZ(key)]}); }); }
 function drawCruce(c,W,H,F){
+  if(!S.red.czm5){ S.red.czm5=1; try{ Object.keys(S.mo).forEach(k=>{ if(k.includes('|f-cz')) delete S.mo[k]; }); if(S.cs){ delete S.cs.czA; delete S.cs.czB; } setTimeout(()=>{ try{ persist(); }catch(e){} },0); }catch(e){} }
   const f=S.f, acc=mainTint(), lt=(()=>{ const [r,g,b]=hexRgb(acc), m=.62; return `rgb(${Math.round(r+(255-r)*m)},${Math.round(g+(255-g)*m)},${Math.round(b+(255-b)*m)})`; })(), M=64, MW=W-2*M, q=(S.qNow||1), gs=k=>String(f[k]==null?'':f[k]).trim();
   c.textAlign='center'; c.textBaseline='alphabetic';
   const txt=(key,t,font,wt,start,min,col,y,o)=>{ o=o||{}; t=String(t||'').trim(); if(!t) return 0; const ls=o.ls||0, x=(o.x==null?W/2:o.x); const ft=fit(c,o.up===false?t:t.toUpperCase(),font,wt,(o.mw||MW)-ls*Math.min(t.length,20),o.lines||1,start,min,key); const lh=ft.size*(o.lh||1.04), first=(o.mid!=null?o.mid-ft.lines.length*lh/2:y)+ft.size*.84;

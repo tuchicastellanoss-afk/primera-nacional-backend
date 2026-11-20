@@ -170,7 +170,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 19/11 · 21:22</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 19/11 · 21:29</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -978,7 +978,7 @@ function czLoadBox(){ const box=document.createElement('div'); box.className='se
   const pv=document.createElement('button'); pv.type='button'; pv.className='ghost'; pv.textContent='← Anterior'; pv.onclick=()=>go((S.red.czIdx||0)-1);
   const nx=document.createElement('button'); nx.type='button'; nx.className='ghost'; nx.textContent='Siguiente →'; nx.onclick=()=>go((S.red.czIdx||0)+1);
   const all=document.createElement('button'); all.type='button'; all.className='primary'; all.textContent='Descargar todos ('+L.length+')'; all.onclick=czExportAll;
-  const rz=document.createElement('button'); rz.type='button'; rz.className='ghost'; rz.textContent='Volver todo a su lugar'; rz.onclick=()=>{ Object.keys(S.mo).forEach(k=>{ if(k.includes('|f-cz')) delete S.mo[k]; }); if(S.cs){ delete S.cs.czA; delete S.cs.czB; } persist(); render(); }; row.append(pv,nx,all,rz); const p=document.createElement('p'); p.className='hint'; p.textContent='Carga el cruce elegido con sus escudos, posiciones y fechas del Reducido. En ida y vuelta, el mejor ubicado juega de local la vuelta. Todo se puede editar abajo (por ejemplo intercambiar quién es local).'; box.append(sel,row,p); return box; }
+  const rz=document.createElement('button'); rz.type='button'; rz.className='ghost'; rz.textContent='Volver todo a su lugar'; rz.onclick=()=>{ Object.keys(S.mo).forEach(k=>{ if(k.includes('|f-cz')) delete S.mo[k]; }); if(S.cs){ delete S.cs.czA; delete S.cs.czB; } persist(); render(); }; row.append(pv,nx,all,rz); chk(box,'Mostrar también los escudos grandes arriba',S.red,'czBig'); const p=document.createElement('p'); p.className='hint'; p.textContent='Carga el cruce elegido con sus escudos, posiciones y fechas del Reducido. En ida y vuelta, el mejor ubicado juega de local la vuelta. Todo se puede editar abajo (por ejemplo intercambiar quién es local).'; box.append(sel,row,p); return box; }
 function drawCita(c,W,H,F){
   const f=S.f, acc=mainTint(), lt=(()=>{ const [r,g,b]=hexRgb(acc), m=.62; return `rgb(${Math.round(r+(255-r)*m)},${Math.round(g+(255-g)*m)},${Math.round(b+(255-b)*m)})`; })(), M=64, MW=W-2*M, q=(S.qNow||1), FH='"Archivo","Arial Black",sans-serif', IT='italic 800', gs=k=>String(f[k]==null?'':f[k]).trim();
   c.textBaseline='alphabetic'; c.textAlign='center';
@@ -1028,7 +1028,7 @@ function drawCruce(c,W,H,F){
   /* escudos y nombres */
   const cs=Math.min(W*.25,280), wmx=Math.max(cs*(S.cs.czA||100)/100,cs*(S.cs.czB||100)/100), cy=Math.max(y+wmx/2+6,H*.33), xs=[W*.25,W*.75]; let nb=0; const pend=[];
   [['czA','czAn','czAp'],['czB','czBn','czBp']].forEach(([k,kn,kp],i)=>{ const img=findCrest(f[k]), qq=(S.cs[k]||100)/100, w=cs*qq;
-    E(c,k,cc=>{ if(img){ cc.save(); cc.shadowColor='rgba(0,0,0,.5)'; cc.shadowBlur=22*q; cc.shadowOffsetY=6*q; drawBox(cc,img,xs[i]-w/2,cy+wmx/2-w,w,w,'b'); cc.restore(); } hitBox('f-'+k,'Escudo',xs[i]-w/2,cy+wmx/2-w,w,w,false,{ctrls:[{label:'Tamaño del escudo',o:S.cs,k:k,min:40,max:220,step:5,unit:'%',def:100}]}); });
+    E(c,k,cc=>{ if(!S.red.czBig) return; if(img){ cc.save(); cc.shadowColor='rgba(0,0,0,.5)'; cc.shadowBlur=22*q; cc.shadowOffsetY=6*q; drawBox(cc,img,xs[i]-w/2,cy+wmx/2-w,w,w,'b'); cc.restore(); } hitBox('f-'+k,'Escudo',xs[i]-w/2,cy+wmx/2-w,w,w,false,{ctrls:[{label:'Tamaño del escudo',o:S.cs,k:k,min:40,max:220,step:5,unit:'%',def:100}]}); });
     const nmx=gs(kn)||nm(f[k]); let ny=cy+wmx/2+30; ny+=txt(kn,nmx,FD,'700',58,28,'#fff',ny,{mw:W*.44,lines:2,x:xs[i],label:'Nombre'})+22; pend.push([kp,i,ny]); nb=Math.max(nb,ny); });
   { const yp=Math.max(...pend.map(q=>q[2])); pend.forEach(([kp,i])=>{ nb=Math.max(nb,yp+txt(kp,gs(kp),FN,'700',40,20,lt,yp,{mw:W*.44,x:xs[i],ls:3,label:'Posición'})); }); }
   /* VS o global al centro */
@@ -1042,8 +1042,10 @@ function drawCruce(c,W,H,F){
     { const wv=gs(kw), mt=wv.match(/^(.*?)[\s·]*(\d{1,2}[:.]\d{2})\s*(hs)?$/i); const cw2=MW*.30;
       if(mt&&mt[1].trim()&&!has){ txt(kw,mt[2],FN,'700',Math.round(ch*.34),14,'#fff',y0+ch*.44,{x:W/2,ls:2,mw:cw2,label:'Hora'}); txt(kw+'d',mt[1].trim(),FN,'700',Math.round(ch*.18),12,'rgba(235,235,235,.95)',y0+ch*.24,{x:W/2,ls:3,mw:cw2,label:'Día'}); }
       else txt(kw,wv,FN,'700',Math.round(ch*.32),12,'#fff',y0+ch*(has?.62:.42),{x:W/2,ls:2,mw:cw2,label:'Día y hora'}); }
-    txt(kvl,gs(kvl),FN,'700',Math.round(ch*.3),16,'#fff',0,{x:M+MW*.17,mw:MW*.27,lines:2,mid:y0+ch*.52,label:'Equipo local',lh:1});
-    txt(kvr,gs(kvr),FN,'700',Math.round(ch*.3),16,'#fff',0,{x:M+MW*.83,mw:MW*.27,lines:2,mid:y0+ch*.52,label:'Equipo visitante',lh:1});
+    { const cf=n=>{ const t=nm(n); return t===nm(f.czA)?f.czA:(t===nm(f.czB)?f.czB:n); }; const csz=Math.round(ch*.62*((S.cs.czcs||100)/100));
+      [[kvl,M+20],[kvr,M+MW-20-csz]].forEach(([kk,cx0],si)=>{ const img=findCrest(cf(gs(kk))); if(!img) return; E(c,'czc_'+kl+si,cc=>{ cc.save(); cc.shadowColor='rgba(0,0,0,.45)'; cc.shadowBlur=10*q; drawBox(cc,img,cx0,y0+(ch-csz)/2,csz,csz); cc.restore(); hitBox('f-czc_'+kl+si,'Escudo del recuadro',cx0,y0+(ch-csz)/2,csz,csz,false,{ctrls:[{label:'Tamaño de los escudos del recuadro',o:S.cs,k:'czcs',min:40,max:130,step:5,unit:'%',def:100}]}); }); }); }
+    txt(kvl,gs(kvl),FN,'700',Math.round(ch*.3),16,'#fff',0,{x:M+MW*.245,mw:MW*.17,lines:2,mid:y0+ch*.52,label:'Equipo local',lh:1});
+    txt(kvr,gs(kvr),FN,'700',Math.round(ch*.3),16,'#fff',0,{x:M+MW*.755,mw:MW*.17,lines:2,mid:y0+ch*.52,label:'Equipo visitante',lh:1});
     ly+=ch+14; });
   /* cartel destacado */
   const bt=gs('czBan'); if(bt){ const ft=fit(c,bt.toUpperCase(),'"Archivo","Arial Black",sans-serif','italic 800',MW-70,1,Math.round(ch*.5),22,'czBan'), bh=ft.size*1.5; E(c,'czBan',cc=>{ cc.textAlign='center'; cc.save(); cc.fillStyle=acc; cc.shadowColor='rgba(0,0,0,.45)'; cc.shadowBlur=18*q; cc.shadowOffsetY=6*q; cc.fillRect(M,ly+4,MW,bh); cc.restore(); cc.font=`italic 800 ${ft.size}px "Archivo","Arial Black",sans-serif`; cc.fillStyle='#fff'; cc.fillText(ft.lines[0],W/2,ly+4+bh/2+ft.size*.36); hitLines(cc,'f-czBan','Cartel',ft.lines,W/2,ly+4+bh/2+ft.size*.36,ft.size,ft.size,'center',false,{ctrls:[SZ('czBan')]}); }); ly+=bh+22; }

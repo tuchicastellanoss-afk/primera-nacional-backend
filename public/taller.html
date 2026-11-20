@@ -170,7 +170,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 19/11 · 21:14</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 19/11 · 21:17</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -1025,10 +1025,11 @@ function drawCruce(c,W,H,F){
   /* etiqueta de arriba */
   let y=F.top+150; y+=txt('czTag',f.czTag,FD,'700',46,22,'#fff',y,{label:'Etiqueta',lines:2,ls:2})+34;
   /* escudos y nombres */
-  const cs=Math.min(W*.25,280), wmx=Math.max(cs*(S.cs.czA||100)/100,cs*(S.cs.czB||100)/100), cy=Math.max(y+wmx/2+6,H*.33), xs=[W*.25,W*.75]; let nb=0;
+  const cs=Math.min(W*.25,280), wmx=Math.max(cs*(S.cs.czA||100)/100,cs*(S.cs.czB||100)/100), cy=Math.max(y+wmx/2+6,H*.33), xs=[W*.25,W*.75]; let nb=0; const pend=[];
   [['czA','czAn','czAp'],['czB','czBn','czBp']].forEach(([k,kn,kp],i)=>{ const img=findCrest(f[k]), qq=(S.cs[k]||100)/100, w=cs*qq;
-    E(c,k,cc=>{ if(img){ cc.save(); cc.shadowColor='rgba(0,0,0,.5)'; cc.shadowBlur=22*q; cc.shadowOffsetY=6*q; drawBox(cc,img,xs[i]-w/2,cy-w/2,w,w); cc.restore(); } hitBox('f-'+k,'Escudo',xs[i]-w/2,cy-w/2,w,w,false,{ctrls:[{label:'Tamaño del escudo',o:S.cs,k:k,min:40,max:220,step:5,unit:'%',def:100}]}); });
-    const nmx=gs(kn)||nm(f[k]); let ny=cy+wmx/2+30; ny+=txt(kn,nmx,FD,'700',58,28,'#fff',ny,{mw:W*.44,lines:2,x:xs[i],label:'Nombre'})+22; ny+=txt(kp,gs(kp),FN,'700',40,20,lt,ny,{mw:W*.44,x:xs[i],ls:3,label:'Posición'}); nb=Math.max(nb,ny); });
+    E(c,k,cc=>{ if(img){ cc.save(); cc.shadowColor='rgba(0,0,0,.5)'; cc.shadowBlur=22*q; cc.shadowOffsetY=6*q; drawBox(cc,img,xs[i]-w/2,cy+wmx/2-w,w,w,'b'); cc.restore(); } hitBox('f-'+k,'Escudo',xs[i]-w/2,cy+wmx/2-w,w,w,false,{ctrls:[{label:'Tamaño del escudo',o:S.cs,k:k,min:40,max:220,step:5,unit:'%',def:100}]}); });
+    const nmx=gs(kn)||nm(f[k]); let ny=cy+wmx/2+30; ny+=txt(kn,nmx,FD,'700',58,28,'#fff',ny,{mw:W*.44,lines:2,x:xs[i],label:'Nombre'})+22; pend.push([kp,i,ny]); nb=Math.max(nb,ny); });
+  { const yp=Math.max(...pend.map(q=>q[2])); pend.forEach(([kp,i])=>{ nb=Math.max(nb,yp+txt(kp,gs(kp),FN,'700',40,20,lt,yp,{mw:W*.44,x:xs[i],ls:3,label:'Posición'})); }); }
   /* VS o global al centro */
   E(c,'czVs',cc=>{ cc.textAlign='center'; cc.save(); cc.shadowColor='rgba(0,0,0,.5)'; cc.shadowBlur=14*q; cc.fillStyle='#fff'; cc.font=`italic 800 ${Math.min(cs*.46,130)}px "Archivo","Arial Black",sans-serif`; cc.fillText('VS',W/2,cy+cs*.15); cc.restore(); });
   /* ida y vuelta */

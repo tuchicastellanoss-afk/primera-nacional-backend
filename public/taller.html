@@ -170,7 +170,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 21/11 · 19:35</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 21/11 · 19:36</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -2367,7 +2367,7 @@ function makeCopyPN(kind){
   else if(t==='vs'){ const A=nz(F.vsAn||F.vsA), B=nz(F.vsBn||F.vsB); hook=pick(['🔥 '+A+' vs '+B+': se viene un partidazo','⚔️ '+A+' vs '+B+': ya hay fecha y hora']); if(nz(F.vsWhen)) ctx.push('🗓 '+nz(F.vsWhen)); if(nz(F.vsWhere)) ctx.push('📍 '+nz(F.vsWhere)); if(nz(F.vsTv)) ctx.push('📺 '+nz(F.vsTv)); addC(F.vsA); addC(F.vsB);
     cta=pick(['¿Cómo lo ves? Dejá tu pronóstico 👇','Pronóstico en los comentarios: ¿quién gana? 👇']); }
   else if(t==='partido'){ const sv=x=>String(x==null?'':x).trim(), isP=k=>k.home&&k.away&&sv(k.hs)!==''&&sv(k.as)!=='', played=S.cards.filter(isP), rest=S.cards.filter(k=>k.home&&k.away&&!isP(k)), tgR=sv(S.tags&&S.tags.l), tg=tgR.replace(/\s*\[(.*?)\]/,' ($1)').replace(/\s+/g,' ').trim(), tgc=tg&&tg.toLowerCase().replace(/^./,x=>x.toUpperCase()), isIda=/\bida\b/i.test(tgR)&&!/vuelta/i.test(tgR), isVta=/vuelta/i.test(tgR);
-    const rows=played.length?played:rest, isRes=played.length>0, f0=(isP(S.cards[S.cur]||{})?S.cards[S.cur]:played[0])||{};
+    const cur0=S.cards[S.cur]||{}, isRes=isP(cur0), f0=cur0;
     if(isRes){ const A=nm(f0.home), B=nm(f0.away), x=+sv(f0.hs), y=+sv(f0.as), d=Math.abs(x-y), W=x>y?A:B, Lo=x>y?B:A, sc=x+'-'+y;
       let ang, q, ctxLine;
       if(x===y){ ang=pick(['🤝 '+A+' '+sc+' '+B+': ¿resultado justo?','😮 '+A+' y '+B+' empataron '+sc+': ¿quién sale mejor parado?','⚖️ '+A+' '+sc+' '+B+': ¿lo ganó alguno o se repartieron los puntos?']);
@@ -2377,11 +2377,9 @@ function makeCopyPN(kind){
         q=isIda?['¿Está liquidada la serie o '+Lo+' todavía puede dar vuelta? 👇','¿Se puede dar vuelta un '+sc+'? Opinen 👇']:['¿Fue para tanto o se achicó '+Lo+'? 👇','¿Qué le pasó a '+Lo+'? Opinen 👇']; }
       else { ang=pick(['🔥 '+W+' le ganó '+sc+' a '+Lo+': ¿merecido o ajustado?','👀 '+W+' '+sc+' '+Lo+': ¿justo ganador?','💥 Triunfo de '+W+' por '+sc+' ante '+Lo+': ¿qué viste vos?']); ctxLine=d===1?'Se definió por un solo gol.':'Ganó por '+d+' goles de diferencia.';
         q=isIda?['¿Alcanza esa ventaja para la vuelta? 👇','¿'+Lo+' está para dar vuelta la serie? 👇','¿Quién es favorito ahora para pasar? 👇']:['¿Fue justo el ganador? Opinen 👇','¿Quién fue la figura? Dejala en comentarios 👇']; }
-      hook=ang; if(ctxLine) ctx.push(ctxLine); if(rows.length>1||tgc) ctx.push(''); if(tgc&&rows.length>1) ctx.push(tgc+':');
-      if(rows.length>1||tw) rows.slice(0,tw?3:12).forEach(k=>{ ctx.push('• '+nz(k.home)+' '+sv(k.hs)+' - '+sv(k.as)+' '+nz(k.away)); if(!tw){ const gs=[nz(k.gh),nz(k.ga)].filter(Boolean).join(' | '); if(gs) ctx.push('   ⚽ '+gs); } addC(k.home); addC(k.away); });
-      else { const gs=[nz(f0.gh),nz(f0.ga)].filter(Boolean).join(' | '); if(gs&&!tw) ctx.push('⚽ '+gs); addC(f0.home); addC(f0.away); }
+      hook=ang; if(ctxLine) ctx.push(ctxLine); if(tgc) ctx.push('📌 '+tgc+'.'); { const gs=[nz(f0.gh),nz(f0.ga)].filter(Boolean).join(' | '); if(gs&&!tw) ctx.push('⚽ '+gs); } addC(f0.home); addC(f0.away);
       cta=pick(q)+'\nTe leemos en los comentarios.'; if(tw) cta=pick(q); }
-    else { hook=pick(['📅 Se viene'+(tgc?': '+tgc:' la fecha')+' ¿cómo la ves?','⚔️ '+(tgc||'La fecha')+': ¿quién gana?']); rows.slice(0,tw?3:12).forEach(k=>{ ctx.push('• '+nz(k.home)+' vs '+nz(k.away)); addC(k.home); addC(k.away); }); cta=pick(['Dejá tu pronóstico 👇 ¿Quién gana y con qué resultado?','¿Cuál es el partido más parejo? Opinen 👇']); } }
+    else { const k0=(cur0.home&&cur0.away?cur0:rest[0])||{}; if(k0.home){ hook=pick(['⚔️ '+nm(k0.home)+' vs '+nm(k0.away)+(tgc?' · '+tgc:'')+': ¿quién gana?','📅 Se viene '+nm(k0.home)+' vs '+nm(k0.away)+': ¿cómo lo ves?']); addC(k0.home); addC(k0.away); } else hook='📅 Se viene la fecha: ¿cómo la ves?'; cta=pick(['Dejá tu pronóstico 👇 ¿Quién gana y con qué resultado?','¿Quién llega mejor? Opinen 👇']); } }
   else if(t==='entradas'){ const A=nz(F.enAn)||nm(F.enA), B=nz(F.enBn)||nm(F.enB), na=numOf(F.enNa), nb=numOf(F.enNb), mn=Math.min(na,nb), mx=Math.max(na,nb), W2=na>=nb?A:B;
     hook=pick(['🎟 '+A+' vendió '+fmtN(na)+' entradas. '+B+', '+fmtN(nb)+'.','🎟 Los números de la previa: '+A+' '+fmtN(na)+' | '+B+' '+fmtN(nb)]);
     if(mn>0&&mx/mn>=1.2) ctx.push('🔥 '+W2+' vendió '+(mx/mn).toFixed(1).replace('.',',')+' veces más entradas.'); else if(na&&nb) ctx.push('Paridad total en la venta de entradas.');

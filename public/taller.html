@@ -170,7 +170,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 21/11 · 19:36</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 25/11 · 16:29</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -388,6 +388,7 @@ const TEMPLATES = {
   subt:{label:'Stories | Reels',main:null,fields:[]},
   combos:{label:'Combos',main:null,fields:[]},
   precios:{label:'Lista de precios',main:null,fields:[]},
+  promos:{label:'Super promos',main:null,fields:[]},
   aviso:{label:'Aviso con texto',main:null,fields:[]},
   agenda:{label:'Agenda / horarios',main:null,fields:[]},
   evento:{label:'Evento',main:null,fields:[]},
@@ -1658,8 +1659,8 @@ function drawArbitros(c,W,H,F){
   });
 }
 /* ================= CUENTAS DE NEGOCIOS: lista de precios, aviso, agenda, evento ================= */
-const BIZ_T=['subt','combos','precios','aviso','agenda','evento','hospedaje','flyer','clases','cover'];
-const ACC_TPLS={tz:['cover','combos','precios','aviso'],se:['cover','combos','precios','aviso'],fb:['cover','flyer','combos','precios','aviso'],mz:['cover','precios','aviso'],lg:['cover','subt','clases','evento','hospedaje','agenda','precios','aviso']};
+const BIZ_T=['subt','combos','precios','promos','aviso','agenda','evento','hospedaje','flyer','clases','cover'];
+const ACC_TPLS={tz:['cover','combos','precios','aviso'],se:['cover','combos','precios','aviso'],fb:['cover','promos','flyer','combos','precios','aviso'],mz:['cover','precios','aviso'],lg:['cover','subt','clases','evento','hospedaje','agenda','precios','aviso']};
 function tplKeys(){
   const a=currentAccount(), base=Object.keys(TEMPLATES).filter(k=>k==='reducido'||!isRed(k)), fbk=base.filter(k=>!BIZ_T.includes(k)); const nopn=fbk.filter(k=>k!=='entradas'&&k!=='entranking'&&k!=='once'&&k!=='ascenso'&&k!=='cruce'&&k!=='cita');
   if(ACC_TPLS[a.id]) return ACC_TPLS[a.id]; if(a.id==='pn') return fbk; return [...nopn,'cover','precios','aviso'];
@@ -1761,6 +1762,7 @@ const BZ_DEF={
     precios:{title:'OFERTAS COMBINADAS',sub:'',items:'300 gr jamón cocido natural + 200 gr queso de máquina - $8.600\n100 gr salame milán + 150 gr cocido 4 Condes + 200 gr queso máquina - $7.600\n300 gr cocido 4 Condes + 200 gr queso máquina - $6.900',c1:'',c2:'Avenida Constituyentes 3148, General Pacheco'},
     aviso:{lines:'TE ESPERAMOS DE\nLUNES A SÁBADO - 8 A 13 // 16:30 A 20:30\nDOMINGOS Y FERIADOS DE 9 A 13',sub:'',sticker:'',pos:'low',box:'color',c1:'',c2:'Avenida Constituyentes 3148, General Pacheco'}},
   fb:{
+    promos:{title:'SUPER PROMOS',sub:'en productos de pileta',k1p:'$6.199',k1t:'Cloro Pastillas',k2p:'$5.999',k2t:'Granulado\nLento o Rápido',items:'Cloro líquido 5L - $4.900\nÁcido 5L - $7.499\nClarificador - $6.500\nAlguicida - $6.500\nSulfato de cobre - $9.500\nLimpiafondo - $29.750\nGel Clarificante - $4.390\nBoya Vulcano - $9.400\nSacahojas c/ manguito - $18.000',c1:'+54 9 11 6601-2377',c2:'',pan:true},
     precios:{title:'SUPER PROMOS',sub:'en productos de pileta',items:'Cloro líquido 5L - $4.900\nÁcido 5L - $7.499\nClarificador - $6.500\nAlguicida - $6.500\nSulfato de cobre - $9.500\nLimpiafondo - $27.300',c1:'+54 9 11 6601-2377',c2:''},
     aviso:{lines:'ASÍ ESTABA LA PILETA',sub:'Sin mantenimiento del piso',sticker:'',pos:'low',box:'none',c1:'+54 9 11 6601-2377',c2:''},
     flyer:{t1:'CAMBIO DE',t2:'GRAVA',t3:'DE FILTROS',t4:'para piscinas',tag:'FILTROS',brand:'VULCANO',bsub:'Inspirados por el agua',desc:'Mantenimiento y renovación de filtros Vulcano',bens:'Mejora la filtración del agua\nMayor rendimiento del filtro\nAgua más limpia y cristalina',note:'Grava nueva, mejor filtrado',circ:'1',cta:'Consultanos',c1:'11 6601-2377',c2:''}},
@@ -1907,6 +1909,64 @@ function drawLista(c,W,H,F){
     }
     y+=h;
   });
+}
+
+/* ===== Super promos (Fabeck): título grande arriba, subtítulo a la derecha, dos recuadros a la izquierda, WhatsApp y lista grande abajo a la derecha. Cada pieza se toca y se mueve sola ===== */
+function drawPromos(c,W,H,F){
+  const TH=bzTh(), d=bzData(), flat=!!S.bzFlat, CY=flat?'#19e3f2':TH.acc, PW=(S.sz.bRows||100)/100, M=40, PAN=flat?'rgba(11,63,143,.92)':'rgba(8,36,96,.58)';
+  const ST=TH.stroke||'#1f6bff'; let y=Math.max(F.top+10,(S.logoBot||0)+16);
+  c.textAlign='center'; c.textBaseline='alphabetic';
+  const outl=(txt,x,yy,sz,col,sc,lw)=>{ c.lineJoin='round'; c.strokeStyle=sc; c.lineWidth=lw; c.strokeText(txt,x,yy); c.fillStyle=col; c.fillText(txt,x,yy); };
+  /* título */
+  const tt=String(d.title||'').toUpperCase().trim();
+  if(tt){ const ft=fit(c,tt,TH.font,900,W-2*M,1,Math.round(W*.15),56,'bTitle'), lh=ft.size*.92;
+    c.font=`900 ${ft.size}px ${TH.font}`; c.save(); c.shadowColor='rgba(0,20,80,.45)'; c.shadowBlur=14*(S.qNow||1); c.shadowOffsetY=6*(S.qNow||1);
+    ft.lines.forEach((l,i)=>outl(l,W/2,y+ft.size*.84+i*lh,ft.size,'#ffffff',ST,Math.max(8,ft.size*.13))); c.restore();
+    hitLines(c,'f-bTitle','Título',ft.lines,W/2,y+ft.size*.84,ft.size,lh,'center',false,{ctrls:[SZ('bTitle')]}); y+=ft.size*.84+(ft.lines.length-1)*lh+ft.size*.2; }
+  /* subtítulo, a la derecha, sin pastilla */
+  const sb=String(d.sub||'').trim();
+  if(sb){ const ft=fit(c,sb,TH.font,800,W*.6,1,Math.round(W*.044),20,'bSub'); c.font=`800 ${ft.size}px ${TH.font}`; c.textAlign='right'; const rxs=W-M-20;
+    c.save(); c.shadowColor='rgba(0,20,80,.6)'; c.shadowBlur=10*(S.qNow||1); c.shadowOffsetY=3*(S.qNow||1); outl(ft.lines[0]||'',rxs,y+ft.size*.9,ft.size,'#ffffff','rgba(8,40,110,.85)',Math.max(4,ft.size*.1)); c.restore();
+    hitLines(c,'f-bSub','Subtítulo',ft.lines,rxs,y+ft.size*.9,ft.size,ft.size,'right',false,{ctrls:[SZ('bSub')]}); }
+  /* lista grande abajo a la derecha: "Producto $precio" en una línea */
+  const list=parseLista(d.items).filter(it=>it.t==='it'||it.t==='sec'), rows=Math.max(1,list.length), yEnd=H-26, px0=Math.round(W*.35), pw0=W-px0-18, rx=W-18-22;
+  let nS=58*PW, wmax=0; const gap=.24;
+  const wid=sz=>{ let m=0; list.forEach(it=>{ c.font=`900 ${sz}px ${TH.font}`; m=Math.max(m,c.measureText((it.name||'')).width+(it.right?c.measureText(' '+it.right).width:0)); }); return m; };
+  while(nS>16&&wid(nS)>pw0-50) nS-=2;
+  const rh=nS*1.2, panH=rows*rh+34, py=Math.max(F.top+300,yEnd-panH);
+  if(list.length){
+    if(d.pan!==false){ c.save(); c.fillStyle=PAN; rrect(c,px0,py,pw0,panH,14); c.fill(); c.restore();
+      hitBox('f-bItems','Panel de la lista',px0,py,pw0,panH,true,{ctrls:[{label:'Tamaño de las filas',o:S.sz,k:'bRows',min:50,max:170,step:5,unit:'%',def:100}]}); }
+    let ry=py+17; c.textAlign='right';
+    list.forEach(it=>{ const base=ry+nS*.95; c.font=`900 ${nS}px ${TH.font}`;
+      const pr=it.right||'', pwd=pr?c.measureText(pr).width:0, sp=pr?c.measureText(' ').width:0, nw=c.measureText(it.name||'').width;
+      c.save(); c.shadowColor='rgba(0,20,80,.55)'; c.shadowBlur=6*(S.qNow||1); c.shadowOffsetY=3*(S.qNow||1); c.lineJoin='round';
+      if(pr){ outl(pr,rx,base,nS,CY,'rgba(8,40,110,.9)',nS*.1); }
+      outl(it.name||'',rx-pwd-sp,base,nS,'#ffffff','rgba(8,40,110,.9)',nS*.1); c.restore();
+      const wT=pwd+sp+nw; hitBox('f-bItems','Producto y precio',rx-wT,ry,wT,rh,true,{ctrls:[{label:'Tamaño de las filas',o:S.sz,k:'bRows',min:50,max:170,step:5,unit:'%',def:100}]}); ry+=rh; });
+  }
+  /* WhatsApp: recuadro oscuro arriba de la lista, a la derecha */
+  const wa=String(d.c1||'').trim();
+  if(wa){ const ft=fit(c,wa,TH.font,900,W*.55,1,Math.round(W*.037),16,'bContact'); c.font=`900 ${ft.size}px ${TH.font}`; const tw=c.measureText(ft.lines[0]||'').width, ph=ft.size*1.9, pw=tw+ph+30, pxw=W-18-pw, pyw=py-ph-16;
+    c.save(); c.fillStyle=PAN; rrect(c,pxw,pyw,pw,ph,12); c.fill(); c.restore();
+    bzIconWA(c,pxw+ph*.52,pyw+ph/2,ph*.3); c.textAlign='left'; c.save(); c.shadowColor='rgba(0,20,80,.5)'; c.shadowBlur=6*(S.qNow||1); outl(ft.lines[0]||'',pxw+ph*.98,pyw+ph/2+ft.size*.34,ft.size,CY,'rgba(8,40,110,.9)',ft.size*.1); c.restore();
+    hitBox('f-bContactTxt','WhatsApp',pxw,pyw,pw,ph,false,{ctrls:[{label:'Tamaño del WhatsApp',o:S.sz,k:'bContact',min:50,max:160,step:5,unit:'%',def:100}]}); }
+  /* recuadros de precio a la izquierda */
+  let cy=Math.max(y+60,Math.round(H*.325)); const lx=M-4;
+  const chip=(pk,tk,idP,idT)=>{ const pr=String(d[pk]||'').trim(), tx=String(d[tk]||'').trim(); if(!pr&&!tx) return;
+    const pf=pr?fit(c,pr,TH.font,900,W*.3,1,Math.round(W*.05),24,'bChip'):null, tf=tx?fit(c,tx,TH.font,800,W*.27,3,Math.round(W*.029),14,'bChipT'):null;
+    c.font=`900 ${pf?pf.size:10}px ${TH.font}`; const pw1=pf?c.measureText(pr).width:0; let tw1=0; if(tf){ c.font=`800 ${tf.size}px ${TH.font}`; tw1=Math.max(...tf.lines.map(l=>c.measureText(l).width)); }
+    const bw=Math.max(pw1,tw1)+40, ph=(pf?pf.size*1.05:0), th=(tf?tf.lines.length*tf.size*1.2:0), bh=ph+th+34;
+    c.save(); c.fillStyle=PAN; rrect(c,lx,cy,bw,bh,14); c.fill(); c.restore();
+    hitBox(idP,'Recuadro del precio',lx,cy,bw,bh,false,{ctrls:[{label:'Tamaño del precio',o:S.sz,k:'bChip',min:40,max:170,step:5,unit:'%',def:100}]});
+    let yy=cy+14; c.textAlign='left';
+    if(pf){ c.font=`900 ${pf.size}px ${TH.font}`; c.save(); c.shadowColor='rgba(0,20,80,.5)'; c.shadowBlur=6*(S.qNow||1); outl(pr,lx+20,yy+pf.size*.9,pf.size,CY,'rgba(8,40,110,.9)',pf.size*.1); c.restore(); hitBox(idP,'Precio destacado',lx+14,yy,pw1+12,pf.size*1.05,false,{ctrls:[{label:'Tamaño del precio',o:S.sz,k:'bChip',min:40,max:170,step:5,unit:'%',def:100}]}); yy+=ph; }
+    if(tf){ c.font=`800 ${tf.size}px ${TH.font}`; c.fillStyle='#ffffff'; c.save(); c.shadowColor='rgba(0,20,80,.5)'; c.shadowBlur=5*(S.qNow||1); tf.lines.forEach((l,i)=>c.fillText(l,lx+20,yy+tf.size*.95+i*tf.size*1.2)); c.restore(); hitLines(c,idT,'Texto del recuadro',tf.lines,lx+20,yy+tf.size*.95,tf.size,tf.size*1.2,'left',false,{ctrls:[{label:'Tamaño del texto',o:S.sz,k:'bChipT',min:40,max:170,step:5,unit:'%',def:100}]}); }
+    cy+=bh+26; };
+  chip('k1p','k1t','f-bK1p','f-bK1t'); chip('k2p','k2t','f-bK2p','f-bK2t');
+  const ad=String(d.c2||'').trim();
+  if(ad){ const ft=fit(c,ad,TH.font,800,W*.3,2,Math.round(W*.028),14,'bAddr'); c.textAlign='left'; c.font=`800 ${ft.size}px ${TH.font}`; c.fillStyle='#ffffff'; bzGlow(c,()=>ft.lines.forEach((l,i)=>c.fillText(l,lx+6,cy+ft.size+i*ft.size*1.2)));
+    hitLines(c,'f-bAddr','Dirección',ft.lines,lx+6,cy+ft.size,ft.size,ft.size*1.2,'left',false,{ctrls:[SZ('bAddr')]}); }
 }
 function drawAviso(c,W,H,F){
   const TH=bzTh(), d=bzData(), M=90; const yEnd=bzContact(c,W,H,F,d,TH)-34;
@@ -2429,6 +2489,13 @@ function buildBizUI(box){
     F('bItems',t==='agenda'?'Horarios (uno por línea: Día | Actividad | Hora)':'Ítems (uno por línea: Producto - $precio)','items',true,230);
     const h=document.createElement('p'); h.className='hint'; h.textContent=t==='agenda'?'Separá con "|": Día | Actividad | Horario. Podés omitir la actividad.':'Escribí "Producto - $1.000". Con "Producto | detalle | $1.000" el detalle sale chico abajo. Una línea que empiece con # es un título de sección (ej: # COMBO 1 - $21.000) y las líneas sueltas de abajo son su detalle.'; w.appendChild(h);
     ctl(w,'Tamaño del título',S.sz,'bTitle',{min:30,max:200,step:5,unit:'%',def:100}); ctl(w,'Tamaño de las filas',S.sz,'bRows',{min:50,max:170,step:5,unit:'%',def:100});
+  } else if(t==='promos'){
+    F('bTitle','Título','title'); F('bSub','Subtítulo (opcional)','sub');
+    F('bK1p','Precio destacado 1','k1p'); F('bK1t','Texto del destacado 1','k1t'); F('bK2p','Precio destacado 2','k2p'); F('bK2t','Texto del destacado 2','k2t');
+    F('bItems','Lista (una por línea: Producto - $precio)','items',true,230); F('bContactTxt','WhatsApp','c1'); F('bAddr','Dirección (opcional)','c2');
+    const h=document.createElement('p'); h.className='hint'; h.textContent='Dejá vacío un recuadro para que no salga. Tocá cualquier texto del diseño para editarlo y arrastralo para moverlo. Subí la foto de fondo arriba (sin productos recortados).'; w.appendChild(h);
+    chk(w,'Panel azul detrás de la lista',d,'pan');
+    ctl(w,'Tamaño del título',S.sz,'bTitle',{min:30,max:200,step:5,unit:'%',def:100}); ctl(w,'Tamaño de las filas',S.sz,'bRows',{min:50,max:170,step:5,unit:'%',def:100});
   } else if(t==='combos'){
     F('bTitle','Título','title'); F('bSub','Subtítulo (opcional)','sub'); F('bItems','Combos','items',true,300); F('bFoot','Aclaración abajo (opcional, ej: Válido hasta agotar stock)','foot');
     const h=document.createElement('p'); h.className='hint'; h.textContent='Cada combo empieza con # y el número (ej: #7). Debajo, un producto por línea (ej: 200 gr Mortadela) y al final el precio con $ (ej: $5.700). Dejá una línea en blanco entre combos. Si en vez del número escribís un nombre (ej: #Combo pizza), sale como título del combo.'; w.appendChild(h);
@@ -2747,7 +2814,7 @@ function draw(){
   if(S.bzFlat){ if(!S.photo){ if(scMode()) drawScene(c,W,H); else { c.fillStyle=S.bzFlat.bg; c.fillRect(0,0,W,H); S.bzFlat.deco(c,W,H,S.bzFlat); } } drawHeader(c,W,F.top,currentAccount()); } else
   if(S.tpl==='partido'){ if(S.tr!==2) drawDark(c,W,H,S.ly.ov/100); } else {if(S.tpl==='subt'){ if(S.tr!==2) subtDim(c,W,H); } else if(S.tr!==2&&S.tpl!=='flyer') drawOverlay(c,W,H,tint,S.tpl==='tabla'||isRed(S.tpl)||S.tpl==='resumen'||S.tpl==='equipos'||S.tpl==='arbitros'||S.tpl==='precios'||S.tpl==='agenda'); if(S.format!=='portada') drawHeader(c,W,F.top,currentAccount());}
   const _mo=moAny(); if(_mo) moSnapshot();
-  const _tf0=({noticia:drawNoticia,resultado:drawResultado,consigna:drawConsigna,vs:drawVs,cruce:drawCruce,cita:drawCita,entradas:drawEntradas,entranking:drawEnRanking,tabla:drawTabla,partido:drawPartido,reducido:drawReducido,red_qf:drawReducido,red_sf:drawReducido,red_fin:drawReducido,red_all:drawReducido,resumen:drawResumen,equipos:drawEquipos,arbitros:drawArbitros,precios:drawLista,combos:drawCombos,subt:drawSubt,agenda:drawLista,aviso:drawAviso,evento:drawEvento,hospedaje:drawHospedaje,flyer:drawFlyer,clases:drawClases,cover:drawPortada,once:drawOnce,ascenso:drawAscenso})[S.tpl]; const _tfn=(BIZ_T.includes(S.tpl)&&scMode()&&S.scProds.length)?((c2,W2,H2,F2)=>{ drawSceneProducts(c2,W2,H2,F2); _tf0(c2,W2,H2,F2); }):_tf0; S.segBase=S.segN; _tfn(c,W,H,F);
+  const _tf0=({noticia:drawNoticia,resultado:drawResultado,consigna:drawConsigna,vs:drawVs,cruce:drawCruce,cita:drawCita,entradas:drawEntradas,entranking:drawEnRanking,tabla:drawTabla,partido:drawPartido,reducido:drawReducido,red_qf:drawReducido,red_sf:drawReducido,red_fin:drawReducido,red_all:drawReducido,resumen:drawResumen,equipos:drawEquipos,arbitros:drawArbitros,precios:drawLista,promos:drawPromos,combos:drawCombos,subt:drawSubt,agenda:drawLista,aviso:drawAviso,evento:drawEvento,hospedaje:drawHospedaje,flyer:drawFlyer,clases:drawClases,cover:drawPortada,once:drawOnce,ascenso:drawAscenso})[S.tpl]; const _tfn=(BIZ_T.includes(S.tpl)&&scMode()&&S.scProds.length)?((c2,W2,H2,F2)=>{ drawSceneProducts(c2,W2,H2,F2); _tf0(c2,W2,H2,F2); }):_tf0; S.segBase=S.segN; _tfn(c,W,H,F);
   if(_mo) moApply(c,_tfn,W,H,F);
   drawTexts(c,W,H);
   if(!S.exporting){ try{ tAutoHits(); }catch(e){} }
@@ -2767,7 +2834,7 @@ function buildAccounts(){
     box.appendChild(b)});
 }
 /* ---- celular: menú de diseños + botón volver ---- */
-const MOBI={cover:['🎬','Portada de reel'],combos:['🧺','Combos con precio'],subt:['💬','Texto para stories y reels'],noticia:['📰','Titular + escudo'],consigna:['❓','Pregunta A o B'],vs:['⚔️','Dos equipos'],cruce:['🏟️','Un cruce, ida y vuelta'],cita:['🗣️','Frase con foto'],partido:['⚽','Resultados del día'],tabla:['📊','Tabla de posiciones'],reducido:['🏆','Todas las instancias'],resumen:['📋','Resumen de la fecha'],equipos:['🧩','Equipos 2027'],arbitros:['🟨','Árbitros'],once:['⭐','Formación 4-4-2 y más'],ascenso:['🚀','Ascendió a Primera'],precios:['🏷️','Lista de precios'],aviso:['📢','Aviso con texto'],agenda:['🗓️','Horarios de la semana'],evento:['🎉','Fecha, hora y lugar'],hospedaje:['🛏️','Hospedaje con datos'],clases:['🐴','Info de las clases']};
+const MOBI={cover:['🎬','Portada de reel'],combos:['🧺','Combos con precio'],subt:['💬','Texto para stories y reels'],noticia:['📰','Titular + escudo'],consigna:['❓','Pregunta A o B'],vs:['⚔️','Dos equipos'],cruce:['🏟️','Un cruce, ida y vuelta'],cita:['🗣️','Frase con foto'],partido:['⚽','Resultados del día'],tabla:['📊','Tabla de posiciones'],reducido:['🏆','Todas las instancias'],resumen:['📋','Resumen de la fecha'],equipos:['🧩','Equipos 2027'],arbitros:['🟨','Árbitros'],once:['⭐','Formación 4-4-2 y más'],ascenso:['🚀','Ascendió a Primera'],precios:['🏷️','Lista de precios'],promos:['🔥','Super promos con precios'],aviso:['📢','Aviso con texto'],agenda:['🗓️','Horarios de la semana'],evento:['🎉','Fecha, hora y lugar'],hospedaje:['🛏️','Hospedaje con datos'],clases:['🐴','Info de las clases']};
 const isMob=()=>matchMedia('(max-width:860px)').matches;
 function mobMenu(show){ const m=document.getElementById('menuM'); if(!m) return; m.hidden=!show; document.body.style.overflow=show?'hidden':''; if(show){ mobBuild(); m.scrollTop=0; } }
 function mobBuild(){

@@ -170,7 +170,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 25/11 · 16:29</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 26/11 · 10:37</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -395,6 +395,7 @@ const TEMPLATES = {
   hospedaje:{label:'Hospedaje',main:null,fields:[]},
   flyer:{label:'Flyer',main:null,fields:[]},
   clases:{label:'Clases',main:null,fields:[]},
+  pension:{label:'Pupilaje',main:null,fields:[]},
   cover:{label:'Portadas',main:null,fields:[]}
 };
 const REAL_P1=[['Ferro','Gimnasia y Tiro'],['Atlanta','Estudiantes de Buenos Aires'],['Deportivo Morón','Colegiales'],['Temperley','Ciudad de Bolívar'],['Deportivo Madryn','Deportivo Maipú'],['Gimnasia de Jujuy','Almirante Brown'],['Colón','Midland']];
@@ -1659,8 +1660,8 @@ function drawArbitros(c,W,H,F){
   });
 }
 /* ================= CUENTAS DE NEGOCIOS: lista de precios, aviso, agenda, evento ================= */
-const BIZ_T=['subt','combos','precios','promos','aviso','agenda','evento','hospedaje','flyer','clases','cover'];
-const ACC_TPLS={tz:['cover','combos','precios','aviso'],se:['cover','combos','precios','aviso'],fb:['cover','promos','flyer','combos','precios','aviso'],mz:['cover','precios','aviso'],lg:['cover','subt','clases','evento','hospedaje','agenda','precios','aviso']};
+const BIZ_T=['subt','combos','precios','promos','aviso','agenda','evento','hospedaje','flyer','clases','pension','cover'];
+const ACC_TPLS={tz:['cover','combos','precios','aviso'],se:['cover','combos','precios','aviso'],fb:['cover','promos','flyer','combos','precios','aviso'],mz:['cover','precios','aviso'],lg:['cover','subt','clases','pension','evento','hospedaje','agenda','precios','aviso']};
 function tplKeys(){
   const a=currentAccount(), base=Object.keys(TEMPLATES).filter(k=>k==='reducido'||!isRed(k)), fbk=base.filter(k=>!BIZ_T.includes(k)); const nopn=fbk.filter(k=>k!=='entradas'&&k!=='entranking'&&k!=='once'&&k!=='ascenso'&&k!=='cruce'&&k!=='cita');
   if(ACC_TPLS[a.id]) return ACC_TPLS[a.id]; if(a.id==='pn') return fbk; return [...nopn,'cover','precios','aviso'];
@@ -1768,6 +1769,7 @@ const BZ_DEF={
     flyer:{t1:'CAMBIO DE',t2:'GRAVA',t3:'DE FILTROS',t4:'para piscinas',tag:'FILTROS',brand:'VULCANO',bsub:'Inspirados por el agua',desc:'Mantenimiento y renovación de filtros Vulcano',bens:'Mejora la filtración del agua\nMayor rendimiento del filtro\nAgua más limpia y cristalina',note:'Grava nueva, mejor filtrado',circ:'1',cta:'Consultanos',c1:'11 6601-2377',c2:''}},
   lg:{
     subt:{es:'DÍA DE PELUQUERÍA 🐎',en:'HAIR DAY 🐴',bo:58,dim:12,auto:true},
+    pension:{tag:'PASTOREO Y PENSIÓN',title:'PUPILAJE DE CABALLOS',sub:'Dos modalidades a tu medida',p1t:'PASTOREO',p1d:'Sueltos de día en potreros con alfalfa y rye grass',p1b:'Cuidado y supervisión diaria\nSalida al campo de día y encierre de noche\nAviso inmediato ante cualquier inconveniente\nLote exclusivo para grupos de más de 6 caballos',p2t:'PENSIÓN A BOX',p2d:'Box en nuestras instalaciones',p2b:'Pista de vareo\nCancha de taqueo\nAcceso al caminador\nManejo y cuidado diario por separado',sv:'También coordinamos petiseros, ejercicio y preparación. O trabajá con tu propio petisero.',cta1:'CONSULTÁ VALORES POR WHATSAPP',cta2:'',wl:'',c1:'',c2:'@laguapeadapolo'},
     clases:{tag:'ASÍ SON LAS CLASES',title:'CLASES DE POLO',sub:'',items:'Duración | 1 hora a 1 hora y media\nQué aprendés | Preparar el caballo, equitación básica y taqueo\nEquipamiento incluido | Botas, casco y taco\nSeguimiento personalizado | Según el conocimiento de cada uno',cta1:'FECHAS, VALORES Y PAQUETES',cta2:'Escribinos por WhatsApp',c1:'',c2:'@laguapeadapolo'},
     precios:{title:'PLANES Y VALORES',sub:'Clases de polo',items:'Clase de iniciación | 1 hora | $00.000\nPack de 4 clases | por mes | $00.000\nAlquiler de caballo | por hora | $00.000\nPupilaje | por mes | $00.000',c1:'',c2:'@laguapeadapolo'},
     aviso:{lines:'COMUNICADO\nEscribí acá el aviso',sub:'',sticker:'',pos:'mid',box:'none',c1:'',c2:'@laguapeadapolo'},
@@ -1968,6 +1970,42 @@ function drawPromos(c,W,H,F){
   if(ad){ const ft=fit(c,ad,TH.font,800,W*.3,2,Math.round(W*.028),14,'bAddr'); c.textAlign='left'; c.font=`800 ${ft.size}px ${TH.font}`; c.fillStyle='#ffffff'; bzGlow(c,()=>ft.lines.forEach((l,i)=>c.fillText(l,lx+6,cy+ft.size+i*ft.size*1.2)));
     hitLines(c,'f-bAddr','Dirección',ft.lines,lx+6,cy+ft.size,ft.size,ft.size*1.2,'left',false,{ctrls:[SZ('bAddr')]}); }
 }
+/* ===== La Guapeada: pupilaje (pastoreo y pensión a box), sin valores ===== */
+function drawPupilaje(c,W,H,F){
+  const TH=bzTh(), d=bzData(), M=70, rs=(S.sz.bRows||100)/100; c.textBaseline='alphabetic'; c.textAlign='center';
+  const yEnd=bzContact(c,W,H,F,d,TH)-24; let y=Math.max(F.top+58*2+40,(S.logoBot||0)+36); c.textAlign='center'; c.textBaseline='alphabetic';
+  const tg=String(d.tag||'').trim().toUpperCase();
+  if(tg){ const ft=fit(c,tg,TH.font,TH.bw,W-300,1,32,18,'bSub'); c.font=`${TH.bw} ${ft.size}px ${TH.font}`; const tw=c.measureText(tg).width+70; bzLS(c,7); bzGlow(c,()=>{ c.fillStyle=TH.acc; c.fillText(tg,W/2+3.5,y+ft.size); }); bzLS(c,0); hitBox('f-pTag','Etiqueta',(W-tw)/2,y,tw,ft.size*1.4,false,{ctrls:[SZ('bSub')]}); y+=ft.size*1.4+14; }
+  { const t=String(d.title||'').toUpperCase(); if(t){ const ft=fit(c,t,TH.font,TH.hw,W-2*M,1,104,46,'bTitle'); c.font=`${TH.hw} ${ft.size}px ${TH.font}`; bzGlow(c,()=>{ c.fillStyle=TH.ink; c.fillText(ft.lines[0]||'',W/2,y+ft.size*.82); }); hitLines(c,'f-bTitle','Título',ft.lines,W/2,y+ft.size*.82,ft.size,ft.size,'center',false,{ctrls:[SZ('bTitle')]}); y+=ft.size*.82+16; } }
+  { const sb=String(d.sub||'').trim(); if(sb){ bzLS(c,4); const ft=fit(c,sb.toUpperCase(),TH.font,TH.bw,W-160,1,30,16,'bSub'); c.font=`${TH.bw} ${ft.size}px ${TH.font}`; c.fillStyle=TH.acc; c.fillText(ft.lines[0]||'',W/2+2,y+ft.size*.8); hitLines(c,'f-bSub','Subtítulo',ft.lines,W/2,y+ft.size*.8,ft.size,ft.size,'center',false,{ctrls:[SZ('bSub')]}); bzLS(c,0); y+=ft.size*1.1+22; } }
+  /* llamada abajo */
+  const c1=String(d.cta1||'').trim().toUpperCase(), wl=String(d.wl||'').trim().replace(/^https?:\/\//,''), c2=String(d.cta2||'').trim()||wl, c2id=String(d.cta2||'').trim()?'f-pCta2':'f-pWl', hasC=!!(c1||c2), cH=hasC?150:0, cY=yEnd-cH;
+  if(hasC){ c.save(); c.shadowColor='rgba(0,0,0,.28)'; c.shadowBlur=14*(S.qNow||1); c.fillStyle=TH.acc; rrect(c,M,cY,W-2*M,cH,cH/2.2); c.fill(); c.restore();
+    const iw=W-2*M-150; let ty=cY+(cH-94)/2;
+    bzIconWA(c,M+66,cY+cH/2,cH*.2);
+    if(c1){ const f1=fit(c,c1,TH.font,TH.hw,iw,1,46,18,'bTitle2'); c.fillStyle=TH.on; c.textAlign='center'; c.font=`${TH.hw} ${f1.size}px ${TH.font}`; c.fillText(f1.lines[0]||'',W/2+40,ty+f1.size*.86); hitLines(c,'f-pCta1','Llamada',f1.lines,W/2+40,ty+f1.size*.86,f1.size,f1.size,'center',false,{ctrls:[SZ('bTitle2')]}); ty+=f1.size*1.1; }
+    if(c2){ const f2=fit(c,c2,TH.font,TH.bw,iw,1,38,16,'bSub2'); c.fillStyle=TH.on; c.textAlign='center'; c.font=`${TH.bw} ${f2.size}px ${TH.font}`; c.fillText(f2.lines[0]||'',W/2+40,ty+f2.size*.9+4); hitLines(c,c2id,'Llamada chica',f2.lines,W/2+40,ty+f2.size*.9+4,f2.size,f2.size,'center',false,{ctrls:[SZ('bSub2')]}); } }
+  const sv=String(d.sv||'').trim(); let svH=0, svF=null;
+  const bot=(hasC?cY-24:yEnd);
+  if(sv){ svF=fit(c,sv,TH.font,TH.bw,W-2*M-40,3,32*rs,16,'bSv'); svH=svF.lines.length*svF.size*1.25+10; }
+  const cards=[[d.p1t,d.p1d,d.p1b,'p1'],[d.p2t,d.p2d,d.p2b,'p2']].filter(a=>String(a[0]||a[1]||a[2]||'').trim());
+  const avail=bot-y-(svH?svH+26:0), gap=24; if(!cards.length) return;
+  const need=cards.map(a=>{ const n=String(a[2]||'').split(/\r?\n/).filter(x=>x.trim()).length; return 84+(String(a[1]||'').trim()?60:0)+n*66+44; });
+  const totalNeed=need.reduce((a,b)=>a+b,0)+gap*(cards.length-1), k=Math.min(1.12,avail/totalNeed);
+  let cy=y+Math.max(0,(avail-totalNeed*k)/2)*.5;
+  cards.forEach((a,ci)=>{ const ch=need[ci]*k; const [tt,dd,bb,id]=a, fs=k*rs;
+    c.save(); c.fillStyle=S.bzFlat?bzA(TH,.10):'rgba(8,16,12,.62)'; rrect(c,M,cy,W-2*M,ch,26); c.fill(); c.lineWidth=2; c.strokeStyle=S.bzFlat?bzA(TH,.25):'rgba(255,255,255,.2)'; c.stroke(); c.fillStyle=TH.acc; rrect(c,M,cy,16,ch,8); c.fill(); c.restore();
+    hitBox('f-p'+(ci?'P2t':'P1t'),'Tarjeta',M,cy,W-2*M,ch,false,{ctrls:[{label:'Tamaño de los textos de las tarjetas',o:S.sz,k:'bRows',min:50,max:140,step:5,unit:'%',def:100}]});
+    const tx=M+52, tw=W-2*M-80; let ty=cy+22*k; c.textAlign='left';
+    const t1=String(tt||'').toUpperCase().trim(); if(t1){ const ft=fit(c,t1,TH.font,TH.hw,tw,1,76*fs,24); c.font=`${TH.hw} ${ft.size}px ${TH.font}`; bzLS(c,2); c.fillStyle=TH.acc; c.fillText(ft.lines[0]||'',tx,ty+ft.size*.86); bzLS(c,0); hitLines(c,'f-p'+(ci?'P2t':'P1t'),'Nombre de la modalidad',ft.lines,tx,ty+ft.size*.86,ft.size,ft.size,'left',false,{ctrls:[{label:'Tamaño de los textos de las tarjetas',o:S.sz,k:'bRows',min:50,max:140,step:5,unit:'%',def:100}]}); ty+=ft.size*1.08; }
+    const d1=String(dd||'').trim(); if(d1){ const ft=fit(c,d1,TH.font,700,tw,2,46*fs,14); c.font=`700 ${ft.size}px ${TH.font}`; c.fillStyle=TH.ink; ft.lines.forEach((l,i)=>c.fillText(l,tx,ty+ft.size*.9+i*ft.size*1.2)); hitLines(c,'f-p'+(ci?'P2d':'P1d'),'Descripción',ft.lines,tx,ty+ft.size*.9,ft.size,ft.size*1.2,'left',false,{ctrls:[{label:'Tamaño de los textos de las tarjetas',o:S.sz,k:'bRows',min:50,max:140,step:5,unit:'%',def:100}]}); ty+=ft.lines.length*ft.size*1.2+14*k; }
+    const bl=String(bb||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean); if(bl.length){ const sz=Math.min(48*fs,(ch-(ty-cy)-18)/bl.length/1.38); const ff=Math.max(14,sz); c.font=`600 ${ff}px ${TH.font}`; const st=ff*1.5; const y0=ty;
+      bl.forEach((l,i)=>{ const yy=y0+i*st, r=ff*.3; c.fillStyle=TH.acc; c.beginPath(); c.arc(tx+r,yy+ff*.55,r,0,7); c.fill(); c.strokeStyle=TH.on; c.lineWidth=ff*.08; c.lineCap='round'; c.lineJoin='round'; c.beginPath(); c.moveTo(tx+r*.45,yy+ff*.56); c.lineTo(tx+r*.85,yy+ff*.56+r*.38); c.lineTo(tx+r*1.6,yy+ff*.56-r*.42); c.stroke();
+        const f2=fit(c,l,TH.font,600,tw-r*2-20,1,ff,12); c.font=`600 ${f2.size}px ${TH.font}`; c.fillStyle=TH.ink; c.fillText(f2.lines[0]||'',tx+r*2+16,yy+ff*.9); });
+      hitBox('f-p'+(ci?'P2b':'P1b'),'Puntos',tx,y0,tw,bl.length*st,true,{ctrls:[{label:'Tamaño de los textos de las tarjetas',o:S.sz,k:'bRows',min:50,max:140,step:5,unit:'%',def:100}]}); }
+    cy+=ch+gap; });
+  if(svF){ c.textAlign='center'; const sy=cy-gap+26; bzGlow(c,()=>{ c.font=`${TH.bw} ${svF.size}px ${TH.font}`; c.fillStyle=bzA(TH,.95); svF.lines.forEach((l,i)=>c.fillText(l,W/2,sy+svF.size*.9+i*svF.size*1.25)); }); hitLines(c,'f-pSv','Servicios adicionales',svF.lines,W/2,sy+svF.size*.9,svF.size,svF.size*1.25,'center',false,{ctrls:[SZ('bSv')]}); }
+}
 function drawAviso(c,W,H,F){
   const TH=bzTh(), d=bzData(), M=90; const yEnd=bzContact(c,W,H,F,d,TH)-34;
   const lines=String(d.lines||'').split(/\r?\n/).map(l=>l.trim()).filter(Boolean); const ts=(S.sz.bTitle||100)/100, boxOn=d.box&&d.box!=='none';
@@ -2026,7 +2064,7 @@ function clIcon(c,k,x,y,r,col){
   else { c.beginPath(); c.moveTo(x-r*.5,y+r*.02); c.lineTo(x-r*.12,y+r*.42); c.lineTo(x+r*.55,y-r*.4); c.stroke(); }
   c.restore();
 }
-function clKind(t){ t=String(t||'').toLowerCase(); if(/dura|tiempo|hora|minut|hours?\b|minutes?|time/.test(t)) return 'clock'; if(/apren|clase|equit|caball|taque|learn|lesson|riding|horse|stick/.test(t)) return 'shoe'; if(/equip|casco|bota|taco|incluye|helmet|boots|mallet/.test(t)) return 'helmet'; if(/segui|person|alumn|nivel|coach|rider|level/.test(t)) return 'person'; return 'check'; }
+function clKind(t){ t=String(t||'').toLowerCase(); if(/dura|tiempo|hora|minut|hours?\b|minutes?|time/.test(t)) return 'clock'; if(/apren|clase|equit|caball|taque|learn|lesson|riding|horse|stick/.test(t)) return 'shoe'; if(/equip|casco|bota|taco|incluye|helmet|boots|mallet/.test(t)) return 'helmet'; if(/segui|person|alumn|nivel|coach|rider|level|cuidad|petis/.test(t)) return 'person'; return 'check'; }
 function drawClases(c,W,H,F){
   const TH=bzTh(), d0=bzData(), d=(S.clLang==='en'&&d0.en)?Object.assign({},d0,d0.en):d0, M=80; c.textBaseline='alphabetic';
   const yEnd=bzContact(c,W,H,F,d,TH)-26; let y=Math.max(F.top+58*2+60,(S.logoBot||0)+50);
@@ -2300,6 +2338,8 @@ function makeCopy(kind){
     const it=parseLista(d.items); it.slice(0,tw?3:12).forEach(x=>body.push('• '+[x.name,x.det&&x.det[0],x.right].filter(Boolean).join(' · ')));
   } else if(t==='cover'){
     body.push('🎬 '+[cap(d.l1),cap(d.l2)].filter(Boolean).join(' '));
+  } else if(t==='pension'){
+    body.push('🌿 '+cap(d.title)); [[d.p1t,d.p1d],[d.p2t,d.p2d]].forEach(([a,b])=>{ if(cap(a)) body.push('✅ '+cap(a)+(cap(b)?': '+cap(b):'')); }); if(cap(d.sv)) body.push('➕ '+cap(d.sv)); body.push(''); body.push('Consultá valores por WhatsApp 👇'); if(cap(d.wl)) body.push('📲 '+cap(d.wl));
   } else if(t==='clases'){
     body.push('🐴 '+(cap(d.title)?low(d.title):'Clases de polo')+(cap(d.sub)?' · '+cap(d.sub):'')); String(d.items||'').split(/\n/).map(cap).filter(Boolean).slice(0,tw?3:6).forEach(l=>{ const p=l.split('|').map(cap); body.push('✅ '+(p.length>1?p[0]+': '+p.slice(1).join(' '):p[0])); }); if(cap(d.cta2)) body.push(cap(d.cta1)?low(d.cta1)+'. '+cap(d.cta2)+' 👇':cap(d.cta2)+' 👇');
   } else if(t==='hospedaje'){
@@ -2530,6 +2570,12 @@ function buildBizUI(box){
     { const rb=document.createElement('button'); rb.type='button'; rb.className='ghost'; rb.textContent='Volver todo a su lugar'; rb.onclick=()=>{ const pre=txKey()+'|'; Object.keys(S.mo).forEach(k=>{ if(k.startsWith(pre)) delete S.mo[k]; }); persist(); render(); }; w.appendChild(rb); }
     chk(w,'Mostrar el subrayado',d,'sw'); chk(w,'Mostrar la guía del recorte de la grilla (solo en la vista previa)',d,'guide'); chk(w,'Mostrar las chispas (solo con la foto del producto)',d,'sp');
     { const p=document.createElement('p'); p.className='hint'; p.textContent='La foto de la persona o del local va en "Foto de fondo" (formato Story 9:16). La foto del producto es opcional: tildá la opción de arriba, tocá "Elegir foto del producto" (o tocá el círculo en la imagen) y elegí una imagen de tu galería, mejor con fondo blanco. Tocá cualquier texto para editarlo; el subrayado y las chispas también se mueven. Usá "Mover elementos arrastrándolos" para moverlos. El color del cartel sale de "Colores de este diseño". La foto del producto no se guarda: si recargás, hay que volver a subirla.'; w.appendChild(p); }
+  } else if(t==='pension'){
+    F('pTag','Etiqueta','tag'); F('bTitle','Título','title'); F('bSub','Subtítulo','sub');
+    F('pP1t','Modalidad 1: nombre','p1t'); F('pP1d','Modalidad 1: descripción','p1d'); F('pP1b','Modalidad 1: puntos (uno por línea)','p1b',true,110);
+    F('pP2t','Modalidad 2: nombre','p2t'); F('pP2d','Modalidad 2: descripción','p2d'); F('pP2b','Modalidad 2: puntos (uno por línea)','p2b',true,110);
+    F('pSv','Servicios adicionales (opcional)','sv',true,70); F('pCta1','Llamada: línea grande','cta1'); F('pCta2','Llamada: línea chica','cta2'); F('pWl','Link de WhatsApp (va en el copy del posteo, ej: https://wa.me/549...)','wl');
+    ctl(w,'Tamaño del título',S.sz,'bTitle',{min:30,max:200,step:5,unit:'%',def:100}); ctl(w,'Tamaño de los textos de las tarjetas',S.sz,'bRows',{min:50,max:140,step:5,unit:'%',def:100});
   } else if(t==='clases'){
     { const en=S.clLang==='en', D=en?(d.en=d.en||{}):d, FF=(id,l,k,m,r)=>bzField(w,'f-'+id,l,D[k],v=>{D[k]=v;},m,r);
       { const lb=document.createElement('label'); lb.textContent='Idioma que se ve y se edita'; const sl=document.createElement('select'); [['es','Español'],['en','English']].forEach(([v,n])=>{ const o=document.createElement('option'); o.value=v; o.textContent=n; sl.appendChild(o); }); sl.value=en?'en':'es'; sl.onchange=()=>{ S.clLang=sl.value; buildFields(); render(); }; lb.appendChild(sl); w.appendChild(lb); }
@@ -2814,7 +2860,7 @@ function draw(){
   if(S.bzFlat){ if(!S.photo){ if(scMode()) drawScene(c,W,H); else { c.fillStyle=S.bzFlat.bg; c.fillRect(0,0,W,H); S.bzFlat.deco(c,W,H,S.bzFlat); } } drawHeader(c,W,F.top,currentAccount()); } else
   if(S.tpl==='partido'){ if(S.tr!==2) drawDark(c,W,H,S.ly.ov/100); } else {if(S.tpl==='subt'){ if(S.tr!==2) subtDim(c,W,H); } else if(S.tr!==2&&S.tpl!=='flyer') drawOverlay(c,W,H,tint,S.tpl==='tabla'||isRed(S.tpl)||S.tpl==='resumen'||S.tpl==='equipos'||S.tpl==='arbitros'||S.tpl==='precios'||S.tpl==='agenda'); if(S.format!=='portada') drawHeader(c,W,F.top,currentAccount());}
   const _mo=moAny(); if(_mo) moSnapshot();
-  const _tf0=({noticia:drawNoticia,resultado:drawResultado,consigna:drawConsigna,vs:drawVs,cruce:drawCruce,cita:drawCita,entradas:drawEntradas,entranking:drawEnRanking,tabla:drawTabla,partido:drawPartido,reducido:drawReducido,red_qf:drawReducido,red_sf:drawReducido,red_fin:drawReducido,red_all:drawReducido,resumen:drawResumen,equipos:drawEquipos,arbitros:drawArbitros,precios:drawLista,promos:drawPromos,combos:drawCombos,subt:drawSubt,agenda:drawLista,aviso:drawAviso,evento:drawEvento,hospedaje:drawHospedaje,flyer:drawFlyer,clases:drawClases,cover:drawPortada,once:drawOnce,ascenso:drawAscenso})[S.tpl]; const _tfn=(BIZ_T.includes(S.tpl)&&scMode()&&S.scProds.length)?((c2,W2,H2,F2)=>{ drawSceneProducts(c2,W2,H2,F2); _tf0(c2,W2,H2,F2); }):_tf0; S.segBase=S.segN; _tfn(c,W,H,F);
+  const _tf0=({noticia:drawNoticia,resultado:drawResultado,consigna:drawConsigna,vs:drawVs,cruce:drawCruce,cita:drawCita,entradas:drawEntradas,entranking:drawEnRanking,tabla:drawTabla,partido:drawPartido,reducido:drawReducido,red_qf:drawReducido,red_sf:drawReducido,red_fin:drawReducido,red_all:drawReducido,resumen:drawResumen,equipos:drawEquipos,arbitros:drawArbitros,precios:drawLista,promos:drawPromos,combos:drawCombos,subt:drawSubt,agenda:drawLista,aviso:drawAviso,evento:drawEvento,hospedaje:drawHospedaje,flyer:drawFlyer,clases:drawClases,pension:drawPupilaje,cover:drawPortada,once:drawOnce,ascenso:drawAscenso})[S.tpl]; const _tfn=(BIZ_T.includes(S.tpl)&&scMode()&&S.scProds.length)?((c2,W2,H2,F2)=>{ drawSceneProducts(c2,W2,H2,F2); _tf0(c2,W2,H2,F2); }):_tf0; S.segBase=S.segN; _tfn(c,W,H,F);
   if(_mo) moApply(c,_tfn,W,H,F);
   drawTexts(c,W,H);
   if(!S.exporting){ try{ tAutoHits(); }catch(e){} }
@@ -2834,7 +2880,7 @@ function buildAccounts(){
     box.appendChild(b)});
 }
 /* ---- celular: menú de diseños + botón volver ---- */
-const MOBI={cover:['🎬','Portada de reel'],combos:['🧺','Combos con precio'],subt:['💬','Texto para stories y reels'],noticia:['📰','Titular + escudo'],consigna:['❓','Pregunta A o B'],vs:['⚔️','Dos equipos'],cruce:['🏟️','Un cruce, ida y vuelta'],cita:['🗣️','Frase con foto'],partido:['⚽','Resultados del día'],tabla:['📊','Tabla de posiciones'],reducido:['🏆','Todas las instancias'],resumen:['📋','Resumen de la fecha'],equipos:['🧩','Equipos 2027'],arbitros:['🟨','Árbitros'],once:['⭐','Formación 4-4-2 y más'],ascenso:['🚀','Ascendió a Primera'],precios:['🏷️','Lista de precios'],promos:['🔥','Super promos con precios'],aviso:['📢','Aviso con texto'],agenda:['🗓️','Horarios de la semana'],evento:['🎉','Fecha, hora y lugar'],hospedaje:['🛏️','Hospedaje con datos'],clases:['🐴','Info de las clases']};
+const MOBI={cover:['🎬','Portada de reel'],combos:['🧺','Combos con precio'],subt:['💬','Texto para stories y reels'],noticia:['📰','Titular + escudo'],consigna:['❓','Pregunta A o B'],vs:['⚔️','Dos equipos'],cruce:['🏟️','Un cruce, ida y vuelta'],cita:['🗣️','Frase con foto'],partido:['⚽','Resultados del día'],tabla:['📊','Tabla de posiciones'],reducido:['🏆','Todas las instancias'],resumen:['📋','Resumen de la fecha'],equipos:['🧩','Equipos 2027'],arbitros:['🟨','Árbitros'],once:['⭐','Formación 4-4-2 y más'],ascenso:['🚀','Ascendió a Primera'],precios:['🏷️','Lista de precios'],promos:['🔥','Super promos con precios'],aviso:['📢','Aviso con texto'],agenda:['🗓️','Horarios de la semana'],evento:['🎉','Fecha, hora y lugar'],hospedaje:['🛏️','Hospedaje con datos'],clases:['🐴','Info de las clases'],pension:['🌿','Pastoreo y pensión a box']};
 const isMob=()=>matchMedia('(max-width:860px)').matches;
 function mobMenu(show){ const m=document.getElementById('menuM'); if(!m) return; m.hidden=!show; document.body.style.overflow=show?'hidden':''; if(show){ mobBuild(); m.scrollTop=0; } }
 function mobBuild(){

@@ -170,7 +170,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 26/11 · 10:37</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 26/11 · 10:46</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -2572,8 +2572,8 @@ function buildBizUI(box){
     { const p=document.createElement('p'); p.className='hint'; p.textContent='La foto de la persona o del local va en "Foto de fondo" (formato Story 9:16). La foto del producto es opcional: tildá la opción de arriba, tocá "Elegir foto del producto" (o tocá el círculo en la imagen) y elegí una imagen de tu galería, mejor con fondo blanco. Tocá cualquier texto para editarlo; el subrayado y las chispas también se mueven. Usá "Mover elementos arrastrándolos" para moverlos. El color del cartel sale de "Colores de este diseño". La foto del producto no se guarda: si recargás, hay que volver a subirla.'; w.appendChild(p); }
   } else if(t==='pension'){
     F('pTag','Etiqueta','tag'); F('bTitle','Título','title'); F('bSub','Subtítulo','sub');
-    F('pP1t','Modalidad 1: nombre','p1t'); F('pP1d','Modalidad 1: descripción','p1d'); F('pP1b','Modalidad 1: puntos (uno por línea)','p1b',true,110);
-    F('pP2t','Modalidad 2: nombre','p2t'); F('pP2d','Modalidad 2: descripción','p2d'); F('pP2b','Modalidad 2: puntos (uno por línea)','p2b',true,110);
+    F('pP1t','Modalidad 1: nombre','p1t'); F('pP1d','Modalidad 1: descripción','p1d',true,60); F('pP1b','Modalidad 1: puntos (uno por línea)','p1b',true,110);
+    F('pP2t','Modalidad 2: nombre','p2t'); F('pP2d','Modalidad 2: descripción','p2d',true,60); F('pP2b','Modalidad 2: puntos (uno por línea)','p2b',true,110);
     F('pSv','Servicios adicionales (opcional)','sv',true,70); F('pCta1','Llamada: línea grande','cta1'); F('pCta2','Llamada: línea chica','cta2'); F('pWl','Link de WhatsApp (va en el copy del posteo, ej: https://wa.me/549...)','wl');
     ctl(w,'Tamaño del título',S.sz,'bTitle',{min:30,max:200,step:5,unit:'%',def:100}); ctl(w,'Tamaño de los textos de las tarjetas',S.sz,'bRows',{min:50,max:140,step:5,unit:'%',def:100});
   } else if(t==='clases'){
@@ -3564,7 +3564,7 @@ function qeOpen(h){
     let delFn=mv.del||null; if(!delFn&&side&&/^f-/.test(h.id||'')&&(side.tagName==='INPUT'||side.tagName==='TEXTAREA')) delFn=()=>{ side.value=''; side.dispatchEvent(new Event('input',{bubbles:true})); };
     if(delFn){ const bt=document.createElement('button'); bt.type='button'; bt.id='qeDel'; bt.title='Eliminar'; bt.setAttribute('aria-label','Eliminar'); bt.className='ghost'; bt.style.cssText='margin-left:auto;margin-right:6px;color:#ff6b6b;border-color:#ff6b6b;padding:6px 10px'; bt.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></svg>'; bt.onclick=()=>{ qeClose(); delFn(); }; const ok=document.getElementById('qeOk'); ok.parentNode.insertBefore(bt,ok); } }
   if(side){
-    el=document.createElement(h.multi?'textarea':'input'); if(h.multi) el.rows=2; else el.type='text';
+    const _ta=h.multi||side.tagName==='TEXTAREA'; h=Object.assign({},h,{multi:_ta}); el=document.createElement(_ta?'textarea':'input'); if(_ta) el.rows=2; else el.type='text';
     el.value=side.value; el.autocomplete='off'; el.setAttribute('aria-label',h.label);
     el.addEventListener('input',()=>{side.value=el.value; side.dispatchEvent(new Event('input',{bubbles:true}))});
     el.addEventListener('keydown',e=>{if(e.key==='Escape'||(e.key==='Enter'&&!h.multi)){e.preventDefault();qeClose()}});

@@ -170,7 +170,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 26/11 · 12:08</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 26/11 · 12:17</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -396,6 +396,7 @@ const TEMPLATES = {
   flyer:{label:'Flyer',main:null,fields:[]},
   clases:{label:'Clases',main:null,fields:[]},
   pension:{label:'Pensión y pastoreo',main:null,fields:[]},
+  pension2:{label:'Pensión (diseño 2)',main:null,fields:[]},
   cover:{label:'Portadas',main:null,fields:[]}
 };
 const REAL_P1=[['Ferro','Gimnasia y Tiro'],['Atlanta','Estudiantes de Buenos Aires'],['Deportivo Morón','Colegiales'],['Temperley','Ciudad de Bolívar'],['Deportivo Madryn','Deportivo Maipú'],['Gimnasia de Jujuy','Almirante Brown'],['Colón','Midland']];
@@ -1661,8 +1662,8 @@ function drawArbitros(c,W,H,F){
   });
 }
 /* ================= CUENTAS DE NEGOCIOS: lista de precios, aviso, agenda, evento ================= */
-const BIZ_T=['subt','combos','precios','promos','aviso','agenda','evento','hospedaje','flyer','clases','pension','cover'];
-const ACC_TPLS={tz:['cover','combos','precios','aviso'],se:['cover','combos','precios','aviso'],fb:['cover','promos','flyer','combos','precios','aviso'],mz:['cover','precios','aviso'],lg:['cover','subt','clases','pension','evento','hospedaje','agenda','precios','aviso']};
+const BIZ_T=['subt','combos','precios','promos','aviso','agenda','evento','hospedaje','flyer','clases','pension','pension2','cover'];
+const ACC_TPLS={tz:['cover','combos','precios','aviso'],se:['cover','combos','precios','aviso'],fb:['cover','promos','flyer','combos','precios','aviso'],mz:['cover','precios','aviso'],lg:['cover','subt','clases','pension','pension2','evento','hospedaje','agenda','precios','aviso']};
 function tplKeys(){
   const a=currentAccount(), base=Object.keys(TEMPLATES).filter(k=>k==='reducido'||!isRed(k)), fbk=base.filter(k=>!BIZ_T.includes(k)); const nopn=fbk.filter(k=>k!=='entradas'&&k!=='entranking'&&k!=='once'&&k!=='ascenso'&&k!=='cruce'&&k!=='cita');
   if(ACC_TPLS[a.id]) return ACC_TPLS[a.id]; if(a.id==='pn') return fbk; return [...nopn,'cover','precios','aviso'];
@@ -1771,6 +1772,7 @@ const BZ_DEF={
   lg:{
     subt:{es:'DÍA DE PELUQUERÍA 🐎',en:'HAIR DAY 🐴',bo:58,dim:12,auto:true},
     pension:{tag:'TU CABALLO, BIEN CUIDADO',title:'PENSIÓN DE CABALLOS',sub:'Pastoreo o pensión a box',p1t:'PASTOREO',p1d:'Sueltos de día en potreros con alfalfa y rye grass',i1:'none',i2:'none',p1b:'Salida al campo de día y encierre de noche\nOpción de lote exclusivo para grupos de más de 6 caballos',p2t:'PENSIÓN A BOX',p2d:'Box en nuestras instalaciones',p2b:'Pista de vareo\nCancha de taqueo\nAcceso al caminador\nManejo y cuidado diario por separado',sv:'También coordinamos petiseros, ejercicio y preparación. Si preferís, podés trabajar con tu propio petisero.',cta1:'CONSULTÁ VALORES POR WHATSAPP',cta2:'',wl:'',c1:'',c2:'@laguapeadapolo'},
+    pension2:{tag:'TU CABALLO, BIEN CUIDADO',title:'PENSIÓN DE CABALLOS',sub:'Pastoreo o pensión a box',p1t:'PASTOREO',p1d:'Sueltos de día en potreros con alfalfa y rye grass',i1:'none',i2:'none',p1b:'Salida al campo de día y encierre de noche\nOpción de lote exclusivo para grupos de más de 6 caballos',p2t:'PENSIÓN A BOX',p2d:'Box en nuestras instalaciones',p2b:'Pista de vareo\nCancha de taqueo\nAcceso al caminador\nManejo y cuidado diario por separado',sv:'También coordinamos petiseros, ejercicio y preparación. Si preferís, podés trabajar con tu propio petisero.',cta1:'CONSULTÁ VALORES POR WHATSAPP',cta2:'',wl:'',c1:'',c2:'@laguapeadapolo'},
     clases:{tag:'ASÍ SON LAS CLASES',title:'CLASES DE POLO',sub:'',items:'Duración | 1 hora a 1 hora y media\nQué aprendés | Preparar el caballo, equitación básica y taqueo\nEquipamiento incluido | Botas, casco y taco\nSeguimiento personalizado | Según el conocimiento de cada uno',cta1:'FECHAS, VALORES Y PAQUETES',cta2:'Escribinos por WhatsApp',c1:'',c2:'@laguapeadapolo'},
     precios:{title:'PLANES Y VALORES',sub:'Clases de polo',items:'Clase de iniciación | 1 hora | $00.000\nPack de 4 clases | por mes | $00.000\nAlquiler de caballo | por hora | $00.000\nPensión de caballo | por mes | $00.000',c1:'',c2:'@laguapeadapolo'},
     aviso:{lines:'COMUNICADO\nEscribí acá el aviso',sub:'',sticker:'',pos:'mid',box:'none',c1:'',c2:'@laguapeadapolo'},
@@ -2025,6 +2027,56 @@ function drawPupilaje(c,W,H,F){
       c.restore(); } }
     cy+=ch+gap; });
   if(svF){ c.textAlign='center'; const sy=cy-gap+26; bzGlow(c,()=>{ c.font=`${TH.bw} ${svF.size}px ${TH.font}`; c.fillStyle=bzA(TH,.95); svF.lines.forEach((l,i)=>c.fillText(l,W/2,sy+svF.size*.9+i*svF.size*1.25)); }); hitLines(c,'f-pSv','Servicios adicionales',svF.lines,W/2,sy+svF.size*.9,svF.size,svF.size*1.25,'center',false,{ctrls:[SZ('bSv')]}); }
+}
+/* ===== La Guapeada: pensión, diseño en dos columnas (sin recuadros), degradé oscuro y botón dorado ===== */
+function drawPensionB(c,W,H,F){
+  const TH=bzTh(), d=bzData(), M=Math.round(W*.078), sc0=W/1080, GOLD='#d9b45f', flat=!!S.bzFlat; c.textBaseline='alphabetic'; c.textAlign='left';
+  const rs=(S.sz.bRows||100)/100, rN=(S.sz.pNm||100)/100, rD=(S.sz.pDs||100)/100, rB=(S.sz.pBl||100)/100, rT=(S.sz.bTitle||100)/100, rSv=(S.sz.bSv||100)/100;
+  /* degradé oscuro (o fondo oscuro liso si no hay foto) */
+  const gI=(S.sz.pgr==null?100:S.sz.pgr)/100;
+  { c.save(); if(flat){ c.fillStyle='#0c140d'; c.fillRect(0,0,W,H); } else { const g=c.createLinearGradient(0,H*.2,0,H); g.addColorStop(0,'rgba(5,12,8,0)'); g.addColorStop(.3,'rgba(5,12,8,'+Math.min(1,.5*gI)+')'); g.addColorStop(.55,'rgba(5,12,8,'+Math.min(1,.78*gI)+')'); g.addColorStop(1,'rgba(5,12,8,'+Math.min(1,.92*gI)+')'); c.fillStyle=g; c.fillRect(0,H*.2,W,H*.8); } c.restore();
+    hitBox('f-pgr','Degradé oscuro (para que se lea el texto)',0,H*.45,W,H*.55,false,{ctrls:[{label:'Intensidad del degradé',o:S.sz,k:'pgr',min:0,max:150,step:5,unit:'%',def:100}]}); }
+  const TC=Object.assign({},TH,{cInk:'#ffffff',ink:'#ffffff',cAcc:GOLD}); const yEnd=bzContact(c,W,H,F,d,TC)-14; c.textAlign='left';
+  const y0=Math.max(F.top+10,flat?0:(S.logoBot||0)+36), WH='#ffffff';
+  const cta1=String(d.cta1||'').trim().toUpperCase(), wl=String(d.wl||'').trim().replace(/^https?:\/\//,''), cta2=String(d.cta2||'').trim()||wl, cta2id=String(d.cta2||'').trim()?'f-pCta2':'f-pWl';
+  const ctaH=cta1?Math.round(112*sc0):0, subH=cta2?Math.round(44*sc0):0, ctaY=yEnd-ctaH-subH-(subH?10:0)-8;
+  const cards=[[d.p1t,d.p1d,d.p1b],[d.p2t,d.p2d,d.p2b]];
+  const colW=(W-2*M-Math.round(64*sc0))/2, bulletsOf=t=>{ const bl=[]; String(t||'').split(/\r?\n/).forEach(x=>{ if(!x.trim()) return; if(/^\s/.test(x)&&bl.length) bl[bl.length-1]+='\n'+x.trim(); else bl.push(x.trim()); }); return bl; };
+  const tl=String(d.title||'').toUpperCase().trim(); let tLines=tl.includes('\n')?tl.split('\n'):(tl.includes(' ')?[tl.split(' ')[0],tl.split(' ').slice(1).join(' ')]:[tl]); tLines=tLines.map(x=>x.trim()).filter(Boolean);
+  const meas=k=>{ const sc=sc0*k*rs; const o={sc,k}; o.tagSz=Math.round(28*sc); o.tagH=String(d.tag||'').trim()?o.tagSz*1.2+30*sc:0;
+    let tSz=Math.round(118*sc*rT); if(tLines.length){ c.font=`900 ${tSz}px ${TH.font}`; const mw=Math.max(...tLines.map(l=>c.measureText(l).width)); if(mw>W-2*M) tSz=Math.floor(tSz*(W-2*M)/mw); } o.tSz=tSz; o.tH=tLines.length*tSz*.96+36*sc;
+    o.cols=cards.map(a=>{ const nm=String(a[0]||'').toUpperCase().trim(), dd=String(a[1]||'').trim(), bl=bulletsOf(a[2]); const nSz=46*sc*rN, dSz=33*sc*rD, bSz=29*sc*rB; let h=0, nS=nSz, dL=[], bL=[];
+      if(nm){ c.font=`900 ${nSz}px ${TH.font}`; bzLS(c,2); const w=c.measureText(nm).width; bzLS(c,0); nS=w>colW?nSz*colW/w:nSz; h+=nS*1.1+36*sc; }
+      if(dd){ c.font=`700 ${dSz}px ${TH.font}`; dL=wrapLines(c,dd,colW); h+=dL.length*dSz*1.26+22*sc; }
+      if(bl.length){ c.font=`500 ${bSz}px ${TH.font}`; bL=bl.map(l=>wrapLines(c,l,colW-bSz*1.2)); h+=bL.reduce((x,y)=>x+y.length,0)*bSz*1.28+(bl.length-1)*bSz*.42; }
+      return {nm,dd,bl,nS,dSz,bSz,dL,bL,h}; });
+    o.colH=Math.max(...o.cols.map(x=>x.h)); const sv=String(d.sv||'').trim(); o.svSz=30*sc*rSv; o.svL=[]; if(sv){ c.font=`500 ${o.svSz}px ${TH.font}`; o.svL=sv.split(/\r?\n/).flatMap(l=>wrapLines(c,l,W-2*M)); }
+    o.svH=o.svL.length?o.svL.length*o.svSz*1.4+60*sc:0; o.tot=o.tagH+o.tH+o.colH+(o.colH?44*sc:0)+o.svH; return o; };
+  const avail=ctaY-y0-18; let o=meas(1.1); for(let k=1.1;k>=.35;k-=.03){ o=meas(k); if(o.tot<=avail) break; }
+  const sc=o.sc; let y=y0+Math.max(0,avail-o.tot)*.55; if(y<y0) y=y0;
+  /* etiqueta con rayita */
+  const tg=String(d.tag||'').trim().toUpperCase();
+  if(tg){ c.font=`700 ${o.tagSz}px ${TH.font}`; bzLS(c,o.tagSz*.28); const tw=c.measureText(tg).width, lw=64*sc; c.fillStyle=GOLD; c.fillRect(M,y+o.tagSz*.52,lw,Math.max(2,3*sc)); c.fillText(tg,M+lw+22*sc,y+o.tagSz); bzLS(c,0); hitBox('f-pTag','Etiqueta',M,y,lw+22*sc+tw,o.tagSz*1.3,false,{ctrls:[SZ('bSub')]}); y+=o.tagH; }
+  /* título en dos líneas: la primera blanca, el resto dorado */
+  if(tLines.length){ const lh=o.tSz*.96; c.font=`900 ${o.tSz}px ${TH.font}`; c.save(); if(!flat){ c.shadowColor='rgba(0,0,0,.45)'; c.shadowBlur=24*(S.qNow||1); c.shadowOffsetY=5*(S.qNow||1); } tLines.forEach((l,i)=>{ c.fillStyle=i===0?WH:GOLD; c.fillText(l,M,y+o.tSz*.8+i*lh); }); c.restore();
+    hitLines(c,'f-bTitle','Título',tLines,M,y+o.tSz*.8,o.tSz,lh,'left',false,{ctrls:[SZ('bTitle')]}); y+=o.tH; }
+  /* dos columnas */
+  if(o.colH){ const cx=[M,M+colW+Math.round(64*sc0)];
+    o.cols.forEach((cl,ci)=>{ const x=cx[ci]; let yy=y; const idN='f-p'+(ci?'P2t':'P1t'), idD='f-p'+(ci?'P2d':'P1d'), idB='f-p'+(ci?'P2b':'P1b');
+      if(ci){ c.fillStyle='rgba(212,175,98,.42)'; c.fillRect(x-32*sc0-1,y,2,o.colH); }
+      if(cl.nm){ c.font=`900 ${cl.nS}px ${TH.font}`; bzLS(c,2); c.fillStyle=GOLD; c.fillText(cl.nm,x,yy+cl.nS*.86); bzLS(c,0); hitLines(c,idN,'Nombre de la modalidad',[cl.nm],x,yy+cl.nS*.86,cl.nS,cl.nS,'left',false,{ctrls:[{label:'Tamaño del nombre',o:S.sz,k:'pNm',min:50,max:220,step:5,unit:'%',def:100}]}); yy+=cl.nS*1.1; c.fillStyle=GOLD; c.fillRect(x,yy+8*sc,56*sc,Math.max(2,3*sc)); yy+=36*sc; }
+      if(cl.dL.length){ c.font=`700 ${cl.dSz}px ${TH.font}`; c.fillStyle=WH; cl.dL.forEach((l,i)=>c.fillText(l,x,yy+cl.dSz*.9+i*cl.dSz*1.26)); hitLines(c,idD,'Descripción',cl.dL,x,yy+cl.dSz*.9,cl.dSz,cl.dSz*1.26,'left',false,{ctrls:[{label:'Tamaño de la descripción (lo blanco)',o:S.sz,k:'pDs',min:50,max:220,step:5,unit:'%',def:100}]}); yy+=cl.dL.length*cl.dSz*1.26+22*sc; }
+      if(cl.bl.length){ const b0=yy, bs=cl.bSz; c.font=`500 ${bs}px ${TH.font}`; cl.bl.forEach((l,i)=>{ c.fillStyle=GOLD; c.fillRect(x,yy+bs*.64,bs*.6,Math.max(2,bs*.1)); c.fillStyle='rgba(255,255,255,.93)'; cl.bL[i].forEach((t,q)=>c.fillText(t,x+bs*1.2,yy+bs*.95+q*bs*1.28)); yy+=cl.bL[i].length*bs*1.28+bs*.42; });
+        hitBox(idB,'Puntos',x,b0,colW,yy-b0-bs*.42,true,{ctrls:[{label:'Tamaño de los puntos',o:S.sz,k:'pBl',min:50,max:220,step:5,unit:'%',def:100}]}); } });
+    y+=o.colH+44*sc; }
+  /* servicios adicionales */
+  if(o.svL.length){ c.fillStyle='rgba(255,255,255,.2)'; c.fillRect(M,y,W-2*M,2); c.font=`500 ${o.svSz}px ${TH.font}`; c.fillStyle='rgba(255,255,255,.92)'; const sy=y+30*sc; o.svL.forEach((l,i)=>c.fillText(l,M,sy+o.svSz*.95+i*o.svSz*1.4)); hitLines(c,'f-pSv','Servicios adicionales',o.svL,M,sy+o.svSz*.95,o.svSz,o.svSz*1.4,'left',false,{ctrls:[SZ('bSv')]}); }
+  /* botón de WhatsApp */
+  if(cta1){ const bx=M, bw=W-2*M; c.save(); c.shadowColor='rgba(0,0,0,.4)'; c.shadowBlur=26*(S.qNow||1); c.shadowOffsetY=8*(S.qNow||1); c.fillStyle=GOLD; rrect(c,bx,ctaY,bw,ctaH,ctaH/2); c.fill(); c.restore();
+    const ic=ctaH*.52, ix=bx+ctaH*.5; c.fillStyle='#17200f'; c.beginPath(); c.arc(ix,ctaY+ctaH/2,ic/2+4,0,7); c.fill(); bzIconWA(c,ix,ctaY+ctaH/2,ic*.34);
+    const f1=fit(c,cta1,TH.font,900,bw-ctaH*1.5-30,1,Math.round(36*sc0),16,'bTitle2'); c.font=`900 ${f1.size}px ${TH.font}`; bzLS(c,1.2); c.fillStyle='#17200f'; c.textAlign='center'; c.fillText(f1.lines[0]||'',bx+ctaH+(bw-ctaH)/2,ctaY+ctaH/2+f1.size*.34); bzLS(c,0); c.textAlign='left';
+    hitBox('f-pCta1','Botón de WhatsApp',bx,ctaY,bw,ctaH,false,{ctrls:[SZ('bTitle2')]}); }
+  if(cta2){ const f2=fit(c,cta2,TH.font,600,W-2*M,1,Math.round(30*sc0),14,'bSub2'); c.font=`600 ${f2.size}px ${TH.font}`; c.textAlign='center'; c.fillStyle='rgba(255,255,255,.92)'; const yy2=ctaY+ctaH+10+f2.size; c.fillText(f2.lines[0]||'',W/2,yy2); hitLines(c,cta2id,'Texto debajo del botón',f2.lines,W/2,yy2,f2.size,f2.size,'center',false,{ctrls:[SZ('bSub2')]}); c.textAlign='left'; }
 }
 function drawAviso(c,W,H,F){
   const TH=bzTh(), d=bzData(), M=90; const yEnd=bzContact(c,W,H,F,d,TH)-34;
@@ -2358,7 +2410,7 @@ function makeCopy(kind){
     const it=parseLista(d.items); it.slice(0,tw?3:12).forEach(x=>body.push('• '+[x.name,x.det&&x.det[0],x.right].filter(Boolean).join(' · ')));
   } else if(t==='cover'){
     body.push('🎬 '+[cap(d.l1),cap(d.l2)].filter(Boolean).join(' '));
-  } else if(t==='pension'){
+  } else if(t==='pension'||t==='pension2'){
     body.push('🌿 '+cap(d.title)); [[d.p1t,d.p1d],[d.p2t,d.p2d]].forEach(([a,b])=>{ if(cap(a)) body.push('✅ '+cap(a)+(cap(b)?': '+cap(b):'')); }); if(cap(d.sv)) body.push('➕ '+cap(d.sv)); body.push(''); body.push('Consultá valores por WhatsApp 👇'); if(cap(d.wl)) body.push('📲 '+cap(d.wl));
   } else if(t==='clases'){
     body.push('🐴 '+(cap(d.title)?low(d.title):'Clases de polo')+(cap(d.sub)?' · '+cap(d.sub):'')); String(d.items||'').split(/\n/).map(cap).filter(Boolean).slice(0,tw?3:6).forEach(l=>{ const p=l.split('|').map(cap); body.push('✅ '+(p.length>1?p[0]+': '+p.slice(1).join(' '):p[0])); }); if(cap(d.cta2)) body.push(cap(d.cta1)?low(d.cta1)+'. '+cap(d.cta2)+' 👇':cap(d.cta2)+' 👇');
@@ -2590,7 +2642,7 @@ function buildBizUI(box){
     { const rb=document.createElement('button'); rb.type='button'; rb.className='ghost'; rb.textContent='Volver todo a su lugar'; rb.onclick=()=>{ const pre=txKey()+'|'; Object.keys(S.mo).forEach(k=>{ if(k.startsWith(pre)) delete S.mo[k]; }); persist(); render(); }; w.appendChild(rb); }
     chk(w,'Mostrar el subrayado',d,'sw'); chk(w,'Mostrar la guía del recorte de la grilla (solo en la vista previa)',d,'guide'); chk(w,'Mostrar las chispas (solo con la foto del producto)',d,'sp');
     { const p=document.createElement('p'); p.className='hint'; p.textContent='La foto de la persona o del local va en "Foto de fondo" (formato Story 9:16). La foto del producto es opcional: tildá la opción de arriba, tocá "Elegir foto del producto" (o tocá el círculo en la imagen) y elegí una imagen de tu galería, mejor con fondo blanco. Tocá cualquier texto para editarlo; el subrayado y las chispas también se mueven. Usá "Mover elementos arrastrándolos" para moverlos. El color del cartel sale de "Colores de este diseño". La foto del producto no se guarda: si recargás, hay que volver a subirla.'; w.appendChild(p); }
-  } else if(t==='pension'){
+  } else if(t==='pension'||t==='pension2'){
     F('pTag','Etiqueta','tag'); F('bTitle','Título','title'); F('bSub','Subtítulo','sub');
     F('pP1t','Modalidad 1: nombre','p1t'); F('pP1d','Modalidad 1: descripción','p1d',true,60); F('pP1b','Modalidad 1: puntos (uno por línea)','p1b',true,110);
     F('pP2t','Modalidad 2: nombre','p2t'); F('pP2d','Modalidad 2: descripción','p2d',true,60); F('pP2b','Modalidad 2: puntos (uno por línea)','p2b',true,110);
@@ -2881,7 +2933,7 @@ function draw(){
   if(S.tpl==='partido'){ if(S.tr!==2) drawDark(c,W,H,S.ly.ov/100); } else {if(S.tpl==='subt'){ if(S.tr!==2) subtDim(c,W,H); } else if(S.tr!==2&&S.tpl!=='flyer') drawOverlay(c,W,H,tint,S.tpl==='tabla'||isRed(S.tpl)||S.tpl==='resumen'||S.tpl==='equipos'||S.tpl==='arbitros'||S.tpl==='precios'||S.tpl==='agenda'); if(S.format!=='portada') drawHeader(c,W,F.top,currentAccount());}
   try{ txGet().filter(b=>b.k&&!b.f).forEach(b=>drawShape(c,W,H,b)); }catch(e){}
   const _mo=moAny(); if(_mo) moSnapshot();
-  const _tf0=({noticia:drawNoticia,resultado:drawResultado,consigna:drawConsigna,vs:drawVs,cruce:drawCruce,cita:drawCita,entradas:drawEntradas,entranking:drawEnRanking,tabla:drawTabla,partido:drawPartido,reducido:drawReducido,red_qf:drawReducido,red_sf:drawReducido,red_fin:drawReducido,red_all:drawReducido,resumen:drawResumen,equipos:drawEquipos,arbitros:drawArbitros,precios:drawLista,promos:drawPromos,combos:drawCombos,subt:drawSubt,agenda:drawLista,aviso:drawAviso,evento:drawEvento,hospedaje:drawHospedaje,flyer:drawFlyer,clases:drawClases,pension:drawPupilaje,cover:drawPortada,once:drawOnce,ascenso:drawAscenso})[S.tpl]; const _tfn=(BIZ_T.includes(S.tpl)&&scMode()&&S.scProds.length)?((c2,W2,H2,F2)=>{ drawSceneProducts(c2,W2,H2,F2); _tf0(c2,W2,H2,F2); }):_tf0; S.segBase=S.segN; _tfn(c,W,H,F);
+  const _tf0=({noticia:drawNoticia,resultado:drawResultado,consigna:drawConsigna,vs:drawVs,cruce:drawCruce,cita:drawCita,entradas:drawEntradas,entranking:drawEnRanking,tabla:drawTabla,partido:drawPartido,reducido:drawReducido,red_qf:drawReducido,red_sf:drawReducido,red_fin:drawReducido,red_all:drawReducido,resumen:drawResumen,equipos:drawEquipos,arbitros:drawArbitros,precios:drawLista,promos:drawPromos,combos:drawCombos,subt:drawSubt,agenda:drawLista,aviso:drawAviso,evento:drawEvento,hospedaje:drawHospedaje,flyer:drawFlyer,clases:drawClases,pension:drawPupilaje,pension2:drawPensionB,cover:drawPortada,once:drawOnce,ascenso:drawAscenso})[S.tpl]; const _tfn=(BIZ_T.includes(S.tpl)&&scMode()&&S.scProds.length)?((c2,W2,H2,F2)=>{ drawSceneProducts(c2,W2,H2,F2); _tf0(c2,W2,H2,F2); }):_tf0; S.segBase=S.segN; _tfn(c,W,H,F);
   if(_mo) moApply(c,_tfn,W,H,F);
   drawTexts(c,W,H);
   if(!S.exporting){ try{ tAutoHits(); }catch(e){} }
@@ -2901,7 +2953,7 @@ function buildAccounts(){
     box.appendChild(b)});
 }
 /* ---- celular: menú de diseños + botón volver ---- */
-const MOBI={cover:['🎬','Portada de reel'],combos:['🧺','Combos con precio'],subt:['💬','Texto para stories y reels'],noticia:['📰','Titular + escudo'],consigna:['❓','Pregunta A o B'],vs:['⚔️','Dos equipos'],cruce:['🏟️','Un cruce, ida y vuelta'],cita:['🗣️','Frase con foto'],partido:['⚽','Resultados del día'],tabla:['📊','Tabla de posiciones'],reducido:['🏆','Todas las instancias'],resumen:['📋','Resumen de la fecha'],equipos:['🧩','Equipos 2027'],arbitros:['🟨','Árbitros'],once:['⭐','Formación 4-4-2 y más'],ascenso:['🚀','Ascendió a Primera'],precios:['🏷️','Lista de precios'],promos:['🔥','Super promos con precios'],aviso:['📢','Aviso con texto'],agenda:['🗓️','Horarios de la semana'],evento:['🎉','Fecha, hora y lugar'],hospedaje:['🛏️','Hospedaje con datos'],clases:['🐴','Info de las clases'],pension:['🌿','Pastoreo y pensión a box']};
+const MOBI={cover:['🎬','Portada de reel'],combos:['🧺','Combos con precio'],subt:['💬','Texto para stories y reels'],noticia:['📰','Titular + escudo'],consigna:['❓','Pregunta A o B'],vs:['⚔️','Dos equipos'],cruce:['🏟️','Un cruce, ida y vuelta'],cita:['🗣️','Frase con foto'],partido:['⚽','Resultados del día'],tabla:['📊','Tabla de posiciones'],reducido:['🏆','Todas las instancias'],resumen:['📋','Resumen de la fecha'],equipos:['🧩','Equipos 2027'],arbitros:['🟨','Árbitros'],once:['⭐','Formación 4-4-2 y más'],ascenso:['🚀','Ascendió a Primera'],precios:['🏷️','Lista de precios'],promos:['🔥','Super promos con precios'],aviso:['📢','Aviso con texto'],agenda:['🗓️','Horarios de la semana'],evento:['🎉','Fecha, hora y lugar'],hospedaje:['🛏️','Hospedaje con datos'],clases:['🐴','Info de las clases'],pension:['🌿','Pastoreo y pensión a box'],pension2:['🌿','Pensión: diseño en dos columnas']};
 const isMob=()=>matchMedia('(max-width:860px)').matches;
 function mobMenu(show){ const m=document.getElementById('menuM'); if(!m) return; m.hidden=!show; document.body.style.overflow=show?'hidden':''; if(show){ mobBuild(); m.scrollTop=0; } }
 function mobBuild(){

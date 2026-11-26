@@ -170,7 +170,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 26/11 · 11:10</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 26/11 · 11:14</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -1771,7 +1771,7 @@ const BZ_DEF={
     subt:{es:'DÍA DE PELUQUERÍA 🐎',en:'HAIR DAY 🐴',bo:58,dim:12,auto:true},
     pension:{tag:'PASTOREO Y PENSIÓN',title:'PENSIÓN DE CABALLOS',sub:'Dos modalidades a tu medida',p1t:'PASTOREO',p1d:'Sueltos de día en potreros con alfalfa y rye grass',i1:'none',i2:'none',p1b:'Cuidado y supervisión diaria\nSalida al campo de día y encierre de noche\nAviso inmediato ante cualquier inconveniente\nLote exclusivo para grupos de más de 6 caballos',p2t:'PENSIÓN A BOX',p2d:'Box en nuestras instalaciones',p2b:'Pista de vareo\nCancha de taqueo\nAcceso al caminador\nManejo y cuidado diario por separado',sv:'También coordinamos petiseros, ejercicio y preparación. Si preferís, podés trabajar con tu propio petisero.',cta1:'CONSULTÁ VALORES POR WHATSAPP',cta2:'',wl:'',c1:'',c2:'@laguapeadapolo'},
     clases:{tag:'ASÍ SON LAS CLASES',title:'CLASES DE POLO',sub:'',items:'Duración | 1 hora a 1 hora y media\nQué aprendés | Preparar el caballo, equitación básica y taqueo\nEquipamiento incluido | Botas, casco y taco\nSeguimiento personalizado | Según el conocimiento de cada uno',cta1:'FECHAS, VALORES Y PAQUETES',cta2:'Escribinos por WhatsApp',c1:'',c2:'@laguapeadapolo'},
-    precios:{title:'PLANES Y VALORES',sub:'Clases de polo',items:'Clase de iniciación | 1 hora | $00.000\nPack de 4 clases | por mes | $00.000\nAlquiler de caballo | por hora | $00.000\nPupilaje | por mes | $00.000',c1:'',c2:'@laguapeadapolo'},
+    precios:{title:'PLANES Y VALORES',sub:'Clases de polo',items:'Clase de iniciación | 1 hora | $00.000\nPack de 4 clases | por mes | $00.000\nAlquiler de caballo | por hora | $00.000\nPensión de caballo | por mes | $00.000',c1:'',c2:'@laguapeadapolo'},
     aviso:{lines:'COMUNICADO\nEscribí acá el aviso',sub:'',sticker:'',pos:'mid',box:'none',c1:'',c2:'@laguapeadapolo'},
     agenda:{title:'CLASES DE POLO',sub:'Horarios de la semana',items:'Martes | Iniciación | 17:00 a 18:30\nJueves | Nivel intermedio | 17:00 a 18:30\nSábado | Práctica libre | 10:00 a 13:00\nDomingo | Partidos | 15:00',c1:'',c2:'@laguapeadapolo'},
     evento:{tag:'TORNEO',title:'COPA LA GUAPEADA',date:'Sábado 5 de diciembre',time:'15:00 hs',place:'Pilar, Buenos Aires',text:'Inscripción abierta. Cupos limitados.',c1:'',c2:'@laguapeadapolo'},
@@ -2593,7 +2593,7 @@ function buildBizUI(box){
       { const row=document.createElement('div'); row.style.cssText='display:flex;gap:6px;flex-wrap:wrap'; const st=document.createElement('p'); st.className='hint';
         const b1=document.createElement('button'); b1.type='button'; b1.className='primary'; b1.id='clTr'; b1.textContent='🇬🇧 Traducir al inglés'; b1.onclick=async()=>{ st.textContent='Traduciendo…'; b1.disabled=true; try{ d.en=await clTranslate(d); S.clLang='en'; st.textContent='Listo. Revisá el inglés y retocalo si querés.'; buildFields(); render(); }catch(e){ st.textContent='No pude traducir (¿sin internet?). Escribí el inglés a mano.'; } b1.disabled=false; };
         const b2=document.createElement('button'); b2.type='button'; b2.className='primary'; b2.id='clBoth'; b2.textContent='Descargar las dos (ES + EN)'; b2.onclick=async()=>{ if(!d.en){ st.textContent='Traduciendo…'; try{ d.en=await clTranslate(d); }catch(e){ st.textContent='Primero traducí al inglés.'; return; } } await clSaveBoth(); st.textContent=''; };
-        row.append(b1,b2); w.append(row,st); const h2=document.createElement('p'); h2.className='hint'; h2.textContent='La traducción respeta los términos del polo (taco = mallet, taqueo = stick-and-ball practice, pupilaje = horse boarding, etc.). Siempre conviene leerla antes de publicar.'; w.appendChild(h2); }
+        row.append(b1,b2); w.append(row,st); const h2=document.createElement('p'); h2.className='hint'; h2.textContent='La traducción respeta los términos del polo (taco = mallet, taqueo = stick-and-ball practice, etc.). Siempre conviene leerla antes de publicar.'; w.appendChild(h2); }
       FF('cTag','Etiqueta (ej: ASÍ SON LAS CLASES)','tag'); FF('bTitle','Título','title'); FF('bSub','Subtítulo','sub');
       FF('cItems','Tarjetas (una por línea: Título | Texto; hasta 6)','items',true,150);
       FF('cCta1','Llamada: línea grande','cta1'); FF('cCta2','Llamada: línea chica','cta2'); }

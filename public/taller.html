@@ -170,7 +170,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 26/11 · 10:46</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 26/11 · 10:55</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -1769,7 +1769,7 @@ const BZ_DEF={
     flyer:{t1:'CAMBIO DE',t2:'GRAVA',t3:'DE FILTROS',t4:'para piscinas',tag:'FILTROS',brand:'VULCANO',bsub:'Inspirados por el agua',desc:'Mantenimiento y renovación de filtros Vulcano',bens:'Mejora la filtración del agua\nMayor rendimiento del filtro\nAgua más limpia y cristalina',note:'Grava nueva, mejor filtrado',circ:'1',cta:'Consultanos',c1:'11 6601-2377',c2:''}},
   lg:{
     subt:{es:'DÍA DE PELUQUERÍA 🐎',en:'HAIR DAY 🐴',bo:58,dim:12,auto:true},
-    pension:{tag:'PASTOREO Y PENSIÓN',title:'PUPILAJE DE CABALLOS',sub:'Dos modalidades a tu medida',p1t:'PASTOREO',p1d:'Sueltos de día en potreros con alfalfa y rye grass',p1b:'Cuidado y supervisión diaria\nSalida al campo de día y encierre de noche\nAviso inmediato ante cualquier inconveniente\nLote exclusivo para grupos de más de 6 caballos',p2t:'PENSIÓN A BOX',p2d:'Box en nuestras instalaciones',p2b:'Pista de vareo\nCancha de taqueo\nAcceso al caminador\nManejo y cuidado diario por separado',sv:'También coordinamos petiseros, ejercicio y preparación. O trabajá con tu propio petisero.',cta1:'CONSULTÁ VALORES POR WHATSAPP',cta2:'',wl:'',c1:'',c2:'@laguapeadapolo'},
+    pension:{tag:'PASTOREO Y PENSIÓN',title:'PUPILAJE DE CABALLOS',sub:'Dos modalidades a tu medida',p1t:'PASTOREO',p1d:'Sueltos de día en potreros con alfalfa y rye grass',p1b:'Cuidado y supervisión diaria\nSalida al campo de día y encierre de noche\nAviso inmediato ante cualquier inconveniente\nLote exclusivo para grupos de más de 6 caballos',p2t:'PENSIÓN A BOX',p2d:'Box en nuestras instalaciones',p2b:'Pista de vareo\nCancha de taqueo\nAcceso al caminador\nManejo y cuidado diario por separado',sv:'También coordinamos petiseros, ejercicio y preparación. Si preferís, podés trabajar con tu propio petisero.',cta1:'CONSULTÁ VALORES POR WHATSAPP',cta2:'',wl:'',c1:'',c2:'@laguapeadapolo'},
     clases:{tag:'ASÍ SON LAS CLASES',title:'CLASES DE POLO',sub:'',items:'Duración | 1 hora a 1 hora y media\nQué aprendés | Preparar el caballo, equitación básica y taqueo\nEquipamiento incluido | Botas, casco y taco\nSeguimiento personalizado | Según el conocimiento de cada uno',cta1:'FECHAS, VALORES Y PAQUETES',cta2:'Escribinos por WhatsApp',c1:'',c2:'@laguapeadapolo'},
     precios:{title:'PLANES Y VALORES',sub:'Clases de polo',items:'Clase de iniciación | 1 hora | $00.000\nPack de 4 clases | por mes | $00.000\nAlquiler de caballo | por hora | $00.000\nPupilaje | por mes | $00.000',c1:'',c2:'@laguapeadapolo'},
     aviso:{lines:'COMUNICADO\nEscribí acá el aviso',sub:'',sticker:'',pos:'mid',box:'none',c1:'',c2:'@laguapeadapolo'},
@@ -1802,6 +1802,7 @@ const WA_IMG=new Image(); WA_IMG.onload=()=>{ try{ render(); }catch(e){} }; WA_I
 function bzIconWA(c,x,y,r){ if(WA_IMG.complete&&WA_IMG.naturalWidth){ const z=r*2.35; c.drawImage(WA_IMG,x-z/2,y-z/2,z,z); return; } c.save(); c.fillStyle='#25d366'; c.beginPath(); c.arc(x,y,r,0,7); c.fill(); c.strokeStyle='#fff'; c.lineWidth=r*.16; c.beginPath(); c.arc(x,y-r*.04,r*.52,0,7); c.stroke(); c.fillStyle='#fff'; c.beginPath(); c.moveTo(x-r*.5,y+r*.55); c.lineTo(x-r*.46,y+r*.18); c.lineTo(x-r*.18,y+r*.45); c.fill();
   c.fillStyle='#fff'; c.beginPath(); c.arc(x-r*.12,y-r*.12,r*.16,0,7); c.arc(x+r*.14,y+r*.14,r*.16,0,7); c.fill(); c.restore(); }
 function bzIconPin(c,x,y,r,col){ c.save(); c.fillStyle=col; c.beginPath(); c.arc(x,y-r*.2,r*.62,Math.PI,0); c.quadraticCurveTo(x+r*.62,y+r*.35,x,y+r*.95); c.quadraticCurveTo(x-r*.62,y+r*.35,x-r*.62,y-r*.2); c.fill(); c.fillStyle='rgba(0,0,0,.55)'; c.beginPath(); c.arc(x,y-r*.2,r*.24,0,7); c.fill(); c.restore(); }
+function bzIconIG(c,x,y,r,col){ c.save(); c.strokeStyle=col; c.lineWidth=r*.2; c.lineJoin='round'; const q=r*1.7; rrect(c,x-q/2,y-q/2,q,q,q*.3); c.stroke(); c.beginPath(); c.arc(x,y,q*.24,0,7); c.stroke(); c.fillStyle=col; c.beginPath(); c.arc(x+q*.27,y-q*.27,q*.065,0,7); c.fill(); c.restore(); }
 function bzLS(c,px){ try{ c.letterSpacing=px+'px'; }catch(e){} }
 /* contacto: línea fina y texto con ícono, sin pastillas; devuelve la y donde empieza */
 function bzContact(c,W,H,F,d,TH){
@@ -1811,7 +1812,7 @@ function bzContact(c,W,H,F,d,TH){
   c.fillStyle=bzA({ink:TH.cInk||TH.ink},.32); c.fillRect(M,y0-22,W-2*M,2);
   items.forEach(([ic,txt,key],i)=>{
     const ft=fit(c,txt,TH.font,TH.bw,W-2*M-120,1,fs,18); c.font=`${TH.bw} ${ft.size}px ${TH.font}`; const tw=c.measureText(ft.lines[0]||'').width, r=ft.size*.52, tot=r*2+16+tw, x0=(W-tot)/2, cy=y0+i*lh+lh/2;
-    if(ic==='wa') bzIconWA(c,x0+r,cy,r); else bzIconPin(c,x0+r,cy,r*.9,TH.cAcc||TH.acc);
+    if(ic==='wa') bzIconWA(c,x0+r,cy,r); else if(/^@/.test(txt)) bzIconIG(c,x0+r,cy,r*.82,TH.cAcc||TH.acc); else bzIconPin(c,x0+r,cy,r*.9,TH.cAcc||TH.acc);
     c.textAlign='left'; c.fillStyle=TH.cInk||TH.ink; c.fillText(ft.lines[0]||'',x0+r*2+16,cy+ft.size*.34);
     hitBox('f-'+key,ic==='wa'?'Teléfono':'Dirección',x0-10,cy-lh/2,tot+20,lh,false,{ctrls:[{label:'Tamaño del contacto',o:S.sz,k:'bContact',min:50,max:160,step:5,unit:'%',def:100}]});
   });
@@ -1971,13 +1972,14 @@ function drawPromos(c,W,H,F){
     hitLines(c,'f-bAddr','Dirección',ft.lines,lx+6,cy+ft.size,ft.size,ft.size*1.2,'left',false,{ctrls:[SZ('bAddr')]}); }
 }
 /* ===== La Guapeada: pupilaje (pastoreo y pensión a box), sin valores ===== */
+const pgl=(c,fn)=>{ if(S.bzFlat){ fn(); return; } c.save(); c.shadowColor='rgba(0,0,0,.72)'; c.shadowBlur=16*(S.qNow||1); c.shadowOffsetY=2*(S.qNow||1); fn(); c.restore(); };
 function drawPupilaje(c,W,H,F){
   const TH=bzTh(), d=bzData(), M=70, rs=(S.sz.bRows||100)/100; c.textBaseline='alphabetic'; c.textAlign='center';
   const yEnd=bzContact(c,W,H,F,d,TH)-24; let y=Math.max(F.top+58*2+40,(S.logoBot||0)+36); c.textAlign='center'; c.textBaseline='alphabetic';
   const tg=String(d.tag||'').trim().toUpperCase();
-  if(tg){ const ft=fit(c,tg,TH.font,TH.bw,W-300,1,32,18,'bSub'); c.font=`${TH.bw} ${ft.size}px ${TH.font}`; const tw=c.measureText(tg).width+70; bzLS(c,7); bzGlow(c,()=>{ c.fillStyle=TH.acc; c.fillText(tg,W/2+3.5,y+ft.size); }); bzLS(c,0); hitBox('f-pTag','Etiqueta',(W-tw)/2,y,tw,ft.size*1.4,false,{ctrls:[SZ('bSub')]}); y+=ft.size*1.4+14; }
-  { const t=String(d.title||'').toUpperCase(); if(t){ const ft=fit(c,t,TH.font,TH.hw,W-2*M,1,104,46,'bTitle'); c.font=`${TH.hw} ${ft.size}px ${TH.font}`; bzGlow(c,()=>{ c.fillStyle=TH.ink; c.fillText(ft.lines[0]||'',W/2,y+ft.size*.82); }); hitLines(c,'f-bTitle','Título',ft.lines,W/2,y+ft.size*.82,ft.size,ft.size,'center',false,{ctrls:[SZ('bTitle')]}); y+=ft.size*.82+16; } }
-  { const sb=String(d.sub||'').trim(); if(sb){ bzLS(c,4); const ft=fit(c,sb.toUpperCase(),TH.font,TH.bw,W-160,1,30,16,'bSub'); c.font=`${TH.bw} ${ft.size}px ${TH.font}`; c.fillStyle=TH.acc; c.fillText(ft.lines[0]||'',W/2+2,y+ft.size*.8); hitLines(c,'f-bSub','Subtítulo',ft.lines,W/2,y+ft.size*.8,ft.size,ft.size,'center',false,{ctrls:[SZ('bSub')]}); bzLS(c,0); y+=ft.size*1.1+22; } }
+  if(tg){ const ft=fit(c,tg,TH.font,TH.bw,W-300,1,32,18,'bSub'); c.font=`${TH.bw} ${ft.size}px ${TH.font}`; const tw=c.measureText(tg).width+70; bzLS(c,7); pgl(c,()=>{ c.fillStyle=TH.acc; c.fillText(tg,W/2+3.5,y+ft.size); }); bzLS(c,0); hitBox('f-pTag','Etiqueta',(W-tw)/2,y,tw,ft.size*1.4,false,{ctrls:[SZ('bSub')]}); y+=ft.size*1.4+14; }
+  { const t=String(d.title||'').toUpperCase(); if(t){ const ft=fit(c,t,TH.font,TH.hw,W-2*M,1,104,46,'bTitle'); c.font=`${TH.hw} ${ft.size}px ${TH.font}`; pgl(c,()=>{ c.fillStyle=TH.ink; c.fillText(ft.lines[0]||'',W/2,y+ft.size*.82); }); hitLines(c,'f-bTitle','Título',ft.lines,W/2,y+ft.size*.82,ft.size,ft.size,'center',false,{ctrls:[SZ('bTitle')]}); y+=ft.size*.82+16; } }
+  { const sb=String(d.sub||'').trim(); if(sb){ bzLS(c,4); const ft=fit(c,sb.toUpperCase(),TH.font,TH.bw,W-160,1,30,16,'bSub'); c.font=`${TH.bw} ${ft.size}px ${TH.font}`; pgl(c,()=>{ c.fillStyle=TH.acc; c.fillText(ft.lines[0]||'',W/2+2,y+ft.size*.8); }); hitLines(c,'f-bSub','Subtítulo',ft.lines,W/2,y+ft.size*.8,ft.size,ft.size,'center',false,{ctrls:[SZ('bSub')]}); bzLS(c,0); y+=ft.size*1.1+22; } }
   /* llamada abajo */
   const c1=String(d.cta1||'').trim().toUpperCase(), wl=String(d.wl||'').trim().replace(/^https?:\/\//,''), c2=String(d.cta2||'').trim()||wl, c2id=String(d.cta2||'').trim()?'f-pCta2':'f-pWl', hasC=!!(c1||c2), cH=hasC?150:0, cY=yEnd-cH;
   if(hasC){ c.save(); c.shadowColor='rgba(0,0,0,.28)'; c.shadowBlur=14*(S.qNow||1); c.fillStyle=TH.acc; rrect(c,M,cY,W-2*M,cH,cH/2.2); c.fill(); c.restore();
@@ -1989,20 +1991,25 @@ function drawPupilaje(c,W,H,F){
   const bot=(hasC?cY-24:yEnd);
   if(sv){ svF=fit(c,sv,TH.font,TH.bw,W-2*M-40,3,32*rs,16,'bSv'); svH=svF.lines.length*svF.size*1.25+10; }
   const cards=[[d.p1t,d.p1d,d.p1b,'p1'],[d.p2t,d.p2d,d.p2b,'p2']].filter(a=>String(a[0]||a[1]||a[2]||'').trim());
-  const avail=bot-y-(svH?svH+26:0), gap=24; if(!cards.length) return;
+  const avail=bot-y-(svH?svH+26:0), gap=34; if(!cards.length) return;
   const need=cards.map(a=>{ const n=String(a[2]||'').split(/\r?\n/).filter(x=>x.trim()).length; return 84+(String(a[1]||'').trim()?60:0)+n*66+44; });
-  const totalNeed=need.reduce((a,b)=>a+b,0)+gap*(cards.length-1), k=Math.min(1.12,avail/totalNeed);
+  const totalNeed=need.reduce((a,b)=>a+b,0)+gap*(cards.length-1), k=Math.min(1.0,avail/totalNeed);
   let cy=y+Math.max(0,(avail-totalNeed*k)/2)*.5;
   cards.forEach((a,ci)=>{ const ch=need[ci]*k; const [tt,dd,bb,id]=a, fs=k*rs;
     c.save(); c.fillStyle=S.bzFlat?bzA(TH,.10):'rgba(8,16,12,.62)'; rrect(c,M,cy,W-2*M,ch,26); c.fill(); c.lineWidth=2; c.strokeStyle=S.bzFlat?bzA(TH,.25):'rgba(255,255,255,.2)'; c.stroke(); c.fillStyle=TH.acc; rrect(c,M,cy,16,ch,8); c.fill(); c.restore();
     hitBox('f-p'+(ci?'P2t':'P1t'),'Tarjeta',M,cy,W-2*M,ch,false,{ctrls:[{label:'Tamaño de los textos de las tarjetas',o:S.sz,k:'bRows',min:50,max:140,step:5,unit:'%',def:100}]});
     const tx=M+52, tw=W-2*M-80; let ty=cy+22*k; c.textAlign='left';
-    const t1=String(tt||'').toUpperCase().trim(); if(t1){ const ft=fit(c,t1,TH.font,TH.hw,tw,1,76*fs,24); c.font=`${TH.hw} ${ft.size}px ${TH.font}`; bzLS(c,2); c.fillStyle=TH.acc; c.fillText(ft.lines[0]||'',tx,ty+ft.size*.86); bzLS(c,0); hitLines(c,'f-p'+(ci?'P2t':'P1t'),'Nombre de la modalidad',ft.lines,tx,ty+ft.size*.86,ft.size,ft.size,'left',false,{ctrls:[{label:'Tamaño de los textos de las tarjetas',o:S.sz,k:'bRows',min:50,max:140,step:5,unit:'%',def:100}]}); ty+=ft.size*1.08; }
+    const t1=String(tt||'').toUpperCase().trim(); if(t1){ const ft=fit(c,t1,TH.font,TH.hw,tw,1,76*fs,24); c.font=`${TH.hw} ${ft.size}px ${TH.font}`; bzLS(c,2); c.fillStyle=TH.acc; c.fillText(ft.lines[0]||'',tx,ty+ft.size*.86); bzLS(c,0); hitLines(c,'f-p'+(ci?'P2t':'P1t'),'Nombre de la modalidad',ft.lines,tx,ty+ft.size*.86,ft.size,ft.size,'left',false,{ctrls:[{label:'Tamaño de los textos de las tarjetas',o:S.sz,k:'bRows',min:50,max:140,step:5,unit:'%',def:100}]}); ty+=ft.size*1.08+10*k; }
     const d1=String(dd||'').trim(); if(d1){ const ft=fit(c,d1,TH.font,700,tw,2,46*fs,14); c.font=`700 ${ft.size}px ${TH.font}`; c.fillStyle=TH.ink; ft.lines.forEach((l,i)=>c.fillText(l,tx,ty+ft.size*.9+i*ft.size*1.2)); hitLines(c,'f-p'+(ci?'P2d':'P1d'),'Descripción',ft.lines,tx,ty+ft.size*.9,ft.size,ft.size*1.2,'left',false,{ctrls:[{label:'Tamaño de los textos de las tarjetas',o:S.sz,k:'bRows',min:50,max:140,step:5,unit:'%',def:100}]}); ty+=ft.lines.length*ft.size*1.2+14*k; }
     const bl=String(bb||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean); if(bl.length){ const sz=Math.min(48*fs,(ch-(ty-cy)-18)/bl.length/1.38); const ff=Math.max(14,sz); c.font=`600 ${ff}px ${TH.font}`; const st=ff*1.5; const y0=ty;
       bl.forEach((l,i)=>{ const yy=y0+i*st, r=ff*.3; c.fillStyle=TH.acc; c.beginPath(); c.arc(tx+r,yy+ff*.55,r,0,7); c.fill(); c.strokeStyle=TH.on; c.lineWidth=ff*.08; c.lineCap='round'; c.lineJoin='round'; c.beginPath(); c.moveTo(tx+r*.45,yy+ff*.56); c.lineTo(tx+r*.85,yy+ff*.56+r*.38); c.lineTo(tx+r*1.6,yy+ff*.56-r*.42); c.stroke();
         const f2=fit(c,l,TH.font,600,tw-r*2-20,1,ff,12); c.font=`600 ${f2.size}px ${TH.font}`; c.fillStyle=TH.ink; c.fillText(f2.lines[0]||'',tx+r*2+16,yy+ff*.9); });
       hitBox('f-p'+(ci?'P2b':'P1b'),'Puntos',tx,y0,tw,bl.length*st,true,{ctrls:[{label:'Tamaño de los textos de las tarjetas',o:S.sz,k:'bRows',min:50,max:140,step:5,unit:'%',def:100}]}); }
+    { const ir=Math.min(ch*.2,70), ix=W-M-34-ir, iy=cy+ch/2; c.save(); c.globalAlpha=.9; c.strokeStyle=TH.acc; c.fillStyle=TH.acc; c.lineWidth=ir*.09; c.lineCap='round'; c.lineJoin='round';
+      c.beginPath(); c.arc(ix,iy,ir,0,7); c.globalAlpha=.16; c.fill(); c.globalAlpha=.9; c.stroke();
+      if(ci===0){ [[-.42,.5,-.5,-.35],[0,.5,0,-.55],[.42,.5,.5,-.35]].forEach(([x0,y0,dx,y1])=>{ c.beginPath(); c.moveTo(ix+x0*ir*.8,iy+y0*ir*.8); c.quadraticCurveTo(ix+x0*ir*.8+dx*ir*.1,iy+(y0+y1)*ir*.4,ix+dx*ir*.8,iy+y1*ir*.8); c.stroke(); }); c.beginPath(); c.moveTo(ix-ir*.62,iy+ir*.5); c.lineTo(ix+ir*.62,iy+ir*.5); c.stroke(); }
+      else { c.beginPath(); c.moveTo(ix-ir*.6,iy+ir*.5); c.lineTo(ix-ir*.6,iy-ir*.12); c.lineTo(ix,iy-ir*.58); c.lineTo(ix+ir*.6,iy-ir*.12); c.lineTo(ix+ir*.6,iy+ir*.5); c.closePath(); c.stroke(); c.beginPath(); c.rect(ix-ir*.24,iy-ir*.06,ir*.48,ir*.56); c.stroke(); c.beginPath(); c.moveTo(ix,iy-ir*.06); c.lineTo(ix,iy+ir*.5); c.stroke(); }
+      c.restore(); }
     cy+=ch+gap; });
   if(svF){ c.textAlign='center'; const sy=cy-gap+26; bzGlow(c,()=>{ c.font=`${TH.bw} ${svF.size}px ${TH.font}`; c.fillStyle=bzA(TH,.95); svF.lines.forEach((l,i)=>c.fillText(l,W/2,sy+svF.size*.9+i*svF.size*1.25)); }); hitLines(c,'f-pSv','Servicios adicionales',svF.lines,W/2,sy+svF.size*.9,svF.size,svF.size*1.25,'center',false,{ctrls:[SZ('bSv')]}); }
 }

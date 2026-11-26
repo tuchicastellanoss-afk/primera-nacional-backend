@@ -170,7 +170,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 26/11 · 11:22</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 26/11 · 11:27</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -1781,7 +1781,9 @@ const BZ_DEF={
 const BZ_GENERIC={hospedaje:{tag:'HOSPEDAJE · STAY',title:'NOMBRE DEL HOSPEDAJE',r1:'2 cuartos',r1en:'2 rooms',r2:'',r2en:'',ic2:'star',c1:'',c2:''},subt:{es:'TEXTO EN ESPAÑOL',en:'TEXT IN ENGLISH',bo:58,dim:12,auto:true},combos:{title:'COMBOS',sub:'',items:'#1\n2 Producto uno\n1 Producto dos\n$0.000\n\n#2\n3 Producto uno\n2 Producto tres\n$0.000',foot:'',c1:'',c2:''},cover:{l1:'TÍTULO DE LA',l2:'PORTADA',pic:false,guide:true,sw:true,sp:true,c1:'',c2:''},precios:{title:'LISTA DE PRECIOS',sub:'',items:'Producto 1 - $0.000\nProducto 2 - $0.000\nProducto 3 - $0.000',c1:'',c2:''},aviso:{lines:'ESCRIBÍ ACÁ EL AVISO',sub:'',sticker:'',pos:'low',box:'color',c1:'',c2:''},agenda:{title:'HORARIOS',sub:'',items:'Lunes | Actividad | 10:00',c1:'',c2:''},evento:{tag:'EVENTO',title:'NOMBRE DEL EVENTO',date:'',time:'',place:'',text:'',c1:'',c2:''}};
 function bzData(){
   const R=S.red; R.biz=R.biz||{}; const k=currentAccount().id+':'+S.tpl+(S.inst?'#'+S.inst:''); const def=((BZ_DEF[currentAccount().id]||{})[S.tpl])||BZ_GENERIC[S.tpl]||{};
-  const o=R.biz[k]=R.biz[k]||{}; Object.keys(def).forEach(f=>{ if(o[f]===undefined) o[f]=def[f]; }); return o;
+  const o=R.biz[k]=R.biz[k]||{}; Object.keys(def).forEach(f=>{ if(o[f]===undefined) o[f]=def[f]; });
+  if(S.tpl==='pension'){ const mg={tag:['PASTOREO Y PENSIÓN'],title:['PUPILAJE DE CABALLOS'],sub:['Dos modalidades a tu medida']}; Object.keys(mg).forEach(f=>{ if(mg[f].includes(o[f])) o[f]=def[f]; }); }
+  return o;
 }
 /* "Producto - $precio", "Producto | detalle | precio", "# Título de sección - $precio"; las líneas sueltas son detalles del renglón anterior */
 function parseLista(txt){

@@ -170,7 +170,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 26/11 · 11:59</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 26/11 · 12:08</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -1996,19 +1996,24 @@ function drawPupilaje(c,W,H,F){
   if(sv){ svF=fit(c,sv,TH.font,TH.bw,W-2*M-40,3,32*rs,16,'bSv'); svH=svF.lines.length*svF.size*1.25+10; }
   const cards=[[d.p1t,d.p1d,d.p1b,'p1'],[d.p2t,d.p2d,d.p2b,'p2']].filter(a=>String(a[0]||a[1]||a[2]||'').trim());
   const avail=bot-y-(svH?svH+26:0), gap=34; if(!cards.length) return;
-  const need=cards.map(a=>{ const n=String(a[2]||'').split(/\r?\n/).filter(x=>x.trim()).length; return 84*rN*rs+(String(a[1]||'').trim()?60*rD*rs:0)+n*66*rB*rs+44; });
-  const totalNeed=need.reduce((a,b)=>a+b,0)+gap*(cards.length-1), k=Math.min(1.0,avail/totalNeed);
-  let cy=y+Math.max(0,(avail-totalNeed*k)/2)*.5;
-  cards.forEach((a,ci)=>{ const ch=need[ci]*k; const [tt,dd,bb,id]=a, fs=k*rs;
+  const tw0=W-2*M-80, bulletsOf=t=>{ const bl=[]; String(t||'').split(/\r?\n/).forEach(x=>{ if(!x.trim()) return; if(/^\s/.test(x)&&bl.length) bl[bl.length-1]+='\n'+x.trim(); else bl.push(x.trim()); }); return bl; };
+  const meas=(a,k)=>{ const fs=k*rs; const tt=String(a[0]||'').toUpperCase().trim(), dd=String(a[1]||'').trim(); let h=22*k, nSz=0, dSz=0, dL=[], ff=0, L=[];
+    if(tt){ nSz=fit(c,tt,TH.font,TH.hw,tw0,1,76*fs*rN,24).size; h+=nSz*1.08+10*k; }
+    if(dd){ const ft=fit(c,dd,TH.font,700,tw0,2,54*fs*rD,14); dSz=ft.size; dL=ft.lines; h+=dL.length*dSz*1.2+14*k; }
+    const bl=bulletsOf(a[2]); if(bl.length){ ff=Math.max(14,58*fs*rB); c.font=`600 ${ff}px ${TH.font}`; L=bl.map(l=>wrapLines(c,l,tw0-ff*.6-20)); h+=L.reduce((x,y)=>x+y.length,0)*ff*1.22+(bl.length-1)*ff*.3; }
+    return {h:h+24*k,nSz,dSz,dL,ff,L,bl}; };
+  let k=1, ms=cards.map(a=>meas(a,1)); for(let q=1;q>=.4;q-=.02){ k=q; ms=cards.map(a=>meas(a,k)); if(ms.reduce((x,m)=>x+m.h,0)+gap*(cards.length-1)<=avail) break; }
+  const totalNeed=ms.reduce((x,m)=>x+m.h,0)+gap*(cards.length-1); let cy=y+Math.max(0,(avail-totalNeed)/2)*.5;
+  cards.forEach((a,ci)=>{ const m=ms[ci], ch=m.h; const [tt,dd,bb,id]=a;
     c.save(); c.fillStyle=S.bzFlat?bzA(TH,.10):'rgba(8,16,12,.62)'; rrect(c,M,cy,W-2*M,ch,26); c.fill(); c.lineWidth=2; c.strokeStyle=S.bzFlat?bzA(TH,.25):'rgba(255,255,255,.2)'; c.stroke(); c.fillStyle=TH.acc; rrect(c,M,cy,16,ch,8); c.fill(); c.restore();
     hitBox('f-p'+(ci?'P2t':'P1t'),'Tarjeta',M,cy,W-2*M,ch,false,{ctrls:[{label:'Tamaño del nombre',o:S.sz,k:'pNm',min:50,max:220,step:5,unit:'%',def:100},{label:'Tamaño de la descripción (lo blanco)',o:S.sz,k:'pDs',min:50,max:220,step:5,unit:'%',def:100},{label:'Tamaño de los puntos',o:S.sz,k:'pBl',min:50,max:220,step:5,unit:'%',def:100}]});
-    const tx=M+52, tw=W-2*M-80; let ty=cy+22*k; c.textAlign='left';
-    const t1=String(tt||'').toUpperCase().trim(); if(t1){ const ft=fit(c,t1,TH.font,TH.hw,tw,1,76*fs*rN,24); c.font=`${TH.hw} ${ft.size}px ${TH.font}`; bzLS(c,2); c.fillStyle=TH.acc; c.fillText(ft.lines[0]||'',tx,ty+ft.size*.86); bzLS(c,0); hitLines(c,'f-p'+(ci?'P2t':'P1t'),'Nombre de la modalidad',ft.lines,tx,ty+ft.size*.86,ft.size,ft.size,'left',false,{ctrls:[{label:'Tamaño del nombre',o:S.sz,k:'pNm',min:50,max:220,step:5,unit:'%',def:100}]}); ty+=ft.size*1.08+10*k; }
-    const d1=String(dd||'').trim(); if(d1){ const ft=fit(c,d1,TH.font,700,tw,2,46*fs*rD,14); c.font=`700 ${ft.size}px ${TH.font}`; c.fillStyle=TH.ink; ft.lines.forEach((l,i)=>c.fillText(l,tx,ty+ft.size*.9+i*ft.size*1.2)); hitLines(c,'f-p'+(ci?'P2d':'P1d'),'Descripción',ft.lines,tx,ty+ft.size*.9,ft.size,ft.size*1.2,'left',false,{ctrls:[{label:'Tamaño de la descripción (lo blanco)',o:S.sz,k:'pDs',min:50,max:220,step:5,unit:'%',def:100}]}); ty+=ft.lines.length*ft.size*1.2+14*k; }
-    const bl=String(bb||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean); if(bl.length){ const sz=Math.min(48*fs*rB,(ch-(ty-cy)-18)/bl.length/1.38); const ff=Math.max(14,sz); c.font=`600 ${ff}px ${TH.font}`; const st=ff*1.5; const y0=ty;
-      bl.forEach((l,i)=>{ const yy=y0+i*st, r=ff*.3; c.fillStyle=TH.acc; c.beginPath(); c.arc(tx+r,yy+ff*.55,r,0,7); c.fill(); c.strokeStyle=TH.on; c.lineWidth=ff*.08; c.lineCap='round'; c.lineJoin='round'; c.beginPath(); c.moveTo(tx+r*.45,yy+ff*.56); c.lineTo(tx+r*.85,yy+ff*.56+r*.38); c.lineTo(tx+r*1.6,yy+ff*.56-r*.42); c.stroke();
-        const f2=fit(c,l,TH.font,600,tw-r*2-20,1,ff,12); c.font=`600 ${f2.size}px ${TH.font}`; c.fillStyle=TH.ink; c.fillText(f2.lines[0]||'',tx+r*2+16,yy+ff*.9); });
-      hitBox('f-p'+(ci?'P2b':'P1b'),'Puntos',tx,y0,tw,bl.length*st,true,{ctrls:[{label:'Tamaño de los puntos',o:S.sz,k:'pBl',min:50,max:220,step:5,unit:'%',def:100}]}); }
+    const tx=M+52, tw=tw0; let ty=cy+22*k; c.textAlign='left';
+    const t1=String(tt||'').toUpperCase().trim(); if(t1){ c.font=`${TH.hw} ${m.nSz}px ${TH.font}`; bzLS(c,2); c.fillStyle=TH.acc; c.fillText(t1,tx,ty+m.nSz*.86); bzLS(c,0); hitLines(c,'f-p'+(ci?'P2t':'P1t'),'Nombre de la modalidad',[t1],tx,ty+m.nSz*.86,m.nSz,m.nSz,'left',false,{ctrls:[{label:'Tamaño del nombre',o:S.sz,k:'pNm',min:50,max:220,step:5,unit:'%',def:100}]}); ty+=m.nSz*1.08+10*k; }
+    if(m.dL.length){ c.font=`700 ${m.dSz}px ${TH.font}`; c.fillStyle=TH.ink; m.dL.forEach((l,i)=>c.fillText(l,tx,ty+m.dSz*.9+i*m.dSz*1.2)); hitLines(c,'f-p'+(ci?'P2d':'P1d'),'Descripción',m.dL,tx,ty+m.dSz*.9,m.dSz,m.dSz*1.2,'left',false,{ctrls:[{label:'Tamaño de la descripción (lo blanco)',o:S.sz,k:'pDs',min:50,max:220,step:5,unit:'%',def:100}]}); ty+=m.dL.length*m.dSz*1.2+14*k; }
+    if(m.bl.length){ const ff=m.ff, lh=ff*1.22, gp=ff*.3, y0=ty; let yy=y0;
+      m.bl.forEach((l,i)=>{ const r=ff*.3; c.fillStyle=TH.acc; c.beginPath(); c.arc(tx+r,yy+ff*.55,r,0,7); c.fill(); c.strokeStyle=TH.on; c.lineWidth=ff*.08; c.lineCap='round'; c.lineJoin='round'; c.beginPath(); c.moveTo(tx+r*.45,yy+ff*.56); c.lineTo(tx+r*.85,yy+ff*.56+r*.38); c.lineTo(tx+r*1.6,yy+ff*.56-r*.42); c.stroke();
+        c.font=`600 ${ff}px ${TH.font}`; c.fillStyle=TH.ink; m.L[i].forEach((t,q)=>c.fillText(t,tx+r*2+16,yy+ff*.9+q*lh)); yy+=m.L[i].length*lh+gp; });
+      hitBox('f-p'+(ci?'P2b':'P1b'),'Puntos',tx,y0,tw,yy-y0-gp,true,{ctrls:[{label:'Tamaño de los puntos',o:S.sz,k:'pBl',min:50,max:220,step:5,unit:'%',def:100}]}); }
     { const kind=(ci?d.i2:d.i1)||'none'; if(kind!=='none'){ const ir=Math.min(ch*.2,70), ix=W-M-34-ir, iy=cy+ch/2; c.save(); c.globalAlpha=.9; c.strokeStyle=TH.acc; c.fillStyle=TH.acc; c.lineWidth=ir*.09; c.lineCap='round'; c.lineJoin='round';
       c.beginPath(); c.arc(ix,iy,ir,0,7); c.globalAlpha=.16; c.fill(); c.globalAlpha=.9; c.stroke();
       if(kind==='grass'){ [[-.42,.5,-.5,-.35],[0,.5,0,-.55],[.42,.5,.5,-.35]].forEach(([x0,y0,dx,y1])=>{ c.beginPath(); c.moveTo(ix+x0*ir*.8,iy+y0*ir*.8); c.quadraticCurveTo(ix+x0*ir*.8+dx*ir*.1,iy+(y0+y1)*ir*.4,ix+dx*ir*.8,iy+y1*ir*.8); c.stroke(); }); c.beginPath(); c.moveTo(ix-ir*.62,iy+ir*.5); c.lineTo(ix+ir*.62,iy+ir*.5); c.stroke(); }

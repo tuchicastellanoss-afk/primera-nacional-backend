@@ -170,7 +170,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 26/11 · 12:36</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 26/11 · 12:58</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -2032,14 +2032,15 @@ function drawPupilaje(c,W,H,F){
 function drawPensionB(c,W,H,F){
   const TH=bzTh(), d=bzData(), M=Math.round(W*.07), sc0=W/1080, GOLD='#d9b45f', flat=!!S.bzFlat; c.textBaseline='alphabetic'; c.textAlign='left';
   const rs=(S.sz.bRows||100)/100, rN=(S.sz.pNm||100)/100, rD=(S.sz.pDs||100)/100, rB=(S.sz.pBl||100)/100, rT=(S.sz.bTitle||100)/100, rSv=(S.sz.bSv||100)/100;
-  /* degradé oscuro (o fondo oscuro liso si no hay foto) */
-  const gI=(S.sz.pgr==null?100:S.sz.pgr)/100*((S.red.ovk==null?100:S.red.ovk)/100);
-  { c.save(); if(flat){ c.fillStyle='#0c140d'; c.fillRect(0,0,W,H); } else { const g=c.createLinearGradient(0,H*.2,0,H); g.addColorStop(0,'rgba(5,12,8,0)'); g.addColorStop(.3,'rgba(5,12,8,'+Math.min(1,.5*gI)+')'); g.addColorStop(.55,'rgba(5,12,8,'+Math.min(1,.78*gI)+')'); g.addColorStop(1,'rgba(5,12,8,'+Math.min(1,.92*gI)+')'); c.fillStyle=g; c.fillRect(0,H*.2,W,H*.8); } c.restore();
-    hitBox('f-pgr','Degradé oscuro (para que se lea el texto)',0,H*.45,W,H*.55,false,{ctrls:[{label:'Intensidad del degradé',o:S.sz,k:'pgr',min:0,max:150,step:5,unit:'%',def:100}]}); }
-  const TC=Object.assign({},TH,{cInk:'#ffffff',ink:'#ffffff',cAcc:GOLD}); const yEnd=bzContact(c,W,H,F,d,TC)-14; c.textAlign='left';
-  const y0=Math.max(F.top+10,flat?0:(S.logoBot||0)+36), WH='#ffffff';
+  /* fondo: oscuro liso solo si no hay foto; con foto, cada texto lleva su propia sombra regulable */
+  if(flat){ c.save(); c.fillStyle='#0c140d'; c.fillRect(0,0,W,H); c.restore(); }
+  const SH=k=>{ if(flat){ c.shadowColor='transparent'; c.shadowBlur=0; return; } const m=(S.sz[k]==null?100:S.sz[k])/100; c.shadowColor='rgba(0,0,0,'+Math.min(1,.85*m)+')'; c.shadowBlur=16*m*(S.qNow||1); c.shadowOffsetX=0; c.shadowOffsetY=2*(S.qNow||1); };
+  const SX=()=>{ c.shadowColor='transparent'; c.shadowBlur=0; c.shadowOffsetY=0; };
+  const SHC=k=>({label:'Sombra del texto (intensidad)',o:S.sz,k,min:0,max:300,step:10,unit:'%',def:100});
+  const TC=Object.assign({},TH,{cInk:'#ffffff',ink:'#ffffff',cAcc:GOLD}); SH('shCt'); const yEnd=bzContact(c,W,H,F,d,TC)-14; SX(); c.textAlign='left';
+  const y0=Math.max(F.top+10,flat?0:(S.logoBot||0)+70), WH='#ffffff';
   const cta1=String(d.cta1||'').trim().toUpperCase(), wl=String(d.wl||'').trim().replace(/^https?:\/\//,''), cta2=String(d.cta2||'').trim()||wl, cta2id=String(d.cta2||'').trim()?'f-pCta2':'f-pWl';
-  const ctaH=cta1?Math.round(112*sc0):0, subH=cta2?Math.round(44*sc0):0, ctaY=yEnd-ctaH-subH-(subH?10:0)-8;
+  const ctaH=cta1?Math.round(112*sc0):0, subH=Math.round(44*sc0), ctaY=yEnd-ctaH-subH-10-8;
   const cards=[[d.p1t,d.p1d,d.p1b],[d.p2t,d.p2d,d.p2b]];
   const colW=(W-2*M-Math.round(52*sc0))/2, bulletsOf=t=>{ const bl=[]; String(t||'').split(/\r?\n/).forEach(x=>{ if(!x.trim()) return; if(/^\s/.test(x)&&bl.length) bl[bl.length-1]+='\n'+x.trim(); else bl.push(x.trim()); }); return bl; };
   const tl=String(d.title||'').toUpperCase().trim(); let tLines=tl.includes('\n')?tl.split('\n'):(tl.includes(' ')?[tl.split(' ')[0],tl.split(' ').slice(1).join(' ')]:[tl]); tLines=tLines.map(x=>x.trim()).filter(Boolean);
@@ -2056,27 +2057,28 @@ function drawPensionB(c,W,H,F){
   const sc=o.sc; let y=y0+Math.max(0,avail-o.tot)*.55; if(y<y0) y=y0;
   /* etiqueta con rayita */
   const tg=String(d.tag||'').trim().toUpperCase();
-  if(tg){ c.font=`700 ${o.tagSz}px ${TH.font}`; bzLS(c,o.tagSz*.28); const tw=c.measureText(tg).width, lw=64*sc; c.fillStyle=GOLD; c.fillRect(M,y+o.tagSz*.52,lw,Math.max(2,3*sc)); c.fillText(tg,M+lw+22*sc,y+o.tagSz); bzLS(c,0); hitBox('f-pTag','Etiqueta',M,y,lw+22*sc+tw,o.tagSz*1.3,false,{ctrls:[SZ('bSub')]}); y+=o.tagH; }
+  if(tg){ c.font=`700 ${o.tagSz}px ${TH.font}`; bzLS(c,o.tagSz*.28); const tw=c.measureText(tg).width, lw=64*sc; c.fillStyle=GOLD; c.fillRect(M,y+o.tagSz*.52,lw,Math.max(2,3*sc)); SH('shTag'); c.fillText(tg,M+lw+22*sc,y+o.tagSz); SX(); bzLS(c,0); hitBox('f-pTag','Etiqueta',M,y,lw+22*sc+tw,o.tagSz*1.3,false,{ctrls:[SZ('bSub'),SHC('shTag')]}); y+=o.tagH; }
   /* título en dos líneas: la primera blanca, el resto dorado */
-  if(tLines.length){ const lh=o.tSz*.96; c.font=`900 ${o.tSz}px ${TH.font}`; c.save(); if(!flat){ c.shadowColor='rgba(0,0,0,.45)'; c.shadowBlur=24*(S.qNow||1); c.shadowOffsetY=5*(S.qNow||1); } tLines.forEach((l,i)=>{ c.fillStyle=i===0?WH:GOLD; c.fillText(l,M,y+o.tSz*.8+i*lh); }); c.restore();
-    hitLines(c,'f-bTitle','Título',tLines,M,y+o.tSz*.8,o.tSz,lh,'left',false,{ctrls:[SZ('bTitle')]}); y+=o.tH; }
+  if(tLines.length){ const lh=o.tSz*.96; c.font=`900 ${o.tSz}px ${TH.font}`; c.save(); SH('shTit'); tLines.forEach((l,i)=>{ c.fillStyle=i===0?WH:GOLD; c.fillText(l,M,y+o.tSz*.8+i*lh); }); c.restore();
+    hitLines(c,'f-bTitle','Título',tLines,M,y+o.tSz*.8,o.tSz,lh,'left',false,{ctrls:[SZ('bTitle'),SHC('shTit')]}); y+=o.tH; }
   /* dos columnas */
   if(o.colH){ const cx=[M,M+colW+Math.round(52*sc0)];
     o.cols.forEach((cl,ci)=>{ const x=cx[ci]; let yy=y; const idN='f-p'+(ci?'P2t':'P1t'), idD='f-p'+(ci?'P2d':'P1d'), idB='f-p'+(ci?'P2b':'P1b');
       if(ci){ c.fillStyle='rgba(212,175,98,.42)'; c.fillRect(x-26*sc0-1,y,2,o.colH); }
-      if(cl.nm){ c.font=`900 ${cl.nS}px ${TH.font}`; bzLS(c,2); c.fillStyle=GOLD; c.fillText(cl.nm,x,yy+cl.nS*.86); bzLS(c,0); hitLines(c,idN,'Nombre de la modalidad',[cl.nm],x,yy+cl.nS*.86,cl.nS,cl.nS,'left',false,{ctrls:[{label:'Tamaño del nombre',o:S.sz,k:'pNm',min:50,max:220,step:5,unit:'%',def:100}]}); yy+=cl.nS*1.1; c.fillStyle=GOLD; c.fillRect(x,yy+8*sc,56*sc,Math.max(2,3*sc)); yy+=36*sc; }
-      if(cl.dL.length){ c.font=`700 ${cl.dSz}px ${TH.font}`; c.fillStyle=WH; cl.dL.forEach((l,i)=>c.fillText(l,x,yy+cl.dSz*.9+i*cl.dSz*1.26)); hitLines(c,idD,'Descripción',cl.dL,x,yy+cl.dSz*.9,cl.dSz,cl.dSz*1.26,'left',false,{ctrls:[{label:'Tamaño de la descripción (lo blanco)',o:S.sz,k:'pDs',min:50,max:220,step:5,unit:'%',def:100}]}); yy+=cl.dL.length*cl.dSz*1.26+22*sc; }
-      if(cl.bl.length){ const b0=yy, bs=cl.bSz; c.font=`500 ${bs}px ${TH.font}`; cl.bl.forEach((l,i)=>{ c.fillStyle=GOLD; c.fillRect(x,yy+bs*.64,bs*.6,Math.max(2,bs*.1)); c.fillStyle='rgba(255,255,255,.93)'; cl.bL[i].forEach((t,q)=>c.fillText(t,x+bs*1.2,yy+bs*.95+q*bs*1.28)); yy+=cl.bL[i].length*bs*1.28+bs*.42; });
-        hitBox(idB,'Puntos',x,b0,colW,yy-b0-bs*.42,true,{ctrls:[{label:'Tamaño de los puntos',o:S.sz,k:'pBl',min:50,max:220,step:5,unit:'%',def:100}]}); } });
+      if(cl.nm){ c.font=`900 ${cl.nS}px ${TH.font}`; bzLS(c,2); c.fillStyle=GOLD; SH('shNm'); c.fillText(cl.nm,x,yy+cl.nS*.86); SX(); bzLS(c,0); hitLines(c,idN,'Nombre de la modalidad',[cl.nm],x,yy+cl.nS*.86,cl.nS,cl.nS,'left',false,{ctrls:[{label:'Tamaño del nombre',o:S.sz,k:'pNm',min:50,max:220,step:5,unit:'%',def:100},SHC('shNm')]}); yy+=cl.nS*1.1; c.fillStyle=GOLD; c.fillRect(x,yy+8*sc,56*sc,Math.max(2,3*sc)); yy+=36*sc; }
+      if(cl.dL.length){ c.font=`700 ${cl.dSz}px ${TH.font}`; c.fillStyle=WH; SH('shDs'); cl.dL.forEach((l,i)=>c.fillText(l,x,yy+cl.dSz*.9+i*cl.dSz*1.26)); SX(); hitLines(c,idD,'Descripción',cl.dL,x,yy+cl.dSz*.9,cl.dSz,cl.dSz*1.26,'left',false,{ctrls:[{label:'Tamaño de la descripción (lo blanco)',o:S.sz,k:'pDs',min:50,max:220,step:5,unit:'%',def:100},SHC('shDs')]}); yy+=cl.dL.length*cl.dSz*1.26+22*sc; }
+      if(cl.bl.length){ const b0=yy, bs=cl.bSz; c.font=`500 ${bs}px ${TH.font}`; cl.bl.forEach((l,i)=>{ SH('shBl'); c.fillStyle=GOLD; c.fillRect(x,yy+bs*.64,bs*.6,Math.max(2,bs*.1)); c.fillStyle='rgba(255,255,255,.93)'; cl.bL[i].forEach((t,q)=>c.fillText(t,x+bs*1.2,yy+bs*.95+q*bs*1.28)); SX(); yy+=cl.bL[i].length*bs*1.28+bs*.42; });
+        hitBox(idB,'Puntos',x,b0,colW,yy-b0-bs*.42,true,{ctrls:[{label:'Tamaño de los puntos',o:S.sz,k:'pBl',min:50,max:220,step:5,unit:'%',def:100},SHC('shBl')]}); } });
     y+=o.colH+44*sc; }
   /* servicios adicionales */
-  if(o.svL.length){ c.fillStyle='rgba(255,255,255,.2)'; c.fillRect(M,y,W-2*M,2); c.font=`500 ${o.svSz}px ${TH.font}`; c.fillStyle='rgba(255,255,255,.92)'; const sy=y+30*sc; o.svL.forEach((l,i)=>c.fillText(l,M,sy+o.svSz*.95+i*o.svSz*1.4)); hitLines(c,'f-pSv','Servicios adicionales',o.svL,M,sy+o.svSz*.95,o.svSz,o.svSz*1.4,'left',false,{ctrls:[SZ('bSv')]}); }
+  if(o.svL.length){ c.fillStyle='rgba(255,255,255,.2)'; c.fillRect(M,y,W-2*M,2); c.font=`500 ${o.svSz}px ${TH.font}`; c.fillStyle='rgba(255,255,255,.92)'; const sy=y+30*sc; SH('shSv'); o.svL.forEach((l,i)=>c.fillText(l,M,sy+o.svSz*.95+i*o.svSz*1.4)); SX(); hitLines(c,'f-pSv','Servicios adicionales',o.svL,M,sy+o.svSz*.95,o.svSz,o.svSz*1.4,'left',false,{ctrls:[SZ('bSv'),SHC('shSv')]}); }
+  c.shadowColor='transparent'; c.shadowBlur=0; c.shadowOffsetY=0;
   /* botón de WhatsApp */
-  if(cta1){ const bx=M, bw=W-2*M; c.save(); c.shadowColor='rgba(0,0,0,.4)'; c.shadowBlur=26*(S.qNow||1); c.shadowOffsetY=8*(S.qNow||1); c.fillStyle=GOLD; rrect(c,bx,ctaY,bw,ctaH,ctaH/2); c.fill(); c.restore();
+  if(cta1){ const bx=M, bw=W-2*M; c.save(); c.shadowColor='rgba(0,0,0,.4)'; c.shadowBlur=26*(S.qNow||1); c.shadowOffsetY=8*(S.qNow||1); c.fillStyle=GOLD; rrect(c,bx,ctaY,bw,ctaH,ctaH/2); c.fill(); c.restore(); c.shadowColor='transparent';
     const ic=ctaH*.52, ix=bx+ctaH*.5; c.fillStyle='#17200f'; c.beginPath(); c.arc(ix,ctaY+ctaH/2,ic/2+4,0,7); c.fill(); bzIconWA(c,ix,ctaY+ctaH/2,ic*.34);
     const f1=fit(c,cta1,TH.font,900,bw-ctaH*1.5-30,1,Math.round(36*sc0),16,'bTitle2'); c.font=`900 ${f1.size}px ${TH.font}`; bzLS(c,1.2); c.fillStyle='#17200f'; c.textAlign='center'; c.fillText(f1.lines[0]||'',bx+ctaH+(bw-ctaH)/2,ctaY+ctaH/2+f1.size*.34); bzLS(c,0); c.textAlign='left';
     hitBox('f-pCta1','Botón de WhatsApp',bx,ctaY,bw,ctaH,false,{ctrls:[SZ('bTitle2')]}); }
-  if(cta2){ const f2=fit(c,cta2,TH.font,600,W-2*M,1,Math.round(30*sc0),14,'bSub2'); c.font=`600 ${f2.size}px ${TH.font}`; c.textAlign='center'; c.fillStyle='rgba(255,255,255,.92)'; const yy2=ctaY+ctaH+10+f2.size; c.fillText(f2.lines[0]||'',W/2,yy2); hitLines(c,cta2id,'Texto debajo del botón',f2.lines,W/2,yy2,f2.size,f2.size,'center',false,{ctrls:[SZ('bSub2')]}); c.textAlign='left'; }
+  if(cta2){ const f2=fit(c,cta2,TH.font,600,W-2*M,1,Math.round(30*sc0),14,'bSub2'); c.font=`600 ${f2.size}px ${TH.font}`; c.textAlign='center'; c.fillStyle='rgba(255,255,255,.92)'; const yy2=ctaY+ctaH+10+f2.size; SH('shC2'); c.fillText(f2.lines[0]||'',W/2,yy2); SX(); hitLines(c,cta2id,'Texto debajo del botón',f2.lines,W/2,yy2,f2.size,f2.size,'center',false,{ctrls:[SZ('bSub2'),SHC('shC2')]}); c.textAlign='left'; }
 }
 function drawAviso(c,W,H,F){
   const TH=bzTh(), d=bzData(), M=90; const yEnd=bzContact(c,W,H,F,d,TH)-34;

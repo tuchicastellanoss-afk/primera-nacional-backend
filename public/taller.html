@@ -170,7 +170,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 26/11 · 11:14</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 26/11 · 11:22</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -583,7 +583,7 @@ function dominant2(key){
 const dominant = key => dominant2(key).dark;
 function wrapLines(c,text,maxW){
   const out=[];
-  String(text).split('\n').forEach(par=>{
+  String(text).replace(/\u2028/g,'\n').split('\n').forEach(par=>{
     const words=par.split(/\s+/).filter(Boolean); let cur='';
     for(const w of words){const t=cur?cur+' '+w:w; if(!cur||c.measureText(t).width<=maxW) cur=t; else {out.push(cur);cur=w}}
     if(cur) out.push(cur);
@@ -591,6 +591,7 @@ function wrapLines(c,text,maxW){
   return out;
 }
 function fit(c,text,fam,weight,maxW,maxLines,start,min,key){
+  text=String(text).replace(/\u2028/g,'\n');
   maxLines=Math.max(maxLines,String(text).split('\n').filter(t=>t.trim()).length);
   const m=key?(S.sz[key]||100)/100:1; start=start*m; min=Math.max(14,Math.min(min,start)*.5*Math.min(1,m));
   for(let s=Math.round(start);s>=min;s-=2){
@@ -816,7 +817,7 @@ function drawPhoto0(c,W,H,tint){
 }
 /* sombra automática en textos claros que no tengan una propia: se leen aunque el degradé o la foto sean claros */
 (function(){ const P=CanvasRenderingContext2D.prototype, ft=P.fillText; function lightCol(v){ if(typeof v!=='string') return false; let r,g,b,a=1,m; if((m=v.match(/^#([0-9a-f]{6})$/i))){ r=parseInt(m[1].slice(0,2),16); g=parseInt(m[1].slice(2,4),16); b=parseInt(m[1].slice(4,6),16); } else if((m=v.match(/^rgba?\(([^)]+)\)/))){ const q=m[1].split(',').map(parseFloat); r=q[0]; g=q[1]; b=q[2]; a=q.length>3?q[3]:1; } else return false; return a>.3&&(.299*r+.587*g+.114*b)>170; }
-  P.fillText=function(t,x,y,mw){ let ov=null; try{ if(typeof S!=='undefined'){ const sg=(S.curEl||'')+'|'+t, n=(_tcnt[sg]=(_tcnt[sg]||0)+1); let cx=x,cy=y,gx0=x,gw=0,gfs=30; try{ const al=this.textAlign, fs=parseFloat((String(this.font).match(/(\d+(?:\.\d+)?)px/)||[0,30])[1]), w=this.measureText(t).width; gfs=fs; gw=w; gx0=al==='center'?x-w/2:al==='right'?x-w:x; cx=al==='center'?x:al==='right'?x-w/2:x+w/2; cy=y-fs*.33; }catch(e){} const rk=(typeof txKey==='function'?txKey():'')+'|'+sg+'#'+n; _truns.push({sg:sg+'#'+n,t:String(t).trim(),el:S.curEl||'',col:this.fillStyle,cx,cy,mp:_mp,rk,gx0,gw,gfs,gy:y}); try{ const rp=S.red&&S.red.trep&&S.red.trep[rk]; if(rp!=null) t=rp; }catch(e){} const key=TCM_prev[sg+'#'+n]; if(key&&S.red&&S.red.tco) ov=S.red.tco[key]||null; } }catch(e){}
+  P.fillText=function(t,x,y,mw){ let ov=null; try{ if(typeof S!=='undefined'){ const sg=(S.curEl||'')+'|'+t, n=(_tcnt[sg]=(_tcnt[sg]||0)+1); let cx=x,cy=y,gx0=x,gw=0,gfs=30; try{ const al=this.textAlign, fs=parseFloat((String(this.font).match(/(\d+(?:\.\d+)?)px/)||[0,30])[1]), w=this.measureText(t).width; gfs=fs; gw=w; gx0=al==='center'?x-w/2:al==='right'?x-w:x; cx=al==='center'?x:al==='right'?x-w/2:x+w/2; cy=y-fs*.33; }catch(e){} const rk=(typeof txKey==='function'?txKey():'')+'|'+sg+'#'+n; _truns.push({sg:sg+'#'+n,t:String(t).trim(),el:S.curEl||'',col:this.fillStyle,cx,cy,mp:_mp,rk,gx0,gw,gfs,gy:y}); try{ const rp=S.red&&S.red.trep&&S.red.trep[rk]; if(rp!=null) t=rp; }catch(e){} if(typeof t==='string'&&/[\n\u2028]/.test(t)){ const _L=t.split(/\r?\n|\u2028/), _fs=parseFloat((String(this.font).match(/(\d+(?:\.\d+)?)px/)||[0,30])[1])*1.12; _L.forEach((ln,i)=>P.fillText.call(this,ln,x,y+i*_fs,mw)); return; } const key=TCM_prev[sg+'#'+n]; if(key&&S.red&&S.red.tco) ov=S.red.tco[key]||null; } }catch(e){}
     const sv=!!(ov&&(ov.c||ov.sh||ov.ns)); if(sv){ const k0=(S.qNow||1); this.save(); if(ov.c) this.fillStyle=ov.c; if(ov.ns){ this.shadowColor='transparent'; this.shadowBlur=0; this.shadowOffsetX=0; this.shadowOffsetY=0; } else if(ov.sh){ this.shadowColor=ov.sh; if(!this.shadowBlur){ this.shadowBlur=16*k0; this.shadowOffsetY=3*k0; } } }
     const T=(typeof S!=='undefined'&&S.red&&S.red.tsh)||{on:true,k:100}; if(T.on!==false&&!(ov&&ov.ns)&&!this.shadowBlur&&!this.shadowOffsetY&&lightCol(this.fillStyle)){ const k=((typeof S!=='undefined'&&S.qNow)||1), m=(T.k||100)/100; this.save(); this.shadowColor='rgba(0,0,0,'+Math.min(.95,.62*m*1.2)+')'; this.shadowBlur=16*k*m; this.shadowOffsetY=3*k; ft.call(this,t,x,y,mw); this.restore(); } else ft.call(this,t,x,y,mw);
     if(sv) this.restore(); };
@@ -1769,7 +1770,7 @@ const BZ_DEF={
     flyer:{t1:'CAMBIO DE',t2:'GRAVA',t3:'DE FILTROS',t4:'para piscinas',tag:'FILTROS',brand:'VULCANO',bsub:'Inspirados por el agua',desc:'Mantenimiento y renovación de filtros Vulcano',bens:'Mejora la filtración del agua\nMayor rendimiento del filtro\nAgua más limpia y cristalina',note:'Grava nueva, mejor filtrado',circ:'1',cta:'Consultanos',c1:'11 6601-2377',c2:''}},
   lg:{
     subt:{es:'DÍA DE PELUQUERÍA 🐎',en:'HAIR DAY 🐴',bo:58,dim:12,auto:true},
-    pension:{tag:'PASTOREO Y PENSIÓN',title:'PENSIÓN DE CABALLOS',sub:'Dos modalidades a tu medida',p1t:'PASTOREO',p1d:'Sueltos de día en potreros con alfalfa y rye grass',i1:'none',i2:'none',p1b:'Cuidado y supervisión diaria\nSalida al campo de día y encierre de noche\nAviso inmediato ante cualquier inconveniente\nLote exclusivo para grupos de más de 6 caballos',p2t:'PENSIÓN A BOX',p2d:'Box en nuestras instalaciones',p2b:'Pista de vareo\nCancha de taqueo\nAcceso al caminador\nManejo y cuidado diario por separado',sv:'También coordinamos petiseros, ejercicio y preparación. Si preferís, podés trabajar con tu propio petisero.',cta1:'CONSULTÁ VALORES POR WHATSAPP',cta2:'',wl:'',c1:'',c2:'@laguapeadapolo'},
+    pension:{tag:'DOS MODALIDADES',title:'PENSIÓN DE CABALLOS',sub:'Pastoreo o pensión a box',p1t:'PASTOREO',p1d:'Sueltos de día en potreros con alfalfa y rye grass',i1:'none',i2:'none',p1b:'Cuidado y supervisión diaria\nSalida al campo de día y encierre de noche\nAviso inmediato ante cualquier inconveniente\nLote exclusivo para grupos de más de 6 caballos',p2t:'PENSIÓN A BOX',p2d:'Box en nuestras instalaciones',p2b:'Pista de vareo\nCancha de taqueo\nAcceso al caminador\nManejo y cuidado diario por separado',sv:'También coordinamos petiseros, ejercicio y preparación. Si preferís, podés trabajar con tu propio petisero.',cta1:'CONSULTÁ VALORES POR WHATSAPP',cta2:'',wl:'',c1:'',c2:'@laguapeadapolo'},
     clases:{tag:'ASÍ SON LAS CLASES',title:'CLASES DE POLO',sub:'',items:'Duración | 1 hora a 1 hora y media\nQué aprendés | Preparar el caballo, equitación básica y taqueo\nEquipamiento incluido | Botas, casco y taco\nSeguimiento personalizado | Según el conocimiento de cada uno',cta1:'FECHAS, VALORES Y PAQUETES',cta2:'Escribinos por WhatsApp',c1:'',c2:'@laguapeadapolo'},
     precios:{title:'PLANES Y VALORES',sub:'Clases de polo',items:'Clase de iniciación | 1 hora | $00.000\nPack de 4 clases | por mes | $00.000\nAlquiler de caballo | por hora | $00.000\nPensión de caballo | por mes | $00.000',c1:'',c2:'@laguapeadapolo'},
     aviso:{lines:'COMUNICADO\nEscribí acá el aviso',sub:'',sticker:'',pos:'mid',box:'none',c1:'',c2:'@laguapeadapolo'},
@@ -2870,6 +2871,7 @@ function draw(){
   if(S.tr) S.bzFlat=null; else drawPhoto(c,W,H,tint);
   if(S.bzFlat){ if(!S.photo){ if(scMode()) drawScene(c,W,H); else { c.fillStyle=S.bzFlat.bg; c.fillRect(0,0,W,H); S.bzFlat.deco(c,W,H,S.bzFlat); } } drawHeader(c,W,F.top,currentAccount()); } else
   if(S.tpl==='partido'){ if(S.tr!==2) drawDark(c,W,H,S.ly.ov/100); } else {if(S.tpl==='subt'){ if(S.tr!==2) subtDim(c,W,H); } else if(S.tr!==2&&S.tpl!=='flyer') drawOverlay(c,W,H,tint,S.tpl==='tabla'||isRed(S.tpl)||S.tpl==='resumen'||S.tpl==='equipos'||S.tpl==='arbitros'||S.tpl==='precios'||S.tpl==='agenda'); if(S.format!=='portada') drawHeader(c,W,F.top,currentAccount());}
+  try{ txGet().filter(b=>b.k&&!b.f).forEach(b=>drawShape(c,W,H,b)); }catch(e){}
   const _mo=moAny(); if(_mo) moSnapshot();
   const _tf0=({noticia:drawNoticia,resultado:drawResultado,consigna:drawConsigna,vs:drawVs,cruce:drawCruce,cita:drawCita,entradas:drawEntradas,entranking:drawEnRanking,tabla:drawTabla,partido:drawPartido,reducido:drawReducido,red_qf:drawReducido,red_sf:drawReducido,red_fin:drawReducido,red_all:drawReducido,resumen:drawResumen,equipos:drawEquipos,arbitros:drawArbitros,precios:drawLista,promos:drawPromos,combos:drawCombos,subt:drawSubt,agenda:drawLista,aviso:drawAviso,evento:drawEvento,hospedaje:drawHospedaje,flyer:drawFlyer,clases:drawClases,pension:drawPupilaje,cover:drawPortada,once:drawOnce,ascenso:drawAscenso})[S.tpl]; const _tfn=(BIZ_T.includes(S.tpl)&&scMode()&&S.scProds.length)?((c2,W2,H2,F2)=>{ drawSceneProducts(c2,W2,H2,F2); _tf0(c2,W2,H2,F2); }):_tf0; S.segBase=S.segN; _tfn(c,W,H,F);
   if(_mo) moApply(c,_tfn,W,H,F);
@@ -3135,10 +3137,10 @@ function drawShape(c,W,H,b){
   if(b.k==='circle'){ c.beginPath(); c.ellipse(cx,cy,w/2,h/2,0,0,7); } else { const r=b.k==='line'?h/2:Math.min(b.r||0,w/2,h/2); rr(c,x,y,w,h,r); }
   if(b.ol) c.stroke(); else c.fill(); c.restore();
   hitBox('sh-'+b.id,b.k==='circle'?'Círculo':b.k==='line'?'Línea':'Rectángulo',x,y,w,h,false,{o:b,x:'ox',y:'oy',tb:true,rng:900,ctr:{x:cx,y:cy},del:()=>{S.tx[txKey()]=txGet().filter(z=>z!==b); buildTextsUI(); render();},
-    colors:[['Color',b,'c']],ctrls:[{label:'Ancho',o:b,k:'w',min:10,max:1200,step:2,unit:' px',def:300},...(b.k==='line'?[{label:'Grosor',o:b,k:'h',min:2,max:80,step:1,unit:' px',def:8}]:[{label:'Alto',o:b,k:'h',min:10,max:1200,step:2,unit:' px',def:200}]),...(b.k==='rect'?[{label:'Redondeo',o:b,k:'r',min:0,max:300,step:2,unit:' px',def:0}]:[]),{label:'Opacidad',o:b,k:'a',min:5,max:100,step:5,unit:'%',def:100}]});
+    colors:[['Color',b,'c']],ctrls:[{label:'Ancho',o:b,k:'w',min:10,max:1200,step:2,unit:' px',def:300},...(b.k==='line'?[{label:'Grosor',o:b,k:'h',min:2,max:80,step:1,unit:' px',def:8}]:[{label:'Alto',o:b,k:'h',min:10,max:1200,step:2,unit:' px',def:200}]),...(b.k==='rect'?[{label:'Redondeo',o:b,k:'r',min:0,max:300,step:2,unit:' px',def:0}]:[]),{label:'Opacidad',o:b,k:'a',min:5,max:100,step:5,unit:'%',def:100}],chks:[['Encima de los textos',b,'f']]});
 }
 function drawTexts(c,W,H){
-  txGet().filter(b=>b.k).forEach(b=>drawShape(c,W,H,b));
+  txGet().filter(b=>b.k&&b.f).forEach(b=>drawShape(c,W,H,b));
   txGet().filter(b=>!b.k).forEach(b=>{
     const st=b.st; ensureFont(st); const lines=String(b.t||'').split('\n'), sz=st.s, lh=sz*1.12, tot=(lines.length-1)*lh, al=b.al||'c', M=60, cx=(al==='l'?M:al==='r'?W-M:W/2)+(b.ox||0), cy=H/2+(b.oy||0);
     c.save(); c.font=fontCss(st,sz); c.textAlign=al==='l'?'left':al==='r'?'right':'center'; c.textBaseline='alphabetic'; c.fillStyle=st.c;
@@ -3165,7 +3167,7 @@ function buildTextsUI(){
   txGet().forEach((b,i)=>{
     const card=document.createElement('div'); card.style.cssText='display:flex;flex-direction:column;gap:6px;padding:8px 0;border-top:1px solid var(--line)';
     if(b.k){ const nm=document.createElement('b'); nm.textContent=b.k==='circle'?'Círculo':b.k==='line'?'Línea':'Rectángulo'; card.appendChild(nm);
-      const g2=document.createElement('div'); g2.className='grp'; colorCtl(g2,'Color',b,'c'); chk(g2,'Solo el contorno',b,'ol'); ctl(g2,'Ancho',b,'w',{min:10,max:1200,step:2,unit:' px',def:300}); ctl(g2,b.k==='line'?'Grosor':'Alto',b,'h',{min:2,max:1200,step:2,unit:' px',def:b.k==='line'?8:200}); if(b.k==='rect') ctl(g2,'Redondeo',b,'r',{min:0,max:300,step:2,unit:' px',def:0}); ctl(g2,'Opacidad',b,'a',{min:5,max:100,step:5,unit:'%',def:100}); ctl(g2,'Mover ←→',b,'ox',{min:-900,max:900,def:0}); ctl(g2,'Mover ↑↓',b,'oy',{min:-900,max:900,def:0}); card.appendChild(g2);
+      const g2=document.createElement('div'); g2.className='grp'; colorCtl(g2,'Color',b,'c'); chk(g2,'Solo el contorno',b,'ol'); chk(g2,'Encima de los textos',b,'f'); ctl(g2,'Ancho',b,'w',{min:10,max:1200,step:2,unit:' px',def:300}); ctl(g2,b.k==='line'?'Grosor':'Alto',b,'h',{min:2,max:1200,step:2,unit:' px',def:b.k==='line'?8:200}); if(b.k==='rect') ctl(g2,'Redondeo',b,'r',{min:0,max:300,step:2,unit:' px',def:0}); ctl(g2,'Opacidad',b,'a',{min:5,max:100,step:5,unit:'%',def:100}); ctl(g2,'Mover ←→',b,'ox',{min:-900,max:900,def:0}); ctl(g2,'Mover ↑↓',b,'oy',{min:-900,max:900,def:0}); card.appendChild(g2);
       const dl=document.createElement('button'); dl.type='button'; dl.className='ghost'; dl.textContent='🗑 Quitar'; dl.onclick=()=>{S.tx[txKey()]=txGet().filter(x=>x!==b); buildTextsUI(); render()}; card.appendChild(dl); box.appendChild(card); return; }
     const ta=document.createElement('textarea'); ta.id='tb-'+b.id; ta.rows=2; ta.value=b.t; ta.setAttribute('aria-label','Texto'); ta.oninput=()=>{b.t=ta.value; render()}; card.appendChild(ta);
     const ar=document.createElement('div'); ar.style.cssText='display:flex;gap:6px'; ar.setAttribute('role','group'); ar.setAttribute('aria-label','Alinear texto');
@@ -3559,9 +3561,9 @@ function tAutoHits(){
 }
 function qeAutoOpen(h){
   const a=h.auto, tr=(S.red.trep=S.red.trep||{}); document.getElementById('qeL').textContent='Texto'; const body=document.getElementById('qeBody'); body.innerHTML=''; { const old=document.getElementById('qeDel'); if(old) old.remove(); }
-  const el=document.createElement('input'); el.type='text'; el.autocomplete='off'; el.setAttribute('aria-label','Texto'); el.value=tr[a.rk]!=null?tr[a.rk]:a.orig;
+  const el=document.createElement('textarea'); el.rows=2; el.autocomplete='off'; el.setAttribute('aria-label','Texto'); el.value=tr[a.rk]!=null?tr[a.rk]:a.orig;
   el.addEventListener('input',()=>{ if(el.value===a.orig) delete tr[a.rk]; else tr[a.rk]=el.value; persist(); render(); });
-  el.addEventListener('keydown',e=>{ if(e.key==='Escape'||e.key==='Enter'){ e.preventDefault(); qeClose(); } }); body.appendChild(el);
+  el.addEventListener('keydown',e=>{ if(e.key==='Escape'){ e.preventDefault(); qeClose(); } }); body.appendChild(el);
   const g=document.createElement('div'); g.className='grp'; body.appendChild(g); const rb=document.createElement('button'); rb.type='button'; rb.className='ghost'; rb.textContent='Volver al texto original'; rb.onclick=()=>{ delete tr[a.rk]; persist(); render(); qeClose(); }; g.appendChild(rb);
   const r=cv.getBoundingClientRect(), F=FORMATS[S.format], cy=r.top+(h.y+h.h/2)*r.height/F.h; qe.className=cy>innerHeight*.5?'qtop':'qbot'; qe.hidden=false;
   const touch=window.matchMedia&&matchMedia('(pointer:coarse)').matches; if(!(touch&&qe.className==='qbot')){ el.focus(); el.select(); }
@@ -3575,9 +3577,9 @@ function qeOpen(h){
     let delFn=mv.del||null; if(!delFn&&side&&/^f-/.test(h.id||'')&&(side.tagName==='INPUT'||side.tagName==='TEXTAREA')) delFn=()=>{ side.value=''; side.dispatchEvent(new Event('input',{bubbles:true})); };
     if(delFn){ const bt=document.createElement('button'); bt.type='button'; bt.id='qeDel'; bt.title='Eliminar'; bt.setAttribute('aria-label','Eliminar'); bt.className='ghost'; bt.style.cssText='margin-left:auto;margin-right:6px;color:#ff6b6b;border-color:#ff6b6b;padding:6px 10px'; bt.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></svg>'; bt.onclick=()=>{ qeClose(); delFn(); }; const ok=document.getElementById('qeOk'); ok.parentNode.insertBefore(bt,ok); } }
   if(side){
-    const _ta=h.multi||side.tagName==='TEXTAREA'; h=Object.assign({},h,{multi:_ta}); el=document.createElement(_ta?'textarea':'input'); if(_ta) el.rows=2; else el.type='text';
-    el.value=side.value; el.autocomplete='off'; el.setAttribute('aria-label',h.label);
-    el.addEventListener('input',()=>{side.value=el.value; side.dispatchEvent(new Event('input',{bubbles:true}))});
+    const _inp=side.tagName==='INPUT'&&(side.type==='text'||!side.type), _ta=h.multi||side.tagName==='TEXTAREA'||_inp; h=Object.assign({},h,{multi:_ta}); el=document.createElement(_ta?'textarea':'input'); if(_ta) el.rows=2; else el.type='text';
+    el.value=String(side.value).replace(/\u2028/g,'\n'); el.autocomplete='off'; el.setAttribute('aria-label',h.label);
+    el.addEventListener('input',()=>{side.value=_inp?el.value.replace(/\r?\n/g,'\u2028'):el.value; side.dispatchEvent(new Event('input',{bubbles:true}))});
     el.addEventListener('keydown',e=>{if(e.key==='Escape'||(e.key==='Enter'&&!h.multi)){e.preventDefault();qeClose()}});
     body.appendChild(el);
   }
@@ -3587,7 +3589,7 @@ function qeOpen(h){
   if(mv.gen&&mv.key&&TCCLAIM[mv.key]!==undefined){ const tk=mv.key, T=()=>((S.red.tco=S.red.tco||{})[tk]=S.red.tco[tk]||{}), clr=()=>{ const o=(S.red.tco||{})[tk]; if(o&&!o.c&&!o.sh&&!o.ns) delete S.red.tco[tk]; };
     const px={ get c(){ return ((S.red.tco||{})[tk]||{}).c; }, set c(v){ if(v===undefined){ const o=(S.red.tco||{})[tk]; if(o) delete o.c; clr(); } else T().c=v; }, get sh(){ return ((S.red.tco||{})[tk]||{}).sh; }, set sh(v){ if(v===undefined){ const o=(S.red.tco||{})[tk]; if(o) delete o.sh; clr(); } else { T().sh=v; delete T().ns; } }, get ns(){ return !!((S.red.tco||{})[tk]||{}).ns; }, set ns(v){ if(v) T().ns=true; else { const o=(S.red.tco||{})[tk]; if(o) delete o.ns; clr(); } } };
     colorCtl(g,'Color del texto',px,'c',()=>tcHex(TCCLAIM[tk])); colorCtl(g,'Color de la sombra',px,'sh',()=>'#000000'); const cs=chk(g,'Sin sombra',px,'ns'); if(cs&&cs.querySelector){ const ci=cs.querySelector('input'); if(ci) ci.addEventListener('change',()=>qeOpen(h)); } }
-  (mv.ctrls||[]).forEach(c=>ctl(g,c.label,c.o,c.k,c));
+  (mv.ctrls||[]).forEach(c=>ctl(g,c.label,c.o,c.k,c)); (mv.chks||[]).forEach(a=>chk(g,a[0],a[1],a[2]));
   if(mv.x){const rg=mv.rng||300; ctl(g,'Mover ←→',mv.o,mv.x,{min:-rg,max:rg,def:0}); ctl(g,'Mover ↑↓',mv.o,mv.y,{min:-rg,max:rg,def:0});
     const lw=document.createElement('label'); lw.textContent='Al arrastrar'; const ls=document.createElement('select'); ls.setAttribute('aria-label','Bloquear movimiento');
     [['','Libre (todas las direcciones)'],['v','Solo vertical ↑↓ (bloquea los costados)'],['h','Solo horizontal ←→ (bloquea arriba/abajo)']].forEach(([v,n])=>{const o=document.createElement('option');o.value=v;o.textContent=n;ls.appendChild(o)});

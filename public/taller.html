@@ -170,7 +170,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 26/11 · 12:24</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 26/11 · 12:31</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -2030,7 +2030,7 @@ function drawPupilaje(c,W,H,F){
 }
 /* ===== La Guapeada: pensión, diseño en dos columnas (sin recuadros), degradé oscuro y botón dorado ===== */
 function drawPensionB(c,W,H,F){
-  const TH=bzTh(), d=bzData(), M=Math.round(W*.078), sc0=W/1080, GOLD='#d9b45f', flat=!!S.bzFlat; c.textBaseline='alphabetic'; c.textAlign='left';
+  const TH=bzTh(), d=bzData(), M=Math.round(W*.07), sc0=W/1080, GOLD='#d9b45f', flat=!!S.bzFlat; c.textBaseline='alphabetic'; c.textAlign='left';
   const rs=(S.sz.bRows||100)/100, rN=(S.sz.pNm||100)/100, rD=(S.sz.pDs||100)/100, rB=(S.sz.pBl||100)/100, rT=(S.sz.bTitle||100)/100, rSv=(S.sz.bSv||100)/100;
   /* degradé oscuro (o fondo oscuro liso si no hay foto) */
   const gI=(S.sz.pgr==null?100:S.sz.pgr)/100;
@@ -2041,15 +2041,15 @@ function drawPensionB(c,W,H,F){
   const cta1=String(d.cta1||'').trim().toUpperCase(), wl=String(d.wl||'').trim().replace(/^https?:\/\//,''), cta2=String(d.cta2||'').trim()||wl, cta2id=String(d.cta2||'').trim()?'f-pCta2':'f-pWl';
   const ctaH=cta1?Math.round(112*sc0):0, subH=cta2?Math.round(44*sc0):0, ctaY=yEnd-ctaH-subH-(subH?10:0)-8;
   const cards=[[d.p1t,d.p1d,d.p1b],[d.p2t,d.p2d,d.p2b]];
-  const colW=(W-2*M-Math.round(64*sc0))/2, bulletsOf=t=>{ const bl=[]; String(t||'').split(/\r?\n/).forEach(x=>{ if(!x.trim()) return; if(/^\s/.test(x)&&bl.length) bl[bl.length-1]+='\n'+x.trim(); else bl.push(x.trim()); }); return bl; };
+  const colW=(W-2*M-Math.round(52*sc0))/2, bulletsOf=t=>{ const bl=[]; String(t||'').split(/\r?\n/).forEach(x=>{ if(!x.trim()) return; if(/^\s/.test(x)&&bl.length) bl[bl.length-1]+='\n'+x.trim(); else bl.push(x.trim()); }); return bl; };
   const tl=String(d.title||'').toUpperCase().trim(); let tLines=tl.includes('\n')?tl.split('\n'):(tl.includes(' ')?[tl.split(' ')[0],tl.split(' ').slice(1).join(' ')]:[tl]); tLines=tLines.map(x=>x.trim()).filter(Boolean);
   const meas=k=>{ const sc=sc0*k*rs; const o={sc,k}; o.tagSz=Math.round(28*sc); o.tagH=String(d.tag||'').trim()?o.tagSz*1.2+30*sc:0;
     let tSz=Math.round(118*sc*rT); if(tLines.length){ c.font=`900 ${tSz}px ${TH.font}`; const mw=Math.max(...tLines.map(l=>c.measureText(l).width)); if(mw>W-2*M) tSz=Math.floor(tSz*(W-2*M)/mw); } o.tSz=tSz; o.tH=tLines.length*tSz*.96+36*sc;
-    o.cols=cards.map(a=>{ const nm=String(a[0]||'').toUpperCase().trim(), dd=String(a[1]||'').replace(/[\n\r\u2028]+/g,' ').replace(/\s+/g,' ').trim(), bl=bulletsOf(a[2]); const nSz=46*sc*rN, dSz=33*sc*rD, bSz=29*sc*rB; let h=0, nS=nSz, dL=[], bL=[];
+    o.cols=cards.map(a=>{ const nm=String(a[0]||'').toUpperCase().trim(), dd=String(a[1]||'').replace(/[\n\r\u2028]+/g,' ').replace(/\s+/g,' ').trim(), bl=bulletsOf(a[2]); const nSz=46*sc*rN, dSz=33*sc*rD, bSz=29*sc*rB; let h=0, nS=nSz, dS=dSz, dL=[], bL=[];
       if(nm){ c.font=`900 ${nSz}px ${TH.font}`; bzLS(c,2); const w=c.measureText(nm).width; bzLS(c,0); nS=w>colW?nSz*colW/w:nSz; h+=nS*1.1+36*sc; }
-      if(dd){ c.font=`700 ${dSz}px ${TH.font}`; dL=wrapLines(c,dd,colW); h+=dL.length*dSz*1.26+22*sc; }
+      if(dd){ dS=dSz; for(let q=0;q<14;q++){ c.font=`700 ${dS}px ${TH.font}`; dL=wrapLines(c,dd,colW); if(dL.length<=2) break; dS*=.94; } h+=dL.length*dS*1.26+22*sc; }
       if(bl.length){ c.font=`500 ${bSz}px ${TH.font}`; bL=bl.map(l=>wrapLines(c,l,colW-bSz*1.2)); h+=bL.reduce((x,y)=>x+y.length,0)*bSz*1.28+(bl.length-1)*bSz*.42; }
-      return {nm,dd,bl,nS,dSz,bSz,dL,bL,h}; });
+      return {nm,dd,bl,nS,dSz:dS,bSz,dL,bL,h}; });
     o.colH=Math.max(...o.cols.map(x=>x.h)); const sv=String(d.sv||'').trim(); o.svSz=30*sc*rSv; o.svL=[]; if(sv){ c.font=`500 ${o.svSz}px ${TH.font}`; o.svL=sv.split(/\r?\n/).flatMap(l=>wrapLines(c,l,W-2*M)); }
     o.svH=o.svL.length?o.svL.length*o.svSz*1.4+60*sc:0; o.tot=o.tagH+o.tH+o.colH+(o.colH?44*sc:0)+o.svH; return o; };
   const avail=ctaY-y0-18; let o=meas(1.1); for(let k=1.1;k>=.35;k-=.03){ o=meas(k); if(o.tot<=avail) break; }
@@ -2061,9 +2061,9 @@ function drawPensionB(c,W,H,F){
   if(tLines.length){ const lh=o.tSz*.96; c.font=`900 ${o.tSz}px ${TH.font}`; c.save(); if(!flat){ c.shadowColor='rgba(0,0,0,.45)'; c.shadowBlur=24*(S.qNow||1); c.shadowOffsetY=5*(S.qNow||1); } tLines.forEach((l,i)=>{ c.fillStyle=i===0?WH:GOLD; c.fillText(l,M,y+o.tSz*.8+i*lh); }); c.restore();
     hitLines(c,'f-bTitle','Título',tLines,M,y+o.tSz*.8,o.tSz,lh,'left',false,{ctrls:[SZ('bTitle')]}); y+=o.tH; }
   /* dos columnas */
-  if(o.colH){ const cx=[M,M+colW+Math.round(64*sc0)];
+  if(o.colH){ const cx=[M,M+colW+Math.round(52*sc0)];
     o.cols.forEach((cl,ci)=>{ const x=cx[ci]; let yy=y; const idN='f-p'+(ci?'P2t':'P1t'), idD='f-p'+(ci?'P2d':'P1d'), idB='f-p'+(ci?'P2b':'P1b');
-      if(ci){ c.fillStyle='rgba(212,175,98,.42)'; c.fillRect(x-32*sc0-1,y,2,o.colH); }
+      if(ci){ c.fillStyle='rgba(212,175,98,.42)'; c.fillRect(x-26*sc0-1,y,2,o.colH); }
       if(cl.nm){ c.font=`900 ${cl.nS}px ${TH.font}`; bzLS(c,2); c.fillStyle=GOLD; c.fillText(cl.nm,x,yy+cl.nS*.86); bzLS(c,0); hitLines(c,idN,'Nombre de la modalidad',[cl.nm],x,yy+cl.nS*.86,cl.nS,cl.nS,'left',false,{ctrls:[{label:'Tamaño del nombre',o:S.sz,k:'pNm',min:50,max:220,step:5,unit:'%',def:100}]}); yy+=cl.nS*1.1; c.fillStyle=GOLD; c.fillRect(x,yy+8*sc,56*sc,Math.max(2,3*sc)); yy+=36*sc; }
       if(cl.dL.length){ c.font=`700 ${cl.dSz}px ${TH.font}`; c.fillStyle=WH; cl.dL.forEach((l,i)=>c.fillText(l,x,yy+cl.dSz*.9+i*cl.dSz*1.26)); hitLines(c,idD,'Descripción',cl.dL,x,yy+cl.dSz*.9,cl.dSz,cl.dSz*1.26,'left',false,{ctrls:[{label:'Tamaño de la descripción (lo blanco)',o:S.sz,k:'pDs',min:50,max:220,step:5,unit:'%',def:100}]}); yy+=cl.dL.length*cl.dSz*1.26+22*sc; }
       if(cl.bl.length){ const b0=yy, bs=cl.bSz; c.font=`500 ${bs}px ${TH.font}`; cl.bl.forEach((l,i)=>{ c.fillStyle=GOLD; c.fillRect(x,yy+bs*.64,bs*.6,Math.max(2,bs*.1)); c.fillStyle='rgba(255,255,255,.93)'; cl.bL[i].forEach((t,q)=>c.fillText(t,x+bs*1.2,yy+bs*.95+q*bs*1.28)); yy+=cl.bL[i].length*bs*1.28+bs*.42; });

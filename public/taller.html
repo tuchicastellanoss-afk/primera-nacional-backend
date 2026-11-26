@@ -170,7 +170,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 26/11 · 12:31</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 26/11 · 12:36</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -2033,7 +2033,7 @@ function drawPensionB(c,W,H,F){
   const TH=bzTh(), d=bzData(), M=Math.round(W*.07), sc0=W/1080, GOLD='#d9b45f', flat=!!S.bzFlat; c.textBaseline='alphabetic'; c.textAlign='left';
   const rs=(S.sz.bRows||100)/100, rN=(S.sz.pNm||100)/100, rD=(S.sz.pDs||100)/100, rB=(S.sz.pBl||100)/100, rT=(S.sz.bTitle||100)/100, rSv=(S.sz.bSv||100)/100;
   /* degradé oscuro (o fondo oscuro liso si no hay foto) */
-  const gI=(S.sz.pgr==null?100:S.sz.pgr)/100;
+  const gI=(S.sz.pgr==null?100:S.sz.pgr)/100*((S.red.ovk==null?100:S.red.ovk)/100);
   { c.save(); if(flat){ c.fillStyle='#0c140d'; c.fillRect(0,0,W,H); } else { const g=c.createLinearGradient(0,H*.2,0,H); g.addColorStop(0,'rgba(5,12,8,0)'); g.addColorStop(.3,'rgba(5,12,8,'+Math.min(1,.5*gI)+')'); g.addColorStop(.55,'rgba(5,12,8,'+Math.min(1,.78*gI)+')'); g.addColorStop(1,'rgba(5,12,8,'+Math.min(1,.92*gI)+')'); c.fillStyle=g; c.fillRect(0,H*.2,W,H*.8); } c.restore();
     hitBox('f-pgr','Degradé oscuro (para que se lea el texto)',0,H*.45,W,H*.55,false,{ctrls:[{label:'Intensidad del degradé',o:S.sz,k:'pgr',min:0,max:150,step:5,unit:'%',def:100}]}); }
   const TC=Object.assign({},TH,{cInk:'#ffffff',ink:'#ffffff',cAcc:GOLD}); const yEnd=bzContact(c,W,H,F,d,TC)-14; c.textAlign='left';

@@ -170,7 +170,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 26/11 · 13:18</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 27/11 · 15:40</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -1979,8 +1979,11 @@ function drawPromos(c,W,H,F){
 }
 /* ===== La Guapeada: pupilaje (pastoreo y pensión a box), sin valores ===== */
 const pgl=(c,fn)=>{ if(S.bzFlat){ fn(); return; } c.save(); c.shadowColor='rgba(0,0,0,.72)'; c.shadowBlur=16*(S.qNow||1); c.shadowOffsetY=2*(S.qNow||1); fn(); c.restore(); };
+/* La Guapeada: versión en inglés de las piezas de pensión (términos de la industria ecuestre) */
+const BZ_PEN_EN={tag:'YOUR HORSE, WELL CARED FOR',title:'HORSE BOARDING',sub:'Pasture board or stall board',p1t:'PASTURE BOARD',p1d:'Daily turnout in paddocks with alfalfa and rye grass',p1b:'Turned out by day, stabled at night\nOption of a private paddock for groups of 6+ horses',p2t:'STALL BOARD',p2d:'Stall at our facility',p2b:'Exercise track\nStick-and-ball (taqueo) field\nHot walker access\nDaily handling and care, kept separate',sv:'We can also arrange grooms, exercise and conditioning. If you prefer, you can work with your own groom.',cta1:'ASK FOR RATES ON WHATSAPP',cta2:''};
+function bzDL(){ const d0=bzData(); return (S.clLang==='en'&&d0.en)?Object.assign({},d0,d0.en):d0; }
 function drawPupilaje(c,W,H,F){
-  const TH=bzTh(), d=bzData(), M=70, rs=(S.sz.bRows||100)/100, rN=(S.sz.pNm||100)/100, rD=(S.sz.pDs||100)/100, rB=(S.sz.pBl||100)/100; c.textBaseline='alphabetic'; c.textAlign='center';
+  const TH=bzTh(), d=bzDL(), M=70, rs=(S.sz.bRows||100)/100, rN=(S.sz.pNm||100)/100, rD=(S.sz.pDs||100)/100, rB=(S.sz.pBl||100)/100; c.textBaseline='alphabetic'; c.textAlign='center';
   const yEnd=bzContact(c,W,H,F,d,TH)-24; let y=Math.max(F.top+58*2+40,(S.logoBot||0)+36); c.textAlign='center'; c.textBaseline='alphabetic';
   const tg=String(d.tag||'').trim().toUpperCase();
   if(tg){ const ft=fit(c,tg,TH.font,TH.bw,W-300,1,32,18,'bSub'); c.font=`${TH.bw} ${ft.size}px ${TH.font}`; const tw=c.measureText(tg).width+70; bzLS(c,7); pgl(c,()=>{ c.fillStyle=TH.acc; c.fillText(tg,W/2+3.5,y+ft.size); }); bzLS(c,0); hitBox('f-pTag','Etiqueta',(W-tw)/2,y,tw,ft.size*1.4,false,{ctrls:[SZ('bSub')]}); y+=ft.size*1.4+14; }
@@ -2030,7 +2033,7 @@ function drawPupilaje(c,W,H,F){
 }
 /* ===== La Guapeada: pensión, diseño en dos columnas (sin recuadros), degradé oscuro y botón dorado ===== */
 function drawPensionB(c,W,H,F){
-  const TH=bzTh(), d=bzData(), M=Math.round(W*.07), sc0=W/1080, GOLD='#d9b45f', flat=!!S.bzFlat; c.textBaseline='alphabetic'; c.textAlign='left';
+  const TH=bzTh(), d=bzDL(), M=Math.round(W*.07), sc0=W/1080, GOLD='#d9b45f', flat=!!S.bzFlat; c.textBaseline='alphabetic'; c.textAlign='left';
   const rs=(S.sz.bRows||100)/100, rN=(S.sz.pNm||100)/100, rD=(S.sz.pDs||100)/100, rB=(S.sz.pBl||100)/100, rT=(S.sz.bTitle||100)/100, rSv=(S.sz.bSv||100)/100;
   /* fondo: oscuro liso solo si no hay foto; con foto, cada texto lleva su propia sombra regulable */
   if(flat){ c.save(); c.fillStyle='#0c140d'; c.fillRect(0,0,W,H); c.restore(); }
@@ -2453,7 +2456,7 @@ async function clTranslate(d){ const en={}; en.tag=await poloTr(d.tag); en.title
 function clEnCopy(){ const d=bzData(), en=d.en||{}, bak={}; Object.keys(en).forEach(k=>{ bak[k]=d[k]; d[k]=en[k]; }); let t; try{ t=makeCopyAny('ig'); }finally{ Object.keys(bak).forEach(k=>{ d[k]=bak[k]; }); } return t.split('\n').map(l=>EN_FIX[l.trim()]||l).join('\n'); }
 async function clSaveBoth(){
   const msg=$('#dlmsg'), keep=S.clLang, files=[]; const d0=new Date(), ymd=`${d0.getFullYear()}${String(d0.getMonth()+1).padStart(2,'0')}${String(d0.getDate()).padStart(2,'0')}`, handle=(currentAccount().handle||'posteo').replace(/[^\w-]+/g,'');
-  for(const lg of ['es','en']){ S.clLang=lg; S.q=qFor(FORMATS[S.format].w,FORMATS[S.format].h); S.exporting=true; draw(); const blob=await new Promise(r=>cv.toBlob(r,'image/png')); S.exporting=false; if(blob) files.push(new File([blob],`${handle}-clases-${lg}-${S.format}-${ymd}.png`,{type:'image/png'})); }
+  for(const lg of ['es','en']){ S.clLang=lg; S.q=qFor(FORMATS[S.format].w,FORMATS[S.format].h); S.exporting=true; draw(); const blob=await new Promise(r=>cv.toBlob(r,'image/png')); S.exporting=false; if(blob) files.push(new File([blob],`${handle}-${S.tpl}-${lg}-${S.format}-${ymd}.png`,{type:'image/png'})); }
   S.clLang=keep; render(); if(files.length<2){ msg.textContent='No se pudieron generar las dos imágenes.'; return; }
   const touch=window.matchMedia&&matchMedia('(pointer:coarse)').matches;
   if(touch&&navigator.canShare&&navigator.canShare({files})){ try{ await navigator.share({files}); msg.textContent='Listo: elegí "Guardar imagen" (salen las dos).'; return; }catch(err){ if(err&&err.name==='AbortError'){ msg.textContent='Cancelaste.'; return; } } }
@@ -2646,6 +2649,12 @@ function buildBizUI(box){
     chk(w,'Mostrar el subrayado',d,'sw'); chk(w,'Mostrar la guía del recorte de la grilla (solo en la vista previa)',d,'guide'); chk(w,'Mostrar las chispas (solo con la foto del producto)',d,'sp');
     { const p=document.createElement('p'); p.className='hint'; p.textContent='La foto de la persona o del local va en "Foto de fondo" (formato Story 9:16). La foto del producto es opcional: tildá la opción de arriba, tocá "Elegir foto del producto" (o tocá el círculo en la imagen) y elegí una imagen de tu galería, mejor con fondo blanco. Tocá cualquier texto para editarlo; el subrayado y las chispas también se mueven. Usá "Mover elementos arrastrándolos" para moverlos. El color del cartel sale de "Colores de este diseño". La foto del producto no se guarda: si recargás, hay que volver a subirla.'; w.appendChild(p); }
   } else if(t==='pension'||t==='pension2'){
+    const en=S.clLang==='en', D=en?(d.en=d.en||Object.assign({},BZ_PEN_EN)):d, F=(id,l,k,m,r)=>bzField(w,'f-'+id,l,D[k],v=>{D[k]=v;},m,r);
+    { const lb=document.createElement('label'); lb.textContent='Idioma que se ve y se edita'; const sl=document.createElement('select'); [['es','Español'],['en','English']].forEach(([v,n])=>{ const o=document.createElement('option'); o.value=v; o.textContent=n; sl.appendChild(o); }); sl.value=en?'en':'es'; sl.onchange=()=>{ S.clLang=sl.value; if(sl.value==='en'&&!d.en) d.en=Object.assign({},BZ_PEN_EN); persist(); buildFields(); render(); }; lb.appendChild(sl); w.appendChild(lb);
+      const row=document.createElement('div'); row.style.cssText='display:flex;gap:6px;flex-wrap:wrap'; const st=document.createElement('p'); st.className='hint';
+      const b1=document.createElement('button'); b1.type='button'; b1.className='primary'; b1.id='penDl'; b1.textContent='Descargar esta imagen (PNG)'; b1.onclick=()=>download();
+      const b2=document.createElement('button'); b2.type='button'; b2.className='primary'; b2.id='penBoth'; b2.textContent='Descargar las dos (ES + EN)'; b2.onclick=async()=>{ if(!d.en) d.en=Object.assign({},BZ_PEN_EN); persist(); await clSaveBoth(); };
+      row.append(b1,b2); w.append(row,st); const h2=document.createElement('p'); h2.className='hint'; h2.textContent='El inglés viene armado con términos del mundo ecuestre (pasture board, stall board, hot walker, groom). Podés retocar cada texto.'; w.appendChild(h2); }
     F('pTag','Etiqueta','tag'); F('bTitle','Título','title'); F('bSub','Subtítulo','sub');
     F('pP1t','Modalidad 1: nombre','p1t'); F('pP1d','Modalidad 1: descripción','p1d',true,60); F('pP1b','Modalidad 1: puntos (uno por línea)','p1b',true,110);
     F('pP2t','Modalidad 2: nombre','p2t'); F('pP2d','Modalidad 2: descripción','p2d',true,60); F('pP2b','Modalidad 2: puntos (uno por línea)','p2b',true,110);

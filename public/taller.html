@@ -170,7 +170,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 27/11 · 15:40</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 27/11 · 23:30</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -331,6 +331,8 @@ const TEMPLATES = {
   noticia:{label:'Noticia',main:'crest',fields:[
     {k:'crest',l:'Escudo del club',t:'crest'},
     {k:'crest2',l:'Segundo escudo (opcional, queda al lado y del mismo tamaño)',t:'crest'},
+    {k:'crest3',l:'Tercer escudo (opcional)',t:'crest'},
+    {k:'crest4',l:'Cuarto escudo (opcional)',t:'crest'},
     {k:'tag',l:'Etiqueta (ej: ÚLTIMO MOMENTO, OFICIAL, CONFIRMADO)',t:'text'},
     {k:'headline',l:'Titular',t:'area'},
     {k:'sub',l:'Bajada',t:'area'},
@@ -853,8 +855,9 @@ function glowText(c,txt,x,y,color,blur){c.save();c.shadowColor='rgba(255,255,255
 
 function nzOpts(){ const R=S.red; if(!R.nz) R.nz={style:'ed',accC:'#e9c46a'}; return R.nz; }
 function nzShadow(c,fn){ c.save(); c.shadowColor='rgba(0,0,0,.6)'; c.shadowBlur=16*(S.qNow||1); c.shadowOffsetY=3; fn(); c.restore(); }
-function nzCrests(c,f,cx,bottom,bw,bh,gap,align){ const img=findCrest(f.crest), img2=(f.crest2||'').trim()?findCrest(f.crest2):null, q=(S.cs.crest||100)/100, w=bw*q, h=bh*q;
-  const L=[img,img2].filter(Boolean); if(!L.length) return; const tot=L.length*w+(L.length-1)*gap*q; let x=align==='left'?cx:cx-tot/2; L.forEach(im=>{ drawBox(c,im,x,bottom-h,w,h,'b'); x+=w+gap*q; }); }
+function nzList(f){ return ['crest','crest2','crest3','crest4'].map(k=>(String(f[k]||'').trim()?findCrest(f[k]):null)).filter(Boolean); }
+function nzCrests(c,f,cx,bottom,bw,bh,gap,align){ const q=(S.cs.crest||100)/100, L=nzList(f); if(!L.length) return; let w=bw*q, h=bh*q; const maxT=1080-130; if(L.length*w+(L.length-1)*gap*q>maxT){ const k=(maxT-(L.length-1)*gap*q)/(L.length*w); w*=k; h*=k; }
+  const tot=L.length*w+(L.length-1)*gap*q; let x=align==='left'?cx:cx-tot/2; L.forEach(im=>{ drawBox(c,im,x,bottom-h,w,h,'b'); x+=w+gap*q; }); }
 function drawNoticiaNew(c,W,H,F,st){
   const f=S.f, nz=nzOpts(), acc=nz.accC||'#e9c46a', M=64, maxW=W-2*M; let y=H-F.bottom; c.textBaseline='alphabetic';
   const src=String(f.src||'').trim().toUpperCase(), tag=String(f.tag||'').trim().toUpperCase(), sub=String(f.sub||'').trim(), head=String(f.headline||'').toUpperCase();
@@ -880,7 +883,7 @@ function drawNoticiaNew(c,W,H,F,st){
     y-=30; nzCrests(c,f,X,y,190,146,40,'left');
     return; }
   /* panel */
-  const PX=40, PW=W-80, pad=34, hasC=!!(String(f.crest||'').trim()||String(f.crest2||'').trim()), colW=hasC?250:0, X=PX+pad+(hasC?colW+34:0), mw=PX+PW-pad-X;
+  const PX=40, PW=W-80, pad=34, hasC=!!(String(f.crest||'').trim()||String(f.crest2||'').trim()||String(f.crest3||'').trim()||String(f.crest4||'').trim()), colW=hasC?250:0, X=PX+pad+(hasC?colW+34:0), mw=PX+PW-pad-X;
   const items=[]; let th=0; c.textAlign='left';
   const tf=tag?fit(c,tag,FN,700,mw,1,32,20,'tag'):null; if(tf) th+=tf.size+18;
   const hf=fit(c,head||' ',FN,700,mw,4,88,46,'headline'), hlh=hf.size*1.02; th+=hf.lines.length*hlh;
@@ -892,7 +895,7 @@ function drawNoticiaNew(c,W,H,F,st){
   ty+=hf.size*.8; c.font=`700 ${hf.size}px ${FN}`; c.fillStyle='#fff'; hf.lines.forEach((l,i)=>c.fillText(l,X,ty+i*hlh)); hitLines(c,'f-headline','Titular',hf.lines,X,ty,hf.size,hlh,'left',true,{ctrls:[SZ('headline')]}); ty+=(hf.lines.length-1)*hlh+hf.size*.2;
   if(sf){ ty+=16+sf.size*.8; c.font=`600 ${sf.size}px ${FD}`; c.fillStyle='rgba(235,235,235,.92)'; sf.lines.forEach((l,i)=>c.fillText(l,X,ty+i*slh)); hitLines(c,'f-sub','Bajada',sf.lines,X,ty,sf.size,slh,'left',true,{ctrls:[SZ('sub')]}); ty+=(sf.lines.length-1)*slh+sf.size*.2; }
   if(srf){ ty+=14+srf.size*.8; c.font=`600 ${srf.size}px ${FN}`; c.fillStyle='rgba(235,235,235,.6)'; c.fillText(srf.lines[0]||'',X,ty); hitLines(c,'f-src','Fuente',srf.lines,X,ty,srf.size,srf.size,'left',false,{ctrls:[SZ('src')]}); }
-  if(hasC){ const img=findCrest(f.crest), img2=(f.crest2||'').trim()?findCrest(f.crest2):null, L=[img,img2].filter(Boolean), q=(S.cs.crest||100)/100, cw=Math.min(colW,L.length>1?170:210)*q, chh=cw*.78, gap=24*q, tot=L.length*chh+(L.length-1)*gap; let cy0=pt+ph/2-tot/2; L.forEach(im=>{ drawBox(c,im,PX+pad+colW/2-cw/2,cy0,cw,chh,'b'); cy0+=chh+gap; }); E(c,'nzDiv',cc=>{ cc.fillStyle='rgba(255,255,255,.18)'; cc.fillRect(PX+pad+colW+14,pt+pad,2,ph-pad*2); hitBox('','Divisor',PX+pad+colW+8,pt+pad,14,ph-pad*2,false); }); }
+  if(hasC){ const L=nzList(f), q=(S.cs.crest||100)/100; let cw=Math.min(colW,L.length>2?120:L.length>1?170:210)*q, chh=cw*.78, gap=24*q, tot=L.length*chh+(L.length-1)*gap; const maxH=ph-pad*2; if(tot>maxH&&L.length){ const k=maxH/tot; cw*=k; chh*=k; gap*=k; tot=L.length*chh+(L.length-1)*gap; } let cy0=pt+ph/2-tot/2; L.forEach(im=>{ drawBox(c,im,PX+pad+colW/2-cw/2,cy0,cw,chh,'b'); cy0+=chh+gap; }); E(c,'nzDiv',cc=>{ cc.fillStyle='rgba(255,255,255,.18)'; cc.fillRect(PX+pad+colW+14,pt+pad,2,ph-pad*2); hitBox('','Divisor',PX+pad+colW+8,pt+pad,14,ph-pad*2,false); }); }
 }
 const tf0=t=>t?0:0;
 function drawNoticiaImp(c,W,H,F){ return drawNoticiaNew(c,W,H,F,'ed'); }
@@ -915,10 +918,7 @@ function drawNoticia(c,W,H,F){
   c.font=`700 ${hFit.size}px ${FD}`;
   hFit.lines.forEach((l,i)=>glowText(c,l,W/2,firstHead+i*hLH,'#fff',22));
   hitLines(c,'f-headline','Titular',hFit.lines,W/2,firstHead,hFit.size,hLH,'center',true,{ctrls:[SZ('headline')]});
-  const img=findCrest(f.crest), img2=(f.crest2||'').trim()?findCrest(f.crest2):null;
-  if(img||img2){const q=(S.cs.crest||100)/100, bottom=firstHead-hFit.size*.68-26, bw=260*q, bh=190*q;
-    if(img&&img2){ const gap=50*q, x0=W/2-bw-gap/2; drawBox(c,img,x0,bottom-bh,bw,bh,'b'); drawBox(c,img2,x0+bw+gap,bottom-bh,bw,bh,'b'); }
-    else drawBox(c,img||img2,W/2-bw/2,bottom-bh,bw,bh,'b'); }
+  { const L=nzList(f); if(L.length){ const q=(S.cs.crest||100)/100, bottom=firstHead-hFit.size*.68-26; let bw=260*q, bh=190*q, gap=L.length>1?50*q:0; const maxT=W-130; if(L.length*bw+(L.length-1)*gap>maxT){ const k=(maxT-(L.length-1)*gap)/(L.length*bw); bw*=k; bh*=k; } const tot=L.length*bw+(L.length-1)*gap; let x=W/2-tot/2; L.forEach(im=>{ drawBox(c,im,x,bottom-bh,bw,bh,'b'); x+=bw+gap; }); } }
 }
 function drawResultado(c,W,H,F){
   const f=S.f; c.textAlign='center'; c.textBaseline='alphabetic';
@@ -2536,7 +2536,7 @@ function makeCopyPN(kind){
   const tw=kind==='tw', a=currentAccount(), F=S.f, t=S.tpl, nz=x=>String(x||'').trim(), v=COPYV++, pick=arr=>arr[v%arr.length], clubs=[], addC=x=>{ const n=nz(x)&&nm(x); if(n&&!clubs.includes(n)) clubs.push(n); };
   const sent=x=>{ x=nz(x); return x?x.charAt(0)+(x===x.toUpperCase()?x.slice(1).toLowerCase():x.slice(1)):x; };
   let hook='', ctx=[], cta='';
-  if(t==='noticia'){ const H=nz(F.headline); hook=pick(['🚨 '+H,'📰 ÚLTIMO MOMENTO | '+H,'‼️ '+H]); if(nz(F.sub)) ctx.push(sent(F.sub)+'.'); addC(F.crest); addC(F.crest2);
+  if(t==='noticia'){ const H=nz(F.headline); hook=pick(['🚨 '+H,'📰 ÚLTIMO MOMENTO | '+H,'‼️ '+H]); if(nz(F.sub)) ctx.push(sent(F.sub)+'.'); addC(F.crest); addC(F.crest2); addC(F.crest3); addC(F.crest4);
     cta=pick(['¿Qué te parece? Te leemos en los comentarios 👇','Contanos qué opinás 👇 y compartilo con un hincha del club','Seguinos para enterarte de todo lo que pasa en el ascenso 📲']); }
   else if(t==='consigna'){ const q=nz(F.q); hook=pick(['❓ '+q,'🗳 VOTÁ: '+q,'🔥 '+q]); ctx=['🅰️ '+nz(F.a),'🅱️ '+nz(F.b)]; addC(F.a); addC(F.b); cta=nz(F.cta)||pick(['Comentá A o B 👇 ¿Con cuál te quedás?','Votá en los comentarios y etiquetá a un amigo que piense distinto 😏']); }
   else if(t==='cita'){ const q=nz(F.cqQuote).replace(/\*/g,''); hook='🗣️ '+(nz(F.cqName)?nz(F.cqName)+': ':'')+'“'+q+'”'; if(nz(F.cqRole)) ctx.push(nz(F.cqRole)+(nz(F.cqSrc)?' · '+nz(F.cqSrc):'')); addC(F.cqC1); addC(F.cqC2); cta=pick(['¿Estás de acuerdo? Te leemos en los comentarios 👇','¿Sí o no? Dejá tu opinión 👇','Contanos qué pensás en los comentarios 👇']); }

@@ -170,7 +170,7 @@ canvas{box-shadow:0 0 0 1px rgba(0,0,0,.08),0 10px 30px rgba(20,24,40,.18)}
 <button id="toTop" type="button" aria-label="Subir al menú de diseños">↑ Diseños</button>
 <div class="wrap">
   <div class="top">
-    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 27/11 · 23:30</small></h1>
+    <h1>Taller de Posteos <small class="hint" id="ver" style="font-size:11px;font-weight:400;font-family:var(--f-ui)">versión 27/11 · 23:40</small></h1>
     <div class="seg" id="accounts" role="group" aria-label="Cuenta"></div>
   </div>
 
@@ -855,9 +855,9 @@ function glowText(c,txt,x,y,color,blur){c.save();c.shadowColor='rgba(255,255,255
 
 function nzOpts(){ const R=S.red; if(!R.nz) R.nz={style:'ed',accC:'#e9c46a'}; return R.nz; }
 function nzShadow(c,fn){ c.save(); c.shadowColor='rgba(0,0,0,.6)'; c.shadowBlur=16*(S.qNow||1); c.shadowOffsetY=3; fn(); c.restore(); }
-function nzList(f){ return ['crest','crest2','crest3','crest4'].map(k=>(String(f[k]||'').trim()?findCrest(f[k]):null)).filter(Boolean); }
-function nzCrests(c,f,cx,bottom,bw,bh,gap,align){ const q=(S.cs.crest||100)/100, L=nzList(f); if(!L.length) return; let w=bw*q, h=bh*q; const maxT=1080-130; if(L.length*w+(L.length-1)*gap*q>maxT){ const k=(maxT-(L.length-1)*gap*q)/(L.length*w); w*=k; h*=k; }
-  const tot=L.length*w+(L.length-1)*gap*q; let x=align==='left'?cx:cx-tot/2; L.forEach(im=>{ drawBox(c,im,x,bottom-h,w,h,'b'); x+=w+gap*q; }); }
+function nzList(f){ const o=[]; ['crest','crest2','crest3','crest4'].forEach((k,i)=>{ const im=String(f[k]||'').trim()?findCrest(f[k]):null; if(im) o.push({im,m:(S.cs['cm'+(i+1)]||100)/100}); }); return o; }
+function nzCrests(c,f,cx,bottom,bw,bh,gap,align){ const q=(S.cs.crest||100)/100, L=nzList(f); if(!L.length) return; let w=bw*q, h=bh*q; const sm=L.reduce((a,x)=>a+x.m,0), maxT=1080-130; if(sm*w+(L.length-1)*gap*q>maxT){ const k=(maxT-(L.length-1)*gap*q)/(sm*w); w*=k; h*=k; }
+  const tot=sm*w+(L.length-1)*gap*q; let x=align==='left'?cx:cx-tot/2; L.forEach(it=>{ drawBox(c,it.im,x,bottom-h*it.m,w*it.m,h*it.m,'b'); x+=w*it.m+gap*q; }); }
 function drawNoticiaNew(c,W,H,F,st){
   const f=S.f, nz=nzOpts(), acc=nz.accC||'#e9c46a', M=64, maxW=W-2*M; let y=H-F.bottom; c.textBaseline='alphabetic';
   const src=String(f.src||'').trim().toUpperCase(), tag=String(f.tag||'').trim().toUpperCase(), sub=String(f.sub||'').trim(), head=String(f.headline||'').toUpperCase();
@@ -895,7 +895,7 @@ function drawNoticiaNew(c,W,H,F,st){
   ty+=hf.size*.8; c.font=`700 ${hf.size}px ${FN}`; c.fillStyle='#fff'; hf.lines.forEach((l,i)=>c.fillText(l,X,ty+i*hlh)); hitLines(c,'f-headline','Titular',hf.lines,X,ty,hf.size,hlh,'left',true,{ctrls:[SZ('headline')]}); ty+=(hf.lines.length-1)*hlh+hf.size*.2;
   if(sf){ ty+=16+sf.size*.8; c.font=`600 ${sf.size}px ${FD}`; c.fillStyle='rgba(235,235,235,.92)'; sf.lines.forEach((l,i)=>c.fillText(l,X,ty+i*slh)); hitLines(c,'f-sub','Bajada',sf.lines,X,ty,sf.size,slh,'left',true,{ctrls:[SZ('sub')]}); ty+=(sf.lines.length-1)*slh+sf.size*.2; }
   if(srf){ ty+=14+srf.size*.8; c.font=`600 ${srf.size}px ${FN}`; c.fillStyle='rgba(235,235,235,.6)'; c.fillText(srf.lines[0]||'',X,ty); hitLines(c,'f-src','Fuente',srf.lines,X,ty,srf.size,srf.size,'left',false,{ctrls:[SZ('src')]}); }
-  if(hasC){ const L=nzList(f), q=(S.cs.crest||100)/100; let cw=Math.min(colW,L.length>2?120:L.length>1?170:210)*q, chh=cw*.78, gap=24*q, tot=L.length*chh+(L.length-1)*gap; const maxH=ph-pad*2; if(tot>maxH&&L.length){ const k=maxH/tot; cw*=k; chh*=k; gap*=k; tot=L.length*chh+(L.length-1)*gap; } let cy0=pt+ph/2-tot/2; L.forEach(im=>{ drawBox(c,im,PX+pad+colW/2-cw/2,cy0,cw,chh,'b'); cy0+=chh+gap; }); E(c,'nzDiv',cc=>{ cc.fillStyle='rgba(255,255,255,.18)'; cc.fillRect(PX+pad+colW+14,pt+pad,2,ph-pad*2); hitBox('','Divisor',PX+pad+colW+8,pt+pad,14,ph-pad*2,false); }); }
+  if(hasC){ const L=nzList(f), q=(S.cs.crest||100)/100; let cw=Math.min(colW,L.length>2?120:L.length>1?170:210)*q, chh=cw*.78, gap=24*q; const sm=L.reduce((a,x)=>a+x.m,0); let tot=sm*chh+(L.length-1)*gap; const maxH=ph-pad*2; if(tot>maxH&&L.length){ const k=maxH/tot; cw*=k; chh*=k; gap*=k; tot=sm*chh+(L.length-1)*gap; } let cy0=pt+ph/2-tot/2; L.forEach(it=>{ const cw2=Math.min(cw*it.m,colW), ch2=chh*it.m; drawBox(c,it.im,PX+pad+colW/2-cw2/2,cy0,cw2,ch2,'b'); cy0+=ch2+gap; }); E(c,'nzDiv',cc=>{ cc.fillStyle='rgba(255,255,255,.18)'; cc.fillRect(PX+pad+colW+14,pt+pad,2,ph-pad*2); hitBox('','Divisor',PX+pad+colW+8,pt+pad,14,ph-pad*2,false); }); }
 }
 const tf0=t=>t?0:0;
 function drawNoticiaImp(c,W,H,F){ return drawNoticiaNew(c,W,H,F,'ed'); }
@@ -918,7 +918,7 @@ function drawNoticia(c,W,H,F){
   c.font=`700 ${hFit.size}px ${FD}`;
   hFit.lines.forEach((l,i)=>glowText(c,l,W/2,firstHead+i*hLH,'#fff',22));
   hitLines(c,'f-headline','Titular',hFit.lines,W/2,firstHead,hFit.size,hLH,'center',true,{ctrls:[SZ('headline')]});
-  { const L=nzList(f); if(L.length){ const q=(S.cs.crest||100)/100, bottom=firstHead-hFit.size*.68-26; let bw=260*q, bh=190*q, gap=L.length>1?50*q:0; const maxT=W-130; if(L.length*bw+(L.length-1)*gap>maxT){ const k=(maxT-(L.length-1)*gap)/(L.length*bw); bw*=k; bh*=k; } const tot=L.length*bw+(L.length-1)*gap; let x=W/2-tot/2; L.forEach(im=>{ drawBox(c,im,x,bottom-bh,bw,bh,'b'); x+=bw+gap; }); } }
+  { const L=nzList(f); if(L.length){ const q=(S.cs.crest||100)/100, bottom=firstHead-hFit.size*.68-26; let bw=260*q, bh=190*q, gap=L.length>1?50*q:0; const sm=L.reduce((a,x)=>a+x.m,0), maxT=W-130; if(sm*bw+(L.length-1)*gap>maxT){ const k=(maxT-(L.length-1)*gap)/(sm*bw); bw*=k; bh*=k; } const tot=sm*bw+(L.length-1)*gap; let x=W/2-tot/2; L.forEach(it=>{ drawBox(c,it.im,x,bottom-bh*it.m,bw*it.m,bh*it.m,'b'); x+=bw*it.m+gap; }); } }
 }
 function drawResultado(c,W,H,F){
   const f=S.f; c.textAlign='center'; c.textBaseline='alphabetic';
@@ -3278,7 +3278,8 @@ function buildFields00(){
     if(d.t==='crest'||d.k==='rows'){const st=document.createElement('div');st.id='st-'+d.k;st.className='hint stat';lab.appendChild(st);}
     box.appendChild(lab);
     if(SIZED.has(d.k)) ctl(box,'Tamaño del texto',S.sz,d.k,{min:30,max:200,step:5,unit:'%',def:100});
-    if(CRESTSZ.has(d.k)&&d.t==='crest') ctl(box,'Tamaño del escudo',S.cs,d.k,{min:40,max:200,step:5,unit:'%',def:100});
+    if(CRESTSZ.has(d.k)&&d.t==='crest') ctl(box,S.tpl==='noticia'?'Tamaño de todos los escudos':'Tamaño del escudo',S.cs,d.k,{min:40,max:200,step:5,unit:'%',def:100});
+    if(S.tpl==='noticia'&&/^crest[234]?$/.test(d.k)){ const n=d.k==='crest'?1:+d.k.slice(5); ctl(box,'Tamaño solo de este escudo ('+n+')',S.cs,'cm'+n,{min:40,max:220,step:5,unit:'%',def:100}); }
   });
   TEMPLATES[S.tpl].fields.filter(d=>d.t==='crest').forEach(d=>crestStatus(d.k));
   if(S.tpl==='noticia'){ const nz=nzOpts(), g=document.createElement('div'); g.className='webbox'; const h=document.createElement('h2'); h.textContent='Estilo de la noticia'; g.appendChild(h); const ch=document.createElement('div'); ch.className='chips'; [['ed','Editorial'],['clasico','Clásico']].forEach(([k,lb])=>{ const b=document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=lb; b.setAttribute('aria-pressed',(nz.style||'ed')===k); b.onclick=()=>{ nz.style=k; persist(); buildFields(); render(); }; ch.appendChild(b); }); g.appendChild(ch);
